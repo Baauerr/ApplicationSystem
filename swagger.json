@@ -1,0 +1,1572 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "description": "The Swagger Petstore demonstrates how the OpenAPI specification can be used to document RESTful APIs.\n",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "apiteam@swagger.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.11"
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  },
+  "servers": [
+    {
+      "url": "https://petstore3.swagger.io/api/v3"
+    }
+  ],
+  "tags": [
+    {
+      "name": "notification",
+      "description": "Everything about your Pets",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "documents",
+      "description": "Access to Petstore orders",
+      "externalDocs": {
+        "description": "Find out more about our store",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "education",
+      "description": "Access to Petstore orders",
+      "externalDocs": {
+        "description": "Find out more about our store",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "entrance",
+      "description": "Operations about user"
+    }
+  ],
+  "paths": {
+    "/document/passport": {
+      "delete": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Delete my passport",
+        "description": "Delete my passport",
+        "operationId": "DeleteMyPassport",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get my passport",
+        "description": "Get my passport",
+        "operationId": "getMyPasport",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Upload passport",
+        "description": "Upload passport",
+        "operationId": "uploadDocument",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/document/passport/{entrantId}": {
+      "delete": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Delete entrant's passport",
+        "description": "Delete entrant's passport",
+        "operationId": "DeleteEntrantPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get users's passport",
+        "description": "Get users's passport",
+        "operationId": "GetUserPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "upload users's passport",
+        "description": "upload users's passport",
+        "operationId": "UploadUserPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/document/education": {
+      "delete": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Delete my education document",
+        "description": "Delete my education document",
+        "operationId": "DeleteMyEducationDocument",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get my education document",
+        "description": "Get my education document",
+        "operationId": "getMyEducation",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Upload my education document",
+        "description": "Upload  my education document",
+        "operationId": "uploadEducationDocument",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/document/education/{entrantId}": {
+      "delete": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Delete entrant's education document",
+        "description": "Delete entrant's education document",
+        "operationId": "DeleteEntrantEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Get entrant's education document",
+        "description": "Get entrant's education document",
+        "operationId": "GetUserEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "upload entrant's education document",
+        "description": "upload entrant's education document",
+        "operationId": "UploadEntrantEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/create": {
+      "post": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Create an application for entrance to the university",
+        "description": "Create an application for entrance to the university",
+        "operationId": "createEntrance",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{applicationId}/status": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Change entrance status",
+        "description": "Change entrance status",
+        "operationId": "changeStatus",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{applicationId}/setManager": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Set manager for entrance",
+        "description": "Set manager for entrance",
+        "operationId": "setManager",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{applicationId}/deleteManager": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Delete manager from entrance",
+        "description": "Delete manager from entrance",
+        "operationId": "deleteManager",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/applications": {
+      "get": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Get list of applications",
+        "description": "Get list of applications",
+        "operationId": "listOfApplications",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/import": {
+      "post": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Import dictionaries from external service",
+        "description": "Import dictionaries from external service",
+        "operationId": "dictionaryImport",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/educationLevel": {
+      "get": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Get education levels",
+        "description": "Get education levels",
+        "operationId": "educationLevel",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/documentTypes": {
+      "get": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Get document types",
+        "description": "Get document types",
+        "operationId": "documentTypes",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/faculties": {
+      "get": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Get faculties",
+        "description": "Get faculties",
+        "operationId": "faculties",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/programs": {
+      "get": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Get programs",
+        "description": "Get programs",
+        "operationId": "programs",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/import/status": {
+      "get": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Get import status",
+        "description": "Get import status",
+        "operationId": "importStatus",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/notification/send": {
+      "post": {
+        "tags": [
+          "notification"
+        ],
+        "summary": "Send notification to user",
+        "description": "Send notification to user",
+        "operationId": "sendNotification",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/user/login": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Login user",
+        "description": "",
+        "operationId": "loginUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Order"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "calls per hour allowed by the user",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "date in UTC when token expires",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        }
+      }
+    },
+    "/user/registration": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Register new user",
+        "description": "",
+        "operationId": "registerUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Order"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "calls per hour allowed by the user",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "date in UTC when token expires",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        }
+      }
+    },
+    "/user/logout": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Logs out current logged in user session",
+        "description": "",
+        "operationId": "logoutUser",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/user/editProfile": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Edit my profile",
+        "description": "",
+        "operationId": "editMyProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Order"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "calls per hour allowed by the user",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "date in UTC when token expires",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        }
+      }
+    },
+    "/user/editProfile/{userId}": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Edit user profile",
+        "description": "",
+        "operationId": "editUserProfile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Order"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "calls per hour allowed by the user",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "date in UTC when token expires",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        }
+      }
+    },
+    "/user/getRoles": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get my roles",
+        "description": "Get my roles",
+        "operationId": "getMyRoles",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "calls per hour allowed by the user",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "date in UTC when token expires",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        }
+      }
+    },
+    "/user/changePassword": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Change password",
+        "description": "",
+        "operationId": "changePassowrd",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "calls per hour allowed by the user",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "date in UTC when token expires",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "petId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 198772
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "example": 7
+          },
+          "shipDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "description": "Order Status",
+            "example": "approved",
+            "enum": [
+              "placed",
+              "approved",
+              "delivered"
+            ]
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        },
+        "xml": {
+          "name": "order"
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 100000
+          },
+          "username": {
+            "type": "string",
+            "example": "fehguy"
+          },
+          "address": {
+            "type": "array",
+            "xml": {
+              "name": "addresses",
+              "wrapped": true
+            },
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          }
+        },
+        "xml": {
+          "name": "customer"
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string",
+            "example": "437 Lytton"
+          },
+          "city": {
+            "type": "string",
+            "example": "Palo Alto"
+          },
+          "state": {
+            "type": "string",
+            "example": "CA"
+          },
+          "zip": {
+            "type": "string",
+            "example": "94301"
+          }
+        },
+        "xml": {
+          "name": "address"
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Dogs"
+          }
+        },
+        "xml": {
+          "name": "category"
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "username": {
+            "type": "string",
+            "example": "theUser"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "James"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@email.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "12345"
+          },
+          "phone": {
+            "type": "string",
+            "example": "12345"
+          },
+          "userStatus": {
+            "type": "integer",
+            "description": "User Status",
+            "format": "int32",
+            "example": 1
+          }
+        },
+        "xml": {
+          "name": "user"
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "tag"
+        }
+      },
+      "Pet": {
+        "required": [
+          "name",
+          "photoUrls"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "name": {
+            "type": "string",
+            "example": "doggie"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "photoUrls": {
+            "type": "array",
+            "xml": {
+              "wrapped": true
+            },
+            "items": {
+              "type": "string",
+              "xml": {
+                "name": "photoUrl"
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "xml": {
+              "wrapped": true
+            },
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "pet status in the store",
+            "enum": [
+              "available",
+              "pending",
+              "sold"
+            ]
+          }
+        },
+        "xml": {
+          "name": "pet"
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "##default"
+        }
+      }
+    },
+    "requestBodies": {
+      "Pet": {
+        "description": "Pet object that needs to be added to the store",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Pet"
+            }
+          },
+          "application/xml": {
+            "schema": {
+              "$ref": "#/components/schemas/Pet"
+            }
+          }
+        }
+      },
+      "UserArray": {
+        "description": "List of user object",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "petstore_auth": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://petstore3.swagger.io/oauth/authorize",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          }
+        }
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      }
+    }
+  }
+}
