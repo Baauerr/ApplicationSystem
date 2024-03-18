@@ -36,14 +36,26 @@
     }
   ],
   "paths": {
-    "/document/passport": {
+    "/document/passport/{entrantId}": {
       "delete": {
         "tags": [
           "documents"
         ],
-        "summary": "Delete my passport",
-        "description": "Delete my passport",
-        "operationId": "DeleteMyPassport",
+        "summary": "Delete entrant's passport",
+        "description": "Delete entrant's passport",
+        "operationId": "DeleteEntrantPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation"
@@ -71,9 +83,21 @@
         "tags": [
           "documents"
         ],
-        "summary": "Get my passport",
-        "description": "Get my passport",
-        "operationId": "getMyPasport",
+        "summary": "Get users's passport",
+        "description": "Get users's passport",
+        "operationId": "GetUserPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -108,9 +132,21 @@
         "tags": [
           "documents"
         ],
-        "summary": "Upload passport",
-        "description": "Upload passport",
-        "operationId": "uploadDocument",
+        "summary": "upload users's passport",
+        "description": "Upload users's passport",
+        "operationId": "UploadUserPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -148,9 +184,21 @@
         "tags": [
           "documents"
         ],
-        "summary": "Update my document",
-        "description": "Update my document",
-        "operationId": "updateMyDocument",
+        "summary": "Update entrant's passport",
+        "description": "Update entrant's passport",
+        "operationId": "UpdateEntrantPassport",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -185,14 +233,26 @@
         ]
       }
     },
-    "/document/education": {
+    "/document/education/{entrantId}": {
       "delete": {
         "tags": [
           "documents"
         ],
-        "summary": "Delete my education document",
-        "description": "Delete my education document",
-        "operationId": "DeleteMyEducationDocument",
+        "summary": "Delete entrant's education document",
+        "description": "Delete entrant's education document",
+        "operationId": "DeleteEntrantEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation"
@@ -220,9 +280,21 @@
         "tags": [
           "documents"
         ],
-        "summary": "Get my education document",
-        "description": "Get my education document",
-        "operationId": "getMyEducation",
+        "summary": "Get entrant's education document",
+        "description": "Get entrant's education document",
+        "operationId": "GetUserEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -257,9 +329,21 @@
         "tags": [
           "documents"
         ],
-        "summary": "Upload my education document",
-        "description": "Upload  my education document",
-        "operationId": "uploadEducationDocument",
+        "summary": "upload entrant's education document",
+        "description": "upload entrant's education document",
+        "operationId": "UploadEntrantEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -299,7 +383,19 @@
         ],
         "summary": "Update education document",
         "description": "Update education document",
-        "operationId": "UpdateEducationDocument",
+        "operationId": "updateUserEducationDocument",
+        "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of the entrant",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -334,15 +430,25 @@
         ]
       }
     },
-    "/document/{type}": {
+    "/document/{type}/{entrantId}": {
       "delete": {
         "tags": [
           "documents"
         ],
-        "summary": "Delete my scan",
-        "description": "Delete my scan",
-        "operationId": "deleteMyScanOfDocument",
+        "summary": "Delete entrant's scan",
+        "description": "Delete entrant's scan",
+        "operationId": "deleteScanOfDocument",
         "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
           {
             "name": "type",
             "in": "path",
@@ -384,10 +490,20 @@
         "tags": [
           "documents"
         ],
-        "summary": "Download my scan",
-        "description": "Download my scan",
-        "operationId": "getMyScanOfDocument",
+        "summary": "Download entrant's scan",
+        "description": "Download entrant's scan",
+        "operationId": "getScanOfDocument",
         "parameters": [
+          {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
           {
             "name": "type",
             "in": "path",
@@ -436,9 +552,9 @@
         "tags": [
           "documents"
         ],
-        "summary": "Upload my scan",
-        "description": "Upload my scan",
-        "operationId": "uploadMyScanOfDocument",
+        "summary": "Upload entrant's scan",
+        "description": "Upload entrant's scan",
+        "operationId": "uploadScanOfDocument",
         "requestBody": {
           "required": true,
           "content": {
@@ -451,6 +567,16 @@
         },
         "parameters": [
           {
+            "name": "entrantId",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          {
             "name": "type",
             "in": "path",
             "description": "ID of user",
@@ -458,54 +584,12 @@
             "schema": {
               "type": "string",
               "enum": [
-                "passpord",
+                "passport",
                 "education"
               ]
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Pet not found"
-          },
-          "422": {
-            "description": "Validation exception"
-          }
-        },
-        "security": [
-          {
-            "Bearer": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
-    "/entrance/create": {
-      "post": {
-        "tags": [
-          "entrance"
-        ],
-        "summary": "Create an application for entrance to the university",
-        "description": "Create an application for entrance to the university",
-        "operationId": "createEntrance",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApplicationProgramList"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Successful operation"
@@ -714,24 +798,220 @@
         ]
       }
     },
-    "/entrance/application": {
-      "get": {
+    "/entrance/{applicationId}/status": {
+      "put": {
         "tags": [
           "entrance"
         ],
-        "summary": "Get my applications",
-        "description": "Get my applications",
-        "operationId": "getApplication",
+        "summary": "Change entrance status",
+        "description": "Change entrance status",
+        "operationId": "changeStatus",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          {
+            "name": "applicationId",
+            "in": "query",
+            "description": "status of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "На рассмотрении",
+                "Подтверждено",
+                "Отклонено",
+                "Закрыто"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetApplicationList"
-                }
-              }
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{applicationId}/setManager": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Set manager for entrance",
+        "description": "Set manager for entrance",
+        "operationId": "setManager",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{applicationId}/deleteManager": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Delete manager from entrance",
+        "description": "Delete manager from entrance",
+        "operationId": "deleteManager",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{userId}/setMainManager": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Give user main manager role",
+        "description": "Give user main manager role",
+        "operationId": "createMainManager",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/{userId}/deleteMainManager": {
+      "put": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Take the main manager role from the user",
+        "description": "Take the main manager role from the user",
+        "operationId": "deleteMainManager",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           },
           "400": {
             "description": "Invalid ID supplied"
@@ -783,6 +1063,158 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/application/management": {
+      "get": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Get applications for managers",
+        "description": "Get applications for managers",
+        "operationId": "getListOfApplication",
+        "parameters": [
+          {
+            "name": "availability",
+            "in": "query",
+            "description": "have manager or not",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                "available",
+                "reserved"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetApplicationList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/entrant/list": {
+      "get": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Get list of entrants",
+        "description": "Get a list of entrants",
+        "operationId": "getListOfUsers",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetEntrantList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/entrance/manager/list": {
+      "get": {
+        "tags": [
+          "entrance"
+        ],
+        "summary": "Get list of managers",
+        "description": "Get a list of managers",
+        "operationId": "getListOfManagers",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetManagerList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/import": {
+      "post": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Import dictionaries from external service",
+        "description": "Import dictionaries from external service",
+        "operationId": "dictionaryImport",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
           },
           "400": {
             "description": "Invalid ID supplied"
@@ -988,7 +1420,7 @@
               "enum": [
                 "Очная",
                 "Заочная",
-                "Очно-заочная"
+                "Вечерняя"
               ]
             }
           },
@@ -1024,6 +1456,45 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Program"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/education/import/status": {
+      "get": {
+        "tags": [
+          "education"
+        ],
+        "summary": "Get import status",
+        "description": "Get import status",
+        "operationId": "importStatus",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportStatuses"
                 }
               }
             }
@@ -1103,19 +1574,55 @@
         }
       }
     },
-    "/user/registration": {
+    "/user/logout": {
       "post": {
         "tags": [
           "user"
         ],
-        "summary": "Register new user",
+        "summary": "Logs out current logged in user session",
         "description": "",
-        "operationId": "registerUser",
+        "operationId": "logoutUser",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/user/profile/entrant/{userId}": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Edit user profile",
+        "description": "",
+        "operationId": "editUserProfile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Registration"
+                "$ref": "#/components/schemas/EditProfile"
               }
             }
           }
@@ -1155,21 +1662,48 @@
           "400": {
             "description": "Invalid username/password supplied"
           }
-        }
-      }
-    },
-    "/user/logout": {
-      "post": {
+        },
+        "security": [
+          {
+            "Bearer": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      },
+      "get": {
         "tags": [
           "user"
         ],
-        "summary": "Logs out current logged in user session",
+        "summary": "Get user profile",
         "description": "",
-        "operationId": "logoutUser",
-        "parameters": [],
+        "operationId": "getUserProfile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of entrance",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": "successful operation"
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
           }
         },
         "security": [
@@ -1571,25 +2105,6 @@
           "$ref": "#/components/schemas/GetApplication"
         }
       },
-      "CreateApplication": {
-        "type": "object",
-        "properties": {
-          "programId": {
-            "type": "string",
-            "format": "uuid",
-            "example": "550e8400-e29b-41d4-a716-446655440001"
-          },
-          "priority": {
-            "type": "integer"
-          }
-        }
-      },
-      "ApplicationProgramList": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/CreateApplication"
-        }
-      },
       "FacultyList": {
         "type": "array",
         "items": {
@@ -1649,6 +2164,19 @@
           "$ref": "#/components/schemas/DocumentTypes"
         }
       },
+      "ImportStatuses": {
+        "type": "object",
+        "properties": {
+          "Status": {
+            "type": "string",
+            "enum": [
+              "inProcess",
+              "done",
+              "error"
+            ]
+          }
+        }
+      },
       "GetUser": {
         "type": "object",
         "properties": {
@@ -1687,9 +2215,14 @@
           }
         }
       },
-      "Registration": {
+      "GetManager": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
           "firstName": {
             "type": "string",
             "example": "John"
@@ -1706,17 +2239,9 @@
             "type": "string",
             "example": "john@email.com"
           },
-          "password": {
-            "type": "string",
-            "example": "12345"
-          },
-          "confirmPassword": {
-            "type": "string",
-            "example": "12345"
-          },
           "phone": {
             "type": "string",
-            "example": "88005553535"
+            "example": "12345"
           },
           "citizenship": {
             "type": "string",
@@ -1725,7 +2250,34 @@
           "gender": {
             "type": "string",
             "example": "male"
+          },
+          "applicationsId": {
+            "type": "array",
+            "items": {
+              "format": "uuid",
+              "example": [
+                "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              ]
+            }
+          },
+          "role": {
+            "type": "string",
+            "format": "string",
+            "example": "mainManager"
           }
+        }
+      },
+      "GetEntrantList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/GetUser"
+        }
+      },
+      "GetManagerList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/GetManager"
         }
       },
       "Login": {
