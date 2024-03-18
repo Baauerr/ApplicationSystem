@@ -799,7 +799,7 @@
       }
     },
     "/entrance/{applicationId}/status": {
-      "put": {
+      "patch": {
         "tags": [
           "entrance"
         ],
