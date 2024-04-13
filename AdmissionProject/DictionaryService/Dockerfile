@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["UserService.Common/UserService.Common.csproj", "UserService.Common/"]
-RUN dotnet restore "UserService.Common/UserService.Common.csproj"
+COPY ["DictionaryService/DictionaryService.csproj", "DictionaryService/"]
+RUN dotnet restore "DictionaryService/DictionaryService.csproj"
 COPY . .
-WORKDIR "/src/UserService.Common"
-RUN dotnet build "UserService.Common.csproj" -c Release -o /app/build
+WORKDIR "/src/DictionaryService"
+RUN dotnet build "DictionaryService.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "UserService.Common.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "DictionaryService.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "UserService.Common.dll"]
+ENTRYPOINT ["dotnet", "DictionaryService.dll"]
