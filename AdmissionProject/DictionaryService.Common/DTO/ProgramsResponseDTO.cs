@@ -1,4 +1,5 @@
-﻿using DictionaryService.DAL.Entities;
+﻿using DictionaryService.Common.Enums;
+using DictionaryService.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,11 @@ namespace DictionaryService.Common.DTO
     {
         public string Name;
         public string Code;
-        public string Language;
+        public Language Language;
         public string EducationForm;
         public Faculty Faculty;
         public EducationLevel EducationLevel;
-        public Guid Id;
+        public string Id;
         public DateTime CreateTime;
     }
     public class Pagination

@@ -1,5 +1,7 @@
-﻿using DictionaryService.BL.Services;
+﻿using DictionaryService.BL.Mapper;
+using DictionaryService.BL.Services;
 using DictionaryService.Common.Interfaces;
+using Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,8 +13,7 @@ public static class DictionaryServiceConfig
             <IDictionaryInfoService, DictionaryInfoService>();
         builder.Services.AddScoped
             <IImportService, ImportService>();
-    //    builder.Services.AddScoped<UserRepository>();
-    //    builder.Services.AddAutoMapper(typeof(UserMapper));
-   //     builder.Services.AddTransient<ExceptionsHandler>();
+        builder.Services.AddAutoMapper(typeof(DictionaryMapper));
+        builder.Services.AddTransient<ExceptionsHandler>();
     }
 }

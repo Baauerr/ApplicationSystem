@@ -9,13 +9,13 @@ namespace DictionaryService.BL.Mapper
     {
         public DictionaryMapper() {
             CreateMap<DocumentTypeDTO, DocumentType>()
-                .ForMember(dest => dest.NextEducationLevelId, opt => opt.MapFrom(src => src.NextEducationLevels.Select(x => x.Id)))
-                .ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevel.Id));
-            CreateMap<EducationLevelResponseDTO, EducationLevel>();
-            CreateMap<FacultiesResponseDTO, Faculty>();
+                .ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevel.Id))
+                .ForMember(dest => dest.NextEducationLevels, opt => opt.Ignore());
             CreateMap<ProgramsDTO, Program>()
                 .ForMember(dest => dest.FacultyId, opt => opt.MapFrom(src => src.Faculty.Id))
                 .ForMember(dest => dest.EducationLevelId, opt => opt.MapFrom(src => src.EducationLevel.Id));
+            CreateMap<Faculty, FacultiesResponseDTO>();
+            CreateMap<EducationLevel, EducationLevelResponseDTO>();
         }
     }
 }

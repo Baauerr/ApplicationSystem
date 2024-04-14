@@ -8,10 +8,10 @@ namespace DictionaryService.DAL.Entities
 {
     public class DocumentType
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public DateTime CreateTime { get; set; }
         public string Name { get; set; }
-        public Guid EducationLevelId { get; set; }
-        public List<Guid> NextEducationLevelId { get; set; }
+        public string EducationLevelId { get; set; }
+        public ICollection<NextEducationLevel> NextEducationLevels { get; set; }
     }
 }

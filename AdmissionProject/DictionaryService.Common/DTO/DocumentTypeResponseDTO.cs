@@ -16,7 +16,7 @@ namespace DictionaryService.Common.DTO
         public string Name;
         public EducationLevel EducationLevel;
         public List<EducationLevel> NextEducationLevels;
-        public Guid Id;
+        public string Id;
         public DateTime CreateTime;
     }
 }

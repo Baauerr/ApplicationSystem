@@ -12,5 +12,6 @@
   </ItemGroup>   
   <ItemGroup>
     <ProjectReference Include="..\DictionaryService.Common\DictionaryService.Common.csproj" />
+	<ProjectReference Include="..\Exceptions\Exceptions.csproj" />
   </ItemGroup>
 </Project>
