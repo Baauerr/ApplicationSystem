@@ -1,7 +1,9 @@
+using DictionaryService.Configuration;
 using DictionaryService.DAL;
 using DictionaryService.DAL.Configuration;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
+using static Common.BannedToken.RedisConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.ConfigureDictionaryDb();
 builder.ConfigureDictionaryServices();
+builder.configureJWTAuth();
+builder.ConfigureRedisDb();
 builder.Services.AddHttpClient();
+builder.ConfigureSwagger();
 
 var app = builder.Build();
 
@@ -26,11 +31,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.ConfigureExceptionHandler();
+//app.ConfigureExceptionHandler();
+app.UseAuthentication();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

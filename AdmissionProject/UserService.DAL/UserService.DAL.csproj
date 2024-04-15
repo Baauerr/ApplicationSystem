@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Exceptions\Exceptions.csproj" />
     <ProjectReference Include="..\UserService.Common\UserService.Common.csproj" />
+	  <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 	
 

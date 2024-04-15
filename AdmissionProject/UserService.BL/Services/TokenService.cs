@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using UserService.BL.Configuration;
 using UserService.Common.DTO.Auth;
+using UserService.Common.Enum;
 using UserService.Common.Interfaces;
 using UserService.DAL;
 using UserService.DAL.Entity;
@@ -26,9 +27,13 @@ namespace UserService.BL.Services
             _configuration = configuration;
 
         }
-        private string GenerateToken(Guid? id, double expirationTime)
+        private async Task<string> GenerateToken(Guid? id, double expirationTime)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
+
+            var user =  await _userManager.FindByIdAsync(id.ToString());
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -38,7 +43,7 @@ namespace UserService.BL.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                 new Claim(ClaimTypes.NameIdentifier, id.ToString())
-                }),
+                }.Concat(roles.Select(role => new Claim(ClaimTypes.Role, role)))),
                 //ISSUER, AUDIENCE
             };
 
@@ -46,13 +51,13 @@ namespace UserService.BL.Services
 
             return tokenHandler.WriteToken(token);
         }
-        public string GenerateAccessToken(Guid? id)
+        public async Task<string> GenerateAccessToken(Guid? id)
         {
-            return GenerateToken(id, _tokenInfo.AccessTokenExpiration.TotalMinutes);
+            return await GenerateToken(id, _tokenInfo.AccessTokenExpiration.TotalMinutes);
         }
-        public RefreshTokenDTO GenerateRefreshToken(Guid id)
+        public async Task<RefreshTokenDTO> GenerateRefreshToken(Guid id)
         {
-            var Token = GenerateToken(id, _tokenInfo.RefreshTokenExpiration.TotalDays);
+            var Token = await GenerateToken(id, _tokenInfo.RefreshTokenExpiration.TotalDays);
             var expiration = DateTime.UtcNow.AddMinutes(_tokenInfo.RefreshTokenExpiration.TotalMinutes);
 
             var refreshToken = new RefreshTokenDTO
@@ -131,7 +136,7 @@ namespace UserService.BL.Services
             }
             var newToken = new RefreshedToken
             {
-                AccessToken = GenerateAccessToken(userId)
+                AccessToken = await GenerateAccessToken(userId)
             };
 
             return newToken;

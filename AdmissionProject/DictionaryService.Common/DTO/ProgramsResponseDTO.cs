@@ -11,25 +11,25 @@ namespace DictionaryService.Common.DTO
 
     public class ProgramResponseDTO
     {
-        public List<ProgramsDTO> programs;
-        public Pagination pagination;
+        public List<ProgramsDTO> programs { get; set; }
+        public Pagination pagination { get; set; }
     }
 
     public class ProgramsDTO
     {
-        public string Name;
-        public string Code;
-        public Language Language;
-        public string EducationForm;
-        public Faculty Faculty;
-        public EducationLevel EducationLevel;
-        public string Id;
-        public DateTime CreateTime;
+        public string Name { get; set; }
+        public string Code { get; set; }
+        public Language Language { get; set; }
+        public string EducationForm { get; set; }
+        public Faculty Faculty { get; set; }
+        public EducationLevelDTO EducationLevel { get; set; }
+        public string Id { get; set; }
+        public DateTime CreateTime { get; set; }
     }
     public class Pagination
     {
-        public int size;
-        public int count;
-        public int current;
+        public int size { get; set; }
+        public int count { get; set; }
+        public int current { get; set; }
     }
 }

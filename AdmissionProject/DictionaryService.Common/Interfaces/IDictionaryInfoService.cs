@@ -21,7 +21,7 @@ namespace DictionaryService.Common.Interfaces
             int pageSize = 10
             );
         public Task<FacultiesResponseDTO> GetFaculties(string? facultyName);
-        public Task<DocumentTypeDTO> GetDocumentTypes(string? documentTypeName);
+        public Task<DocumentTypeResponseDTO> GetDocumentTypes(string? documentTypeName);
         public Task<EducationLevelResponseDTO> GetEducationLevel(string? educationLevelName);
     }
 }

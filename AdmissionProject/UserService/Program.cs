@@ -7,6 +7,7 @@ using UserService.Configuration;
 using UserService.DAL;
 using UserService.DAL.Configuration;
 using UserService.DAL.Entity;
+using static Common.BannedToken.RedisConfig;
 
 
 var builder = WebApplication.CreateBuilder(args);

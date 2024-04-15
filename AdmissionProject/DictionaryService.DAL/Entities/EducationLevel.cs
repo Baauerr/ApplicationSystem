@@ -7,6 +7,5 @@ namespace DictionaryService.DAL.Entities
         [Key]
         public string Id { get; set; }
         public string Name { get; set; }
-        public ICollection<NextEducationLevel> DocumentTypes { get; set; }
     }
 }

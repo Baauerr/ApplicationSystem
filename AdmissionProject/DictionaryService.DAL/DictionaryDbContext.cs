@@ -8,6 +8,7 @@ namespace DictionaryService.DAL
         public DictionaryDbContext(DbContextOptions<DictionaryDbContext> options) : base(options) { }
         public DbSet<DocumentType> DocumentTypes { get; set; }
         public DbSet<EducationLevel> EducationLevels { get; set; }
+        public DbSet<NextEducationLevel> NextEducationLevelDocuments { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Program> Programs { get; set; }
         public DbSet<ImportHistory> ImportHistory { get; set; }
@@ -16,15 +17,6 @@ namespace DictionaryService.DAL
 
             modelBuilder.Entity<NextEducationLevel>()
                 .HasKey(e => new { e.EducationLevelId, e.DocumentTypeId });
-            modelBuilder.Entity<NextEducationLevel>()
-                .HasOne(e => e.DocumentTypes)
-                .WithMany(e => e.NextEducationLevels)
-                .HasForeignKey(e => e.DocumentTypeId);
-
-            modelBuilder.Entity<NextEducationLevel>()
-                .HasOne(e => e.EducationLevels)
-                .WithMany(e => e.DocumentTypes)
-                .HasForeignKey(e => e.EducationLevelId);
 
             modelBuilder.Entity<EducationLevel>()
                 .HasKey(e => e.Id);

@@ -3,6 +3,7 @@ using System;
 using DictionaryService.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DictionaryService.DAL.Migrations
 {
     [DbContext(typeof(DictionaryDbContext))]
-    partial class DictionaryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240415100913_addNextLevel")]
+    partial class addNextLevel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,10 +116,6 @@ namespace DictionaryService.DAL.Migrations
                     b.Property<string>("DocumentTypeId")
                         .HasColumnType("text");
 
-                    b.Property<string>("EducationLevelName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("EducationLevelId", "DocumentTypeId");
 
                     b.HasIndex("DocumentTypeId");
@@ -169,11 +168,22 @@ namespace DictionaryService.DAL.Migrations
                         .HasForeignKey("DocumentTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DictionaryService.DAL.Entities.EducationLevel", null)
+                        .WithMany("DocumentTypes")
+                        .HasForeignKey("EducationLevelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DictionaryService.DAL.Entities.DocumentType", b =>
                 {
                     b.Navigation("NextEducationLevels");
+                });
+
+            modelBuilder.Entity("DictionaryService.DAL.Entities.EducationLevel", b =>
+                {
+                    b.Navigation("DocumentTypes");
                 });
 #pragma warning restore 612, 618
         }

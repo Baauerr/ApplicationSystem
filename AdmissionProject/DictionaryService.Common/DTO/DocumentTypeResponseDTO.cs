@@ -9,14 +9,14 @@ namespace DictionaryService.Common.DTO
 {
     public class DocumentTypeResponseDTO
     {
-        public List<DocumentTypeDTO> DocumentTypes;
+        public List<DocumentTypeDTO> DocumentTypes { get; set; }
     }
     public class DocumentTypeDTO
     {
-        public string Name;
-        public EducationLevel EducationLevel;
-        public List<EducationLevel> NextEducationLevels;
-        public string Id;
-        public DateTime CreateTime;
+        public string Name { get; set; }
+        public EducationLevel EducationLevel { get; set; }
+        public List<EducationLevel> NextEducationLevels { get; set; }
+        public string Id { get; set; }
+        public DateTime CreateTime { get; set; }
     }
 }

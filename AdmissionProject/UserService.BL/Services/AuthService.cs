@@ -8,6 +8,7 @@ using UserService.Common.Interfaces;
 using UserService.DAL.Entity;
 using UserService.DAL.Repository;
 
+
 namespace UserService.BL.Services
 {
     public class AuthService : IAuthService
@@ -58,8 +59,8 @@ namespace UserService.BL.Services
 
             if (user != null)
             {
-                var accessToken = _tokenService.GenerateAccessToken(user.Id);
-                var refreshToken = _tokenService.GenerateRefreshToken(user.Id);
+                var accessToken = await _tokenService.GenerateAccessToken(user.Id);
+                var refreshToken = await _tokenService.GenerateRefreshToken(user.Id);
 
                 Console.WriteLine(user.Id);
                 await _tokenService.SaveRefreshTokenAsync(refreshToken.Token, user.Id);

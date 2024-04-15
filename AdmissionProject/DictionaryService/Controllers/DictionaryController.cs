@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using System.ComponentModel.Design;
+using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
 namespace UserService.Controllers
 {
@@ -24,16 +25,20 @@ namespace UserService.Controllers
         }
 
         [HttpPost("import")]
+     //   [Authorize(Roles = "ADMINISTRATOR")]
         [ProducesResponseType(200)]
+        [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> ImportDictionary()
+        public async Task<ActionResult> ImportDictionary([FromQuery] OperationType operationType)
         {
-            await _importService.ImportDictionary(OperationType.Program);
+            await _importService.ImportDictionary(operationType);
             return Ok();
         }
 
         [HttpGet("programs")]
+        [Authorize]
+        [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
         [ProducesResponseType(typeof(ProgramResponseDTO), 200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
@@ -52,12 +57,41 @@ namespace UserService.Controllers
                 name, code, language, educationForm, educationLevel, faculty, page, pageSize
                 );
 
-            foreach( var program in programs.programs )
-            {
-                Console.WriteLine(program.Name);
-            }
-
             return Ok(programs);
+        }
+        [HttpGet("facuilties")]
+        [Authorize]
+        [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
+        [ProducesResponseType(typeof(FacultiesResponseDTO), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult<FacultiesResponseDTO>> GetFaculties([FromQuery] string facultyName)
+        {
+            
+            return Ok(await _infoService.GetFaculties(facultyName));
+        }
+
+        [HttpGet("documentTypes")]
+        [Authorize]
+        [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
+        [ProducesResponseType(typeof(DocumentTypeResponseDTO), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult<DocumentTypeResponseDTO>> GetDocumentTypes([FromQuery] string documentTypeName)
+        {
+
+            return Ok(await _infoService.GetDocumentTypes(documentTypeName));
+        }
+
+        [HttpGet("educationLevel")]
+        [Authorize]
+        [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
+        [ProducesResponseType(typeof(EducationLevelResponseDTO), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult<EducationLevelResponseDTO>> GetEducationLevel([FromQuery] string educationLevelName)
+        {
+            return Ok(await _infoService.GetEducationLevel(educationLevelName));
         }
 
 

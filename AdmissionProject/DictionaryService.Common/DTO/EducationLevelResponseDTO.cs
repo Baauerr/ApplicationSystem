@@ -9,7 +9,7 @@ namespace DictionaryService.Common.DTO
 {
     public class EducationLevelResponseDTO
     {
-        public List<EducationLevel> EducationLevel;
+        public List<EducationLevelDTO> EducationLevel { get; set; }
     }
 
 }

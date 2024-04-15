@@ -9,8 +9,7 @@ namespace DictionaryService.DAL.Entities
     public class NextEducationLevel
     {
         public string DocumentTypeId { get; set; }
-        public DocumentType DocumentTypes { get; set; }
-        public EducationLevel EducationLevels { get; set; }
         public string EducationLevelId { get; set; }
+        public string EducationLevelName { get; set; }
     }
 }

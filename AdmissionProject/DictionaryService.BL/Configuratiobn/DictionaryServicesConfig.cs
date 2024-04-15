@@ -4,6 +4,7 @@ using DictionaryService.Common.Interfaces;
 using Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
 public static class DictionaryServiceConfig
 {
@@ -15,5 +16,6 @@ public static class DictionaryServiceConfig
             <IImportService, ImportService>();
         builder.Services.AddAutoMapper(typeof(DictionaryMapper));
         builder.Services.AddTransient<ExceptionsHandler>();
+        builder.Services.AddScoped<TokenBlacklistFilterAttribute>();
     }
 }

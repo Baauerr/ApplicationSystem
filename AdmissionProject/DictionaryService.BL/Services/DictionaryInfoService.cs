@@ -1,4 +1,5 @@
-﻿using DictionaryService.Common.DTO;
+﻿using AutoMapper;
+using DictionaryService.Common.DTO;
 using DictionaryService.Common.Enums;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL;
@@ -6,31 +7,114 @@ using DictionaryService.DAL.Entities;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Reflection.Emit;
 
 namespace DictionaryService.BL.Services
 {
     public class DictionaryInfoService : IDictionaryInfoService
     {
         private readonly DictionaryDbContext _db;
+        private readonly IMapper _mapper;
 
-        public DictionaryInfoService(DictionaryDbContext db)
+        public DictionaryInfoService(DictionaryDbContext db, IMapper mapper)
         {
             _db = db;
+            _mapper = mapper;
         }
 
-        public async Task<DocumentTypeDTO> GetDocumentTypes(string? documentName)
+        public async Task<DocumentTypeResponseDTO> GetDocumentTypes(string? documentName)
         {
-            throw new NotImplementedException();
+            IQueryable<DocumentType> query = _db.DocumentTypes;
+
+
+            if (documentName != null)
+            {
+                query = query.Where(e => e.Name.Contains(documentName));
+            }
+
+            var documentTypes = await query.ToListAsync();
+
+            List<DocumentTypeDTO> documentTypesList = new List<DocumentTypeDTO>();
+            var documentTypeResponseDTO = new DocumentTypeResponseDTO();
+
+            foreach (var document in documentTypes)
+            {
+                var nextEducationLevels = await _db.NextEducationLevelDocuments
+                    .Where(level => level.DocumentTypeId == document.Id)
+                    .ToListAsync();
+                var nextEducationLevelsList = new List<EducationLevel>();
+
+                foreach (var level in nextEducationLevels)
+                {
+                    var educationLevel = new EducationLevel
+                    {
+                        Id = level.EducationLevelId,
+                        Name = level.EducationLevelName,
+                    };
+                    nextEducationLevelsList.Add(educationLevel);
+                }
+
+                var currentEducationLevel = 
+                    await _db.EducationLevels.FirstOrDefaultAsync(level => level.Id == document.EducationLevelId);
+
+                var documentType = _mapper.Map<DocumentTypeDTO>(document);
+                documentType.EducationLevel = currentEducationLevel;
+                documentType.NextEducationLevels = nextEducationLevelsList;
+
+
+                documentTypesList.Add(documentType);
+            }
+
+            documentTypeResponseDTO.DocumentTypes = documentTypesList;
+
+
+            return documentTypeResponseDTO;
         }
 
-        public async Task<EducationLevelResponseDTO> GetEducationLevel(string? educationLevelNamme)
+        public async Task<EducationLevelResponseDTO> GetEducationLevel(string? educationLevelName)
         {
-            throw new NotImplementedException();
+            IQueryable<EducationLevel> query = _db.EducationLevels;
+
+
+            if (educationLevelName != null)
+            {
+                query = query.Where(e => e.Name.Contains(educationLevelName));
+            }
+
+            var educationLevels = await query.ToListAsync();
+
+            List<EducationLevelDTO> educationLevelsList = new List<EducationLevelDTO>();
+            var educationLevelsDTO = new EducationLevelResponseDTO();
+
+            foreach (var level in educationLevels)
+            {
+                var educationLevelDTO = _mapper.Map<EducationLevelDTO>(level);
+                educationLevelsList.Add(educationLevelDTO);
+            }
+
+            educationLevelsDTO.EducationLevel = educationLevelsList;
+
+            return educationLevelsDTO;
         }
 
         public async Task<FacultiesResponseDTO> GetFaculties(string? facultyName)
         {
-            throw new NotImplementedException();
+            IQueryable<Faculty> query = _db.Faculties;
+
+
+            if (facultyName != null)
+            {
+                query = query.Where(e => e.Name.Contains(facultyName));
+            }
+
+            var facuilties = await query.ToListAsync();
+
+            var facultiesResponseDTO = new FacultiesResponseDTO();
+
+
+            facultiesResponseDTO.Faculties = facuilties;
+
+            return facultiesResponseDTO;
         }
 
         public async Task<ProgramResponseDTO> GetPrograms(
@@ -57,11 +141,15 @@ namespace DictionaryService.BL.Services
                 pageSize
                 );
 
-            Console.WriteLine(program.Count());
+            var programsCount = program.Count();
 
-            var programDTO = await CreateProgramDTO(program, pageSize, page);
+            program = FilterByPagination(program, page, pageSize);
+
+            var programDTO = await CreateProgramDTO(program, pageSize, page, programsCount);
             return programDTO;
         }
+
+
 
         private async Task<List<Program>> FilterPrograms(
             List<Program> program,
@@ -80,9 +168,11 @@ namespace DictionaryService.BL.Services
             program = FilterByEducationForm(program, educationForm);
             program = FilterByEducationLevel(program, educationLevel);
             program = FilterByFaculty(program, faculty);
-            program = FilterByPagination(program, page, pageSize);
             return program;
         }
+
+
+
 
         private async Task<List<Program>> FilterByNameAndCode(
             List<Program> program, 
@@ -108,6 +198,9 @@ namespace DictionaryService.BL.Services
 
             return programs;
         }
+
+
+
         private  List<Program> FilterByLanguage(
             List<Program> programs,
             List<Language>? language
@@ -120,6 +213,8 @@ namespace DictionaryService.BL.Services
             }
             return programs;
         }
+
+
         private  List<Program> FilterByEducationForm(
             List<Program> program,
             List<string>? educationForm
@@ -131,6 +226,9 @@ namespace DictionaryService.BL.Services
             }
             return program;
         }
+
+
+
         private  List<Program> FilterByEducationLevel(
             List<Program> program,
             List<string>? educationLevel
@@ -168,7 +266,8 @@ namespace DictionaryService.BL.Services
         private async Task<ProgramResponseDTO> CreateProgramDTO(
             List<Program> program,
             int size, 
-            int page
+            int page,
+            int programsCount
             )
         {
 
@@ -176,18 +275,25 @@ namespace DictionaryService.BL.Services
             
             foreach(var programElement in program)
             {
-                var faculty = await _db.Faculties.FirstOrDefaultAsync(f => f.Id == programElement.Id);
-                var educationLevel = await _db.EducationLevels.FirstOrDefaultAsync(f => f.Id == programElement.Id);
+                var faculty = await _db.Faculties.FirstOrDefaultAsync(f => f.Id == programElement.FacultyId);
+                var educationLevel = await _db.EducationLevels.FirstOrDefaultAsync(f => f.Id == programElement.EducationLevelId);
+                
 
-                if ( faculty != null )
+                if ( faculty == null )
                 {
                     throw new NotFoundException($"Такого факультета не существует") ;
                 }
 
-                if (educationLevel != null)
+                if (educationLevel == null)
                 {
                     throw new NotFoundException($"Такого уровня образования не существует");
                 }
+
+                EducationLevelDTO educationLevelDTO = new EducationLevelDTO
+                {
+                    Name = educationLevel.Name,
+                    Id = educationLevel.Id,
+                };
 
                 var programDTO = new ProgramsDTO
                 {
@@ -196,8 +302,9 @@ namespace DictionaryService.BL.Services
                     Language = programElement.Language,
                     EducationForm = programElement.EducationForm,
                     Faculty = faculty,
-                    EducationLevel = educationLevel,
-                    Id = programElement.Id             
+                    EducationLevel = educationLevelDTO,
+                    Id = programElement.Id,
+                    CreateTime = programElement.CreateTime,
                 };
 
                 programsElements.Add(programDTO);
@@ -207,12 +314,13 @@ namespace DictionaryService.BL.Services
             var programResponseDTO = new ProgramResponseDTO
             {
                 programs = programsElements,
-                pagination = GetPagination(size, page, programsElements.Count())
+                pagination = GetPagination(size, page, programsCount)
             };
 
             return programResponseDTO;
 
         }
+
 
         private List<Program> FilterByPagination(List<Program> program, int page, int sizeOfPage)
         {

@@ -18,12 +18,5 @@ namespace UserService.DAL.Configuration
                     )
                 );
         }
-        public static void ConfigureRedisDb(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddSingleton<RedisRepository>(
-                new RedisRepository(
-                    builder.Configuration.GetConnectionString("RedisDatabase"))
-                );
-        }
     }
 }

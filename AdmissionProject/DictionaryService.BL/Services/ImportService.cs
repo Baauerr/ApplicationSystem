@@ -84,7 +84,6 @@ namespace DictionaryService.BL.Services
             {
                 var currentDocumnetTypes = await _db.DocumentTypes.ToListAsync();
                 List<DocumentType> documentTypesList = new List<DocumentType>();
-                List<NextEducationLevel> nextEducationLevelList = new List<NextEducationLevel>();
                 List<DocumentTypeDTO> documentTypes = await response.Content.ReadAsAsync<List<DocumentTypeDTO>>();
                 foreach (var docuementType in documentTypes)
                 {
@@ -92,20 +91,24 @@ namespace DictionaryService.BL.Services
                         var newDocumentType = _mapper.Map<DocumentType>(docuementType);
                         newDocumentType.CreateTime = newDocumentType.CreateTime.ToUniversalTime();
 
+                        var nextEducationLevelList = new List<NextEducationLevel>();
+
                         foreach (var educationLevel in docuementType.NextEducationLevels)
                         {
                             var newNextEducationLevel = new NextEducationLevel
                             {
-                                DocumentTypes = newDocumentType,
                                 DocumentTypeId = newDocumentType.Id, 
                                 EducationLevelId = educationLevel.Id,
-                                EducationLevels = educationLevel
+                                EducationLevelName = educationLevel.Name,
                             };
-                            newDocumentType.NextEducationLevels.Add(newNextEducationLevel);
+
+                            nextEducationLevelList.Add(newNextEducationLevel);
                         }
+                        await _db.NextEducationLevelDocuments.AddRangeAsync(nextEducationLevelList);
                         documentTypesList.Add(newDocumentType);
-                    }                
+                    } 
                 }
+
                 await _db.DocumentTypes.AddRangeAsync(documentTypesList);
            
                 return ImportStatus.Success;

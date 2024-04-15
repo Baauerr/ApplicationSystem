@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
   </ItemGroup>   
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DictionaryService.Common\DictionaryService.Common.csproj" />
 	<ProjectReference Include="..\Exceptions\Exceptions.csproj" />
   </ItemGroup>
