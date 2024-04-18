@@ -1,5 +1,6 @@
 ﻿using DictionaryService.Common.DTO;
 using DictionaryService.Common.Enums;
+using DictionaryService.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,6 @@ namespace DictionaryService.Common.Interfaces
         public Task<FacultiesResponseDTO> GetFaculties(string? facultyName);
         public Task<DocumentTypeResponseDTO> GetDocumentTypes(string? documentTypeName);
         public Task<EducationLevelResponseDTO> GetEducationLevel(string? educationLevelName);
+        public Task<List<ImportHistory>> GetImportHistory();
     }
 }

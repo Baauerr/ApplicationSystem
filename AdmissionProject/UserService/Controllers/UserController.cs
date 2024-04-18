@@ -84,16 +84,38 @@ namespace UserService.Controllers
             return Ok();
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("getMyRoles")]
-        [ProducesResponseType(typeof(UserRoleResponseDTO), 200)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMINISTRATOR")]
+        [HttpPut("giveRole")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<AuthResponseDTO>> GetMyRoles()
+        public async Task<ActionResult<AuthResponseDTO>> GetMyRoles([FromBody] SetRoleRequestDTO properties)
         {
-            string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            return Ok(await _userService.GetMyRoles(token));
+            await _userService.GiveRole(properties);
+            return Ok();
+        }
+
+ //       [Authorize(AuthenticationSchemes = "Bearer")]
+//        [HttpGet("getMyRoles")]
+ //       [ProducesResponseType(typeof(UserRoleResponseDTO), 200)]
+ //       [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+ //       [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
+ //       [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+//        public async Task<ActionResult<AuthResponseDTO>> GetMyRoles()
+  //      {
+   //         string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+   //         return Ok(await _userService.GetMyRoles(token));
+   //     }
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = ("ADMINISTRATOR, MAINMANAGER"))]
+        [HttpGet("getManagers")]
+        [ProducesResponseType(typeof(List<ProfileResponseDTO>), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult<List<ProfileResponseDTO>>> GetUsers([FromQuery] string fullName)
+        {
+            return Ok(await _userService.GetManagers(fullName));
         }
     }
 

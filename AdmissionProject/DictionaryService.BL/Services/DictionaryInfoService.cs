@@ -6,8 +6,6 @@ using DictionaryService.DAL;
 using DictionaryService.DAL.Entities;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Reflection.Emit;
 
 namespace DictionaryService.BL.Services
 {
@@ -20,6 +18,13 @@ namespace DictionaryService.BL.Services
         {
             _db = db;
             _mapper = mapper;
+        }
+
+        public async Task<List<ImportHistory>> GetImportHistory()
+        {
+            var historyList = await _db.ImportHistory.ToListAsync();
+            return historyList;
+
         }
 
         public async Task<DocumentTypeResponseDTO> GetDocumentTypes(string? documentName)

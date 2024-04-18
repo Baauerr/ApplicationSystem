@@ -2,7 +2,9 @@ using Exceptions;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using UserService.BL.Configuration;
+using UserService.Common.Enum;
 using UserService.Configuration;
 using UserService.DAL;
 using UserService.DAL.Configuration;
@@ -33,6 +35,7 @@ dbContext?.Database.Migrate();
 
 using (var scope = app.Services.CreateScope())
 {
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
     foreach (var roleName in Enum.GetValues(typeof(Roles)))
@@ -59,6 +62,23 @@ using (var scope = app.Services.CreateScope())
         {
             throw new NotFoundException($"Не получилось найти роль: {nameof(role)}");
         }
+
+        var adminPassword = builder.Configuration.GetValue<string>("ApiSettings:AdminPassword");
+        var adminEmail = builder.Configuration.GetValue<string>("ApiSettings:AdminEmail");
+        var adminFullName = builder.Configuration.GetValue<string>("ApiSettings:AdminFullName");
+
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var adminUser = new User { UserName = adminEmail, Email = adminEmail, FullName = adminFullName };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword); 
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, Roles.ADMINISTRATOR.ToString());
+            }
+        }
+
     }
 }
 

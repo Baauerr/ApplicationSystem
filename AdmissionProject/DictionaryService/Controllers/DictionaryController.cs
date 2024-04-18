@@ -1,12 +1,13 @@
 using DictionaryService.Common.DTO;
 using DictionaryService.Common.Enums;
 using DictionaryService.Common.Interfaces;
+using DictionaryService.DAL.Entities;
 using DictionaryService.DAL.Enum;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-using System.ComponentModel.Design;
+using NotificationService;
+using System.Security.Claims;
 using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
 namespace UserService.Controllers
@@ -18,21 +19,24 @@ namespace UserService.Controllers
         private readonly IImportService _importService;
         private readonly IDictionaryInfoService _infoService;
 
-        public DictionaryController(IImportService importService, IDictionaryInfoService dictionaryInfoService)
+        public DictionaryController(IImportService importService, IDictionaryInfoService dictionaryInfoService )
         {
             _importService = importService;
             _infoService = dictionaryInfoService;
+
         }
 
         [HttpPost("import")]
-     //   [Authorize(Roles = "ADMINISTRATOR")]
+        [Authorize(Roles = "Manager")]
         [ProducesResponseType(200)]
         [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
         public async Task<ActionResult> ImportDictionary([FromQuery] OperationType operationType)
         {
-            await _importService.ImportDictionary(operationType);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+            await _importService.ImportDictionary(operationType, Guid.Parse(userId));
             return Ok();
         }
 
@@ -94,7 +98,16 @@ namespace UserService.Controllers
             return Ok(await _infoService.GetEducationLevel(educationLevelName));
         }
 
-
+        [HttpGet("history")]
+        [Authorize(Roles = "Manager")]
+        [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
+        [ProducesResponseType(typeof(List<ImportHistory>), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult<ImportHistory>> GetImportHistory()
+        {
+            return Ok(await _infoService.GetImportHistory());
+        }
     }
 
 }

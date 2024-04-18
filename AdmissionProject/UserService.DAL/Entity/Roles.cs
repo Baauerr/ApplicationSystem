@@ -2,20 +2,6 @@
 
 namespace UserService.DAL.Entity
 {
-    public enum Roles
-    {
-        [Display(Name = RoleNames.Admin)]
-        Admin,
-        [Display(Name = RoleNames.Manager)]
-        Manager,
-        [Display(Name = RoleNames.MainManager)]
-        MainManager,
-        [Display(Name = RoleNames.User)]
-        User,
-        [Display(Name = RoleNames.Entrant)]
-        Entrant
-    }
-
     public class RoleNames
     {
         public const string Admin = "Admin";

@@ -1,4 +1,5 @@
 ﻿using UserService.Common.DTO.Profile;
+using UserService.Common.Enum;
 
 namespace UserService.Common.Interfaces
 {
@@ -7,6 +8,7 @@ namespace UserService.Common.Interfaces
         public Task<ProfileResponseDTO> GetProfile(string token);
         public Task ChangeProfileInfo(ChangeProfileRequestDTO newProfileInfo, string token);
         public Task<UserRoleResponseDTO> GetMyRoles(string token);
-        public Task GiveRole();
+        public Task GiveRole(SetRoleRequestDTO roleRequesData);
+        public Task<List<ProfileResponseDTO>> GetManagers(string fullName);
     }
 }

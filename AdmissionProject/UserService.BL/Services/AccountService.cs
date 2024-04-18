@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
-using System.Reflection.Metadata.Ecma335;
+using StackExchange.Redis;
 using UserService.Common.DTO.Profile;
+using UserService.Common.Enum;
 using UserService.Common.Interfaces;
 using UserService.DAL.Entity;
 
@@ -78,13 +79,40 @@ namespace UserService.BL.Services
             return rolesDTO;
         }
 
-        public async Task GiveRole()
+        public async Task GiveRole(SetRoleRequestDTO roleRequesData)
         {
-            var id = "ef3ad9fe-3c3b-4526-bb52-52848d75853e";
-            var role = Roles.Manager;
-            var user = await _userManager.FindByIdAsync(id);
+            var role = roleRequesData.Role;
+            var user = await _userManager.FindByIdAsync(roleRequesData.RecipientId);
             if (user == null) throw new NotFoundException("Такого пользователя не существует");
             await _userManager.AddToRoleAsync(user, role.ToString());
+        }
+        public async Task<List<ProfileResponseDTO>> GetManagers(string fullName)
+        {
+            var allManagersDTO = new List<ProfileResponseDTO>();
+
+            var managers = await _userManager.GetUsersInRoleAsync(Roles.MANAGER.ToString());
+            var mainManagers = await _userManager.GetUsersInRoleAsync(Roles.MAINMANAGER.ToString());
+
+            foreach (var manager in managers)
+            {
+                if (manager.FullName.Contains(fullName))
+                {
+                    var managerDTO = _mapper.Map<ProfileResponseDTO>(manager);
+                    allManagersDTO.Add(managerDTO);
+                }
+            }
+
+            foreach (var mainManager in mainManagers)
+            {
+                if (mainManager.FullName.Contains(fullName))
+                {
+                    var mainManagerDTO = _mapper.Map<ProfileResponseDTO>(mainManager);
+                    allManagersDTO.Add(mainManagerDTO);
+                }
+            }
+
+
+            return allManagersDTO;
         }
     }
 }

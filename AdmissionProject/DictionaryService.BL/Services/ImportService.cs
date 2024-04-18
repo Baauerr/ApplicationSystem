@@ -41,7 +41,7 @@ namespace DictionaryService.BL.Services
             return client;
         }
 
-        public async Task ImportDictionary(OperationType operationType)
+        public async Task ImportDictionary(OperationType operationType, Guid userId)
         {
             var operationResult = ImportStatus.Failed;
 
@@ -63,7 +63,7 @@ namespace DictionaryService.BL.Services
 
             var historyElement = new ImportHistory
             {
-                UserId = Guid.NewGuid(),
+                UserId = userId,
                 ImportStatus = operationResult,
                 OperationType = operationType,
                 OperationTime = DateTime.UtcNow,
