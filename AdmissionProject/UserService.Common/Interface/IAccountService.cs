@@ -1,5 +1,5 @@
-﻿using UserService.Common.DTO.Profile;
-using UserService.Common.Enum;
+﻿using Common.DTO.Profile;
+using UserService.Common.DTO.Profile;
 
 namespace UserService.Common.Interfaces
 {

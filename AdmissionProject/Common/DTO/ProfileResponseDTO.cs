@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using UserService.Common.Enum;
+﻿using Common.Enum;
+using System.ComponentModel.DataAnnotations;
 
-namespace UserService.Common.DTO.Profile
+
+namespace Common.DTO.Profile
 {
     public class ProfileResponseDTO
     {

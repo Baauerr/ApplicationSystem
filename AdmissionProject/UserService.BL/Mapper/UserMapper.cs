@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.DTO.Profile;
 using UserService.Common.DTO.Auth;
 using UserService.Common.DTO.Profile;
 using UserService.DAL.Entity;

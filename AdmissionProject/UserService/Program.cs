@@ -2,15 +2,14 @@ using Exceptions;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using UserService.BL.Configuration;
 using UserService.Common.Enum;
 using UserService.Configuration;
 using UserService.DAL;
 using UserService.DAL.Configuration;
 using UserService.DAL.Entity;
+using Common.Configuration;
 using static Common.BannedToken.RedisConfig;
-
 
 var builder = WebApplication.CreateBuilder(args);
 

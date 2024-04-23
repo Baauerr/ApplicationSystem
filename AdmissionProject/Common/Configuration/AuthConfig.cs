@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace UserService.BL.Configuration
+
+namespace Common.Configuration
 {
     public static class ConfigureJWT
     {

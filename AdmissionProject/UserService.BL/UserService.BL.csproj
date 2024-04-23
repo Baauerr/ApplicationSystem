@@ -22,6 +22,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Common\Common.csproj" />
 		<ProjectReference Include="..\UserService.Common\UserService.Common.csproj" />
 		<ProjectReference Include="..\UserService.DAL\UserService.DAL.csproj" />
 		<ProjectReference Include="..\Exceptions\Exceptions.csproj" />

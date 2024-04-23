@@ -1,8 +1,9 @@
-using DictionaryService.Configuration;
+
 using DictionaryService.DAL;
 using DictionaryService.DAL.Configuration;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Common.Configuration;
 using static Common.BannedToken.RedisConfig;
 
 var builder = WebApplication.CreateBuilder(args);

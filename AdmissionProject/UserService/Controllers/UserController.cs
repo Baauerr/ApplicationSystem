@@ -1,3 +1,4 @@
+using Common.DTO.Profile;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -90,23 +91,12 @@ namespace UserService.Controllers
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<AuthResponseDTO>> GetMyRoles([FromBody] SetRoleRequestDTO properties)
+        public async Task<ActionResult<AuthResponseDTO>> GiveRole([FromBody] SetRoleRequestDTO properties)
         {
             await _userService.GiveRole(properties);
             return Ok();
         }
 
- //       [Authorize(AuthenticationSchemes = "Bearer")]
-//        [HttpGet("getMyRoles")]
- //       [ProducesResponseType(typeof(UserRoleResponseDTO), 200)]
- //       [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
- //       [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
- //       [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-//        public async Task<ActionResult<AuthResponseDTO>> GetMyRoles()
-  //      {
-   //         string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-   //         return Ok(await _userService.GetMyRoles(token));
-   //     }
         [Authorize(AuthenticationSchemes = "Bearer", Roles = ("ADMINISTRATOR, MAINMANAGER"))]
         [HttpGet("getManagers")]
         [ProducesResponseType(typeof(List<ProfileResponseDTO>), 200)]

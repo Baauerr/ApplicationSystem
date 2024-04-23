@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.DTO.Profile;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
 using StackExchange.Redis;

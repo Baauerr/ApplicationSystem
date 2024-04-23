@@ -15,7 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\EntranceService.BL\EntranceService.BL.csproj" />
+    <ProjectReference Include="..\EntranceService.Common\EntranceService.Common.csproj" />
+    <ProjectReference Include="..\Exceptions\Exceptions.csproj" />
   </ItemGroup>
 
 </Project>
