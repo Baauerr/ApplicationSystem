@@ -9,11 +9,9 @@ namespace EntranceService.DAL.Entity
         [Key]
         public Guid Id { get; set; }
         public Guid OwnerId { get; set; }
-        public required string Citizenship { get; set; }
-        public required string Gender { get; set; }
-        public required string PhoneNumber { get; set; }
-        public Guid EducationDocumentId { get; set; }
+        public string Citizenship { get; set; }
         public DateTime LastChangeDate { get; set; }
         public ApplicationStatus ApplicationStatus { get; set; }
+        public Guid ManagerId { get; set; }
     }
 }

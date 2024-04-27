@@ -1,4 +1,5 @@
 using Common.DTO.Profile;
+using Common.Helpers;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,14 @@ namespace UserService.Controllers
         private readonly IAccountService _userService;
         private readonly IAuthService _authService;
         private readonly ITokenService _tokenService;
+        private readonly ITokenHelper _tokenHelper;
 
-        public UserController(IAccountService service, IAuthService authService, ITokenService tokenService)
+        public UserController(IAccountService service, IAuthService authService, ITokenService tokenService, ITokenHelper tokenHelper)
         {
             _userService = service;
             _authService = authService;
             _tokenService = tokenService;
+            _tokenHelper = tokenHelper;
         }
 
         [HttpPost("login")]
@@ -62,7 +65,7 @@ namespace UserService.Controllers
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
         public async Task<ActionResult> ChangeProfileAsync([FromBody] ChangeProfileRequestDTO newProfileInfo)
         {
-            string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var token = _tokenHelper.GetTokenFromHeader();
             await _userService.ChangeProfileInfo(newProfileInfo, token);
             return Ok();
         }

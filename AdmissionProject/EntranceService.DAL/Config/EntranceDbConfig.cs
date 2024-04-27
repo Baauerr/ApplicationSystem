@@ -3,19 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace UserService.DAL.Configuration
+namespace EntranceService.DAL.Config
 {
     public static class DbConfig
     {
-        public static void ConfigureUserDb(this WebApplicationBuilder builder)
+        public static void ConfigureEntranceDb(this WebApplicationBuilder builder)
         {
-            builder.Services.AddDbContext<UserDbContext>(options =>
+            builder.Services.AddDbContext<EntranceDbContext>(options =>
                 options.UseNpgsql(
                     builder.Services.BuildServiceProvider()
                     .GetRequiredService<IConfiguration>()
-                    .GetConnectionString("UserDbConnection")
+                    .GetConnectionString("EntranceDbConnection")
                     )
-                );
+            );
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
-using DictionaryService.Common.DTO;
-using DictionaryService.Common.Enums;
+using Common.DTO.Dictionary;
+using Common.Enum;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL;
 using DictionaryService.DAL.Entities;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Net.WebSockets;
 
 namespace DictionaryService.BL.Services
 {
@@ -47,11 +49,11 @@ namespace DictionaryService.BL.Services
                 var nextEducationLevels = await _db.NextEducationLevelDocuments
                     .Where(level => level.DocumentTypeId == document.Id)
                     .ToListAsync();
-                var nextEducationLevelsList = new List<EducationLevel>();
+                var nextEducationLevelsList = new List<EducationLevelDTO>();
 
                 foreach (var level in nextEducationLevels)
                 {
-                    var educationLevel = new EducationLevel
+                    var educationLevel = new EducationLevelDTO
                     {
                         Id = level.EducationLevelId,
                         Name = level.EducationLevelName,
@@ -61,9 +63,11 @@ namespace DictionaryService.BL.Services
 
                 var currentEducationLevel = 
                     await _db.EducationLevels.FirstOrDefaultAsync(level => level.Id == document.EducationLevelId);
+                var currentEducationLevelDTO = _mapper.Map<EducationLevelDTO>(currentEducationLevel);
+
 
                 var documentType = _mapper.Map<DocumentTypeDTO>(document);
-                documentType.EducationLevel = currentEducationLevel;
+                documentType.EducationLevel = currentEducationLevelDTO;
                 documentType.NextEducationLevels = nextEducationLevelsList;
 
 
@@ -116,8 +120,16 @@ namespace DictionaryService.BL.Services
 
             var facultiesResponseDTO = new FacultiesResponseDTO();
 
+            var facultiesDTO = new List<FacultyDTO>();
 
-            facultiesResponseDTO.Faculties = facuilties;
+            foreach(var faculty in facuilties)
+            {
+                var facultyDTO = _mapper.Map<FacultyDTO>(faculty);
+
+                facultiesDTO.Add(facultyDTO);
+            }
+
+            facultiesResponseDTO.Faculties = facultiesDTO;
 
             return facultiesResponseDTO;
         }
@@ -151,6 +163,9 @@ namespace DictionaryService.BL.Services
             program = FilterByPagination(program, page, pageSize);
 
             var programDTO = await CreateProgramDTO(program, pageSize, page, programsCount);
+
+            Console.WriteLine(programDTO.ToString());
+
             return programDTO;
         }
 
@@ -282,7 +297,9 @@ namespace DictionaryService.BL.Services
             {
                 var faculty = await _db.Faculties.FirstOrDefaultAsync(f => f.Id == programElement.FacultyId);
                 var educationLevel = await _db.EducationLevels.FirstOrDefaultAsync(f => f.Id == programElement.EducationLevelId);
-                
+
+                var facultyDTO = _mapper.Map<FacultyDTO>(faculty);
+
 
                 if ( faculty == null )
                 {
@@ -306,7 +323,7 @@ namespace DictionaryService.BL.Services
                     Name = programElement.Name,
                     Language = programElement.Language,
                     EducationForm = programElement.EducationForm,
-                    Faculty = faculty,
+                    Faculty = facultyDTO,
                     EducationLevel = educationLevelDTO,
                     Id = programElement.Id,
                     CreateTime = programElement.CreateTime,

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DictionaryService.Common.DTO
+namespace Common.DTO.Dictionary
 {
     public class EducationLevelDTO
     {

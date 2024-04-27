@@ -1,5 +1,4 @@
-﻿
-using DictionaryService.DAL.Enum;
+﻿using DictionaryService.DAL.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace DictionaryService.DAL.Entities

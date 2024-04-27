@@ -8,9 +8,9 @@ namespace EntranceService.DAL.Entity
 {
     public class EducationDocumentData
     {
-
-        public Guid ownerId {  get; set; }
+        public Guid OwnerId {  get; set; }
         public Guid EducationDocumentId { get; set; }
-        public string name {  get; set; }
+        public string EducationLevelId { get; set; }
+        public string Name {  get; set; }
     }
 }

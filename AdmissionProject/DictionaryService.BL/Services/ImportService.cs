@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using DictionaryService.Common.DTO;
+using Common.DTO.Dictionary;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL;
 using DictionaryService.DAL.Entities;
 using DictionaryService.DAL.Enum;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -77,8 +76,6 @@ namespace DictionaryService.BL.Services
         private async Task<ImportStatus> ImportDocumentTypes()
         {
             HttpResponseMessage response = await _httpClient.GetAsync(_baseUrl + "document_types");
-
-            Console.WriteLine(response.Content);
 
             if (response.IsSuccessStatusCode)
             {

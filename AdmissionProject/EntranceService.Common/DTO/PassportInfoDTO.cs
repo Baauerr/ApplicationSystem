@@ -13,6 +13,5 @@ namespace EntranceService.Common.DTO
         public string BirthPlace { get; set; }
         public DateTime IssueDate { get; set; }
         public string IssuePlace { get; set; }
-        public Guid ApplicationId { get; set; }
     }
 }

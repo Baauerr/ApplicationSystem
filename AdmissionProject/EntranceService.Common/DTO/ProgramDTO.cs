@@ -8,9 +8,13 @@ namespace EntranceService.Common.DTO
 {
     public class ProgramDTO
     {
-        public Guid ApplicationId { get; set; }
-        public Guid ProgramGuid { get; set; }
+        public Guid ProgramId { get; set; }
         public int ProgramPriority { get; set; }
+    }
+    public class AddProgramDTO
+    {
+        public required List<ProgramDTO> programs { get; set; }
+        public Guid ApplicationId { get; set; }
     }
 
     public class ProgramChangePriorityDTO
@@ -19,5 +23,11 @@ namespace EntranceService.Common.DTO
         public Guid ProgramGuid { get; set; }
         public int NewPriority { get; set; }
         public int OldPriority { get; set; }
+    }
+
+    public class DeleteProgramDTO
+    {
+        public Guid ProgramId { get; set; }
+        public Guid ApplicationId { get; set; }
     }
 }

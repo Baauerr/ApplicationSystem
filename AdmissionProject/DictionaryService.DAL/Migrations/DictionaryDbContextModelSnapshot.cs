@@ -126,8 +126,9 @@ namespace DictionaryService.DAL.Migrations
 
             modelBuilder.Entity("DictionaryService.DAL.Entities.Program", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()

@@ -6,11 +6,11 @@ namespace EntranceService.DAL.Entity
     public class PassportData
     {
         [Key]
-        public Guid ownerId {  get; set; }
-        public int series {  get; set; }
-        public int number { get; set; }
-        public string birthPlace { get; set; }
-        public DateTime issueDate { get; set; }
-        public string issuePlace { get; set; }
+        public Guid OwnerId {  get; set; }
+        public int Series {  get; set; }
+        public int Number { get; set; }
+        public string BirthPlace { get; set; }
+        public DateTime IssueDate { get; set; }
+        public string IssuePlace { get; set; }
     }
 }

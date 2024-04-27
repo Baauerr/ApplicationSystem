@@ -1,12 +1,6 @@
-﻿using DictionaryService.Common.Enums;
-using DictionaryService.DAL.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Enum;
 
-namespace DictionaryService.Common.DTO
+namespace Common.DTO.Dictionary
 {
 
     public class ProgramResponseDTO
@@ -21,9 +15,9 @@ namespace DictionaryService.Common.DTO
         public string Code { get; set; }
         public Language Language { get; set; }
         public string EducationForm { get; set; }
-        public Faculty Faculty { get; set; }
+        public FacultyDTO Faculty { get; set; }
         public EducationLevelDTO EducationLevel { get; set; }
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime CreateTime { get; set; }
     }
     public class Pagination

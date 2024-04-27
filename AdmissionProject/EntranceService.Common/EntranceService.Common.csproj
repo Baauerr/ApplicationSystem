@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\EntranceService.DAL\EntranceService.DAL.csproj" />
   </ItemGroup>
 
 </Project>

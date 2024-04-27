@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DictionaryService.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class programsIdToGuid : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -69,7 +69,7 @@ namespace DictionaryService.DAL.Migrations
                 name: "Programs",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: false),
@@ -84,25 +84,20 @@ namespace DictionaryService.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "NextEducationLevel",
+                name: "NextEducationLevelDocuments",
                 columns: table => new
                 {
                     DocumentTypeId = table.Column<string>(type: "text", nullable: false),
-                    EducationLevelId = table.Column<string>(type: "text", nullable: false)
+                    EducationLevelId = table.Column<string>(type: "text", nullable: false),
+                    EducationLevelName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NextEducationLevel", x => new { x.EducationLevelId, x.DocumentTypeId });
+                    table.PrimaryKey("PK_NextEducationLevelDocuments", x => new { x.EducationLevelId, x.DocumentTypeId });
                     table.ForeignKey(
-                        name: "FK_NextEducationLevel_DocumentTypes_DocumentTypeId",
+                        name: "FK_NextEducationLevelDocuments_DocumentTypes_DocumentTypeId",
                         column: x => x.DocumentTypeId,
                         principalTable: "DocumentTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_NextEducationLevel_EducationLevels_EducationLevelId",
-                        column: x => x.EducationLevelId,
-                        principalTable: "EducationLevels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -128,8 +123,8 @@ namespace DictionaryService.DAL.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NextEducationLevel_DocumentTypeId",
-                table: "NextEducationLevel",
+                name: "IX_NextEducationLevelDocuments_DocumentTypeId",
+                table: "NextEducationLevelDocuments",
                 column: "DocumentTypeId");
 
             migrationBuilder.CreateIndex(
@@ -142,22 +137,22 @@ namespace DictionaryService.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "EducationLevels");
+
+            migrationBuilder.DropTable(
                 name: "Faculties");
 
             migrationBuilder.DropTable(
                 name: "ImportHistory");
 
             migrationBuilder.DropTable(
-                name: "NextEducationLevel");
+                name: "NextEducationLevelDocuments");
 
             migrationBuilder.DropTable(
                 name: "Programs");
 
             migrationBuilder.DropTable(
                 name: "DocumentTypes");
-
-            migrationBuilder.DropTable(
-                name: "EducationLevels");
         }
     }
 }

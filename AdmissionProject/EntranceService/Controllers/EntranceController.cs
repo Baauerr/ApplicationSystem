@@ -22,7 +22,7 @@ namespace EntranceService.Controllers
         }
 
         [HttpPost("application")]
-        [Authorize(Roles = "USER")]
+        [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
@@ -35,7 +35,7 @@ namespace EntranceService.Controllers
             return Ok();
         }
         [HttpPost("educationDocumentForm")]
-        [Authorize(Roles = "USER")]
+        [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
@@ -43,11 +43,12 @@ namespace EntranceService.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _documentService.AddEducationDocumentInfo(educationDocDTO, Guid.Parse(userId));
+            await _documentService.AddEducationDocumentsInfo(educationDocDTO, Guid.Parse(userId));
             return Ok();
         }
+
         [HttpPost("passportForm")]
-        [Authorize(Roles = "USER")]
+        [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]

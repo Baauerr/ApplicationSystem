@@ -23,6 +23,7 @@ builder.ConfigureAccountServices();
 builder.ConfigureSwagger();
 builder.configureJWTAuth();
 builder.Services.AddControllers();
+builder.ConfigureHelpersServices();
 
 var app = builder.Build();
 

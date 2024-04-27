@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.ConfigureExceptionHandler();
+//app.ConfigureExceptionHandler();
 app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseAuthorization();

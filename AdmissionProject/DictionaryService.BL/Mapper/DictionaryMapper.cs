@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using DictionaryService.Common.DTO;
+using Common.DTO.Dictionary;
 using DictionaryService.DAL.Entities;
-using System.Runtime;
 
 namespace DictionaryService.BL.Mapper
 {
@@ -21,7 +20,11 @@ namespace DictionaryService.BL.Mapper
 
             CreateMap<EducationLevelDTO, EducationLevel>()
                 .ReverseMap();
+            CreateMap<Faculty, FacultyDTO>()
+                .ReverseMap();
 
+            CreateMap<Faculty, FacultyDTO>()
+                .ReverseMap();
         }
     }
 }

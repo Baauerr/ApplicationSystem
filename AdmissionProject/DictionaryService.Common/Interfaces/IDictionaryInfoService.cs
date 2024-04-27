@@ -1,11 +1,7 @@
-﻿using DictionaryService.Common.DTO;
-using DictionaryService.Common.Enums;
+﻿using Common.DTO.Dictionary;
+using Common.Enum;
 using DictionaryService.DAL.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DictionaryService.Common.Interfaces
 {

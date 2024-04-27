@@ -19,6 +19,5 @@ namespace UserService.DAL.Entity
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Неправильный формат адреса электронной почты.")]
         public override string Email { get; set; }
-        public string? Citizenship { get; set; }
     }
 }

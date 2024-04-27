@@ -41,7 +41,6 @@ namespace UserService.BL.Services
             user.Email = newProfileInfo.Email;
             user.UserName = newProfileInfo.Email;
             user.BirthDate = newProfileInfo.BirthDate;
-            user.Citizenship = newProfileInfo.Citizenship;
 
             user.SecurityStamp = Guid.NewGuid().ToString();
 

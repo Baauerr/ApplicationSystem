@@ -1,12 +1,11 @@
-using DictionaryService.Common.DTO;
-using DictionaryService.Common.Enums;
+using Common.DTO.Dictionary;
+using Common.Enum;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL.Entities;
 using DictionaryService.DAL.Enum;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NotificationService;
 using System.Security.Claims;
 using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
@@ -27,7 +26,7 @@ namespace UserService.Controllers
         }
 
         [HttpPost("import")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "ADMINISTRATOR")]
         [ProducesResponseType(200)]
         [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]

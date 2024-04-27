@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DictionaryService.DAL.Migrations
 {
     [DbContext(typeof(DictionaryDbContext))]
-    [Migration("20240415100913_addNextLevel")]
-    partial class addNextLevel
+    [Migration("20240427132049_programsIdToGuid")]
+    partial class programsIdToGuid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -116,6 +116,10 @@ namespace DictionaryService.DAL.Migrations
                     b.Property<string>("DocumentTypeId")
                         .HasColumnType("text");
 
+                    b.Property<string>("EducationLevelName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("EducationLevelId", "DocumentTypeId");
 
                     b.HasIndex("DocumentTypeId");
@@ -125,8 +129,9 @@ namespace DictionaryService.DAL.Migrations
 
             modelBuilder.Entity("DictionaryService.DAL.Entities.Program", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -168,22 +173,11 @@ namespace DictionaryService.DAL.Migrations
                         .HasForeignKey("DocumentTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("DictionaryService.DAL.Entities.EducationLevel", null)
-                        .WithMany("DocumentTypes")
-                        .HasForeignKey("EducationLevelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("DictionaryService.DAL.Entities.DocumentType", b =>
                 {
                     b.Navigation("NextEducationLevels");
-                });
-
-            modelBuilder.Entity("DictionaryService.DAL.Entities.EducationLevel", b =>
-                {
-                    b.Navigation("DocumentTypes");
                 });
 #pragma warning restore 612, 618
         }
