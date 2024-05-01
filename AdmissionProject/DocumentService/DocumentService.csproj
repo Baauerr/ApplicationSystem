@@ -1,14 +1,15 @@
-﻿ <Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>ecb4e3db-59ac-4a0d-bfef-69c9a4586560</UserSecretsId>
+    <UserSecretsId>a20a8a2a-a7ef-47ef-b339-fbf1c8791791</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.17" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.17">
@@ -26,8 +27,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\EntranceService.BL\EntranceService.BL.csproj" />
-    <ProjectReference Include="..\EntranceService.Common\EntranceService.Common.csproj" />
+    <ProjectReference Include="..\DocumentService.BL\DocumentService.BL.csproj" />
+    <ProjectReference Include="..\DocumentService.Common\DocumentService.Common.csproj" />
     <ProjectReference Include="..\Exceptions\Exceptions.csproj" />
   </ItemGroup>
 

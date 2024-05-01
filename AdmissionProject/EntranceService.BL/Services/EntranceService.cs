@@ -16,23 +16,20 @@ namespace EntranceService.BL.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRequestService _requestService;
-        private readonly IDocumentService _documentService;
 
         public EntrancingService(
             EntranceDbContext entranceDbContext,
             IMapper mapper,
             IConfiguration configuration,
-            IRequestService requestService,
-            IDocumentService documentService
+            IRequestService requestService
             )
         {
             _db = entranceDbContext;
             _mapper = mapper;
             _configuration = configuration;
             _requestService = requestService;
-            _documentService = documentService;
-        }
 
+        }
 
         public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId)
         {
@@ -202,23 +199,18 @@ namespace EntranceService.BL.Services
 
         private async Task CheckPasportExist(Guid userId)
         {
-            var passportExists = await _documentService.GetPassportInfo(userId);
-
-            if (passportExists == null)
-            {
                 throw new BadRequestException("Невозможно создать заявление, если не загружен паспорт");
-            }
+           
         }
 
         private async Task CheckEducationLevel(Guid userId, string educationLevelId)
         {
-            var educationDocuments = await _documentService.GetEducationDocumentsInfo(userId);
 
-            var educationDocumentExist = educationDocuments.Any(ed => ed.EducationLevelId == educationLevelId);
+            //TODO ПРОВЕРИТЬ, ЧТО УРОВЕНЬ ОБРАЗОВАНИЯ ПРОГРММЫ = NEXTEDULEVELID от документа об образовании
+            
 
-            if (!educationDocumentExist) {
                 throw new BadRequestException("У пользователя нет подходящего документа об образовании");
-            }           
+                    
         }
 
 

@@ -8,8 +8,6 @@ namespace EntranceService.BL.Mapper
     {
         public EntranceMapper() {
             CreateMap<Application, CreateApplicationDTO>();
-            CreateMap<PassportData, PassportInfoDTO>().ReverseMap();
-            CreateMap<EducationDocumentData, EducationDocumentDTO>().ReverseMap();
         }
     }
 }

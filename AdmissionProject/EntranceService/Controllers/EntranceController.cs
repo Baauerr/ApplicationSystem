@@ -13,12 +13,10 @@ namespace EntranceService.Controllers
     {
 
         private readonly IEntranceService _entranceService;
-        private readonly IDocumentService _documentService;
 
-        public EntranceController(IEntranceService entranceService, IDocumentService documentService)
+        public EntranceController(IEntranceService entranceService)
         {
             _entranceService = entranceService;
-            _documentService = documentService;
         }
 
         [HttpPost("application")]
@@ -32,31 +30,6 @@ namespace EntranceService.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
             await _entranceService.CreateApplication(Guid.Parse(userId), token, applicationDTO);
-            return Ok();
-        }
-        [HttpPost("educationDocumentForm")]
-        [Authorize(Roles = "User")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> AddEducationForm([FromBody] EducationDocumentDTO educationDocDTO)
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            await _documentService.AddEducationDocumentsInfo(educationDocDTO, Guid.Parse(userId));
-            return Ok();
-        }
-
-        [HttpPost("passportForm")]
-        [Authorize(Roles = "User")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> AddPassportForm([FromBody] PassportInfoDTO passportDTO)
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            await _documentService.AddPassportInfo(passportDTO, Guid.Parse(userId));
             return Ok();
         }
     }

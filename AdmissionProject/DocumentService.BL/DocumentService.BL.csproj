@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DocumentService.Common\DocumentService.Common.csproj" />
+    <ProjectReference Include="..\DocumentService.DAL\DocumentService.DAL.csproj" />
+    <ProjectReference Include="..\Exceptions\Exceptions.csproj" />
+  </ItemGroup>
+
+</Project>
