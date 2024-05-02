@@ -9,7 +9,9 @@ namespace DocumentService.BL.Mapper
         public DocumentMapper()
         {
             CreateMap<PassportForm, PassportFormDTO>().ReverseMap();
-            CreateMap<EducationDocumentForm, EducationDocumentForm>().ReverseMap();
+            CreateMap<PassportForm, GetPassportFormDTO>().ReverseMap();
+            CreateMap<EducationDocumentForm, EducationDocumentFormDTO>().ReverseMap();
+            CreateMap<EducationDocumentForm, GetEducationDocumentFormDTO>().ReverseMap();
         }
     }
 }

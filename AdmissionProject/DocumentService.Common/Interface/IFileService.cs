@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DocumentService.Common.DTO;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,8 @@ namespace DocumentService.Common.Interface
     public interface IFileService
     {
         public Task UploadPassportFile(IFormFile file, Guid userId);
-        public Task DeletePassportFile();
-        public Task UploadEducationDocumentFile(IFormFile file, Guid userId, string educationLevelId);
-        public Task DeleteEducationDocumentFile();
+        public Task DeletePassportFile(Guid userId);
+        public Task UploadEducationDocumentFile(IFormFile file, Guid userId, EducationFileDTO educationLevelId);
+        public Task DeleteEducationDocumentFile(Guid userId, DeleteEducationFormDTO EducationLevelId);
     }
 }

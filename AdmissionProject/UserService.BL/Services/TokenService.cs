@@ -8,7 +8,6 @@ using System.Security.Claims;
 using System.Text;
 using UserService.BL.Configuration;
 using UserService.Common.DTO.Auth;
-using UserService.Common.Enum;
 using UserService.Common.Interfaces;
 using UserService.DAL;
 using UserService.DAL.Entity;

@@ -16,5 +16,6 @@ namespace DocumentService.DAL.Entity
         public string BirthPlace { get; set; }
         public DateTime IssueDate { get; set; }
         public string IssuePlace { get; set; }
+        public Guid? fileId { get; set; } = Guid.Empty;
     }
 }

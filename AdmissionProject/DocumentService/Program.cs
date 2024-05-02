@@ -1,7 +1,10 @@
 using Common.BannedToken;
 using Common.Configuration;
 using DocumentService.Configuration;
+using DocumentService.DAL;
 using DocumentService.DAL.Config;
+using Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +20,17 @@ builder.configureJWTAuth();
 
 var app = builder.Build();
 
+using var serviceScope = app.Services.CreateScope();
+var dbContext = serviceScope.ServiceProvider.GetService<DocumentDbContext>();
+dbContext?.Database.Migrate();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.ConfigureExceptionHandler();
 
 app.UseHttpsRedirection();
 

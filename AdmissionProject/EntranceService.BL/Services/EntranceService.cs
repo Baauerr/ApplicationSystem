@@ -7,6 +7,8 @@ using EntranceService.DAL.Enum;
 using Exceptions.ExceptionTypes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Common.DTO.User;
+using Common.Enum;
 
 namespace EntranceService.BL.Services
 {
@@ -16,19 +18,21 @@ namespace EntranceService.BL.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRequestService _requestService;
+        private readonly QueueManager _queueManager;
 
         public EntrancingService(
             EntranceDbContext entranceDbContext,
             IMapper mapper,
             IConfiguration configuration,
-            IRequestService requestService
+            IRequestService requestService, 
+            QueueManager queueManager
             )
         {
             _db = entranceDbContext;
             _mapper = mapper;
             _configuration = configuration;
             _requestService = requestService;
-
+            _queueManager = queueManager;
         }
 
         public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId)
@@ -170,6 +174,7 @@ namespace EntranceService.BL.Services
 
             await _db.Applications.AddAsync(application);
             await _db.SaveChangesAsync();
+            GiveEntrantRole(userId);
         }
 
         public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO)
@@ -217,6 +222,23 @@ namespace EntranceService.BL.Services
         public async Task GetApplications()
         {
              
+
+        }
+
+        private void GiveEntrantRole(Guid userId)
+        {
+
+            var message = new SetRoleRequestDTO
+            {
+                RecipientId = userId.ToString(),
+                Role = Roles.ENTRANT
+            };
+
+            var queueName = "give_roles";
+
+            _queueManager.SendMessage(queueName, message);
+
+            
         }
         
     }

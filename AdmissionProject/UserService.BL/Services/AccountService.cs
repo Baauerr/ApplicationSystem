@@ -1,10 +1,16 @@
 ﻿using AutoMapper;
 using Common.DTO.Profile;
+using Common.DTO.User;
+using Common.Enum;
 using Exceptions.ExceptionTypes;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using StackExchange.Redis;
+using System.Text;
 using UserService.Common.DTO.Profile;
-using UserService.Common.Enum;
 using UserService.Common.Interfaces;
 using UserService.DAL.Entity;
 
@@ -111,8 +117,9 @@ namespace UserService.BL.Services
                 }
             }
 
-
             return allManagersDTO;
         }
+
+
     }
 }

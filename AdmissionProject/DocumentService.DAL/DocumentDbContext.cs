@@ -8,8 +8,8 @@ namespace DocumentService.DAL
         public DocumentDbContext(DbContextOptions<DocumentDbContext> options) : base(options) { }
         public DbSet<PassportForm> PassportsData { get; set; }
         public DbSet<EducationDocumentForm> EducationDocumentsData { get; set; }
-        public DbSet<DocumentFile> PassportsFiles { get; set; }
-        public DbSet<DocumentFile> EducationDocumentsFiles { get; set; }
+        public DbSet<PassportFile> PassportsFiles { get; set; }
+        public DbSet<EducationDocumentFile> EducationDocumentsFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

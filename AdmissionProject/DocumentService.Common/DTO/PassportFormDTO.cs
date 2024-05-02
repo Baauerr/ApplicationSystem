@@ -14,4 +14,11 @@ namespace DocumentService.Common.DTO
         public DateTime IssueDate { get; set; }
         public string IssuePlace { get; set; }
     }
+
+
+    public class GetPassportFormDTO: PassportFormDTO
+    {
+        public Guid UserId { get; set; }
+    }
+
 }

@@ -9,6 +9,7 @@ namespace EntranceService.Common.DTO
     public class ProgramDTO
     {
         public Guid ProgramId { get; set; }
+        public string FacultyId { get; set; }
         public int ProgramPriority { get; set; }
     }
     public class AddProgramDTO

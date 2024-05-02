@@ -9,9 +9,9 @@ namespace DocumentService.Common.Interface
 {
     public interface IDocumentFormService
     {
-        public Task<PassportFormDTO> GetPassportInfo(Guid userId);
+        public Task<GetPassportFormDTO> GetPassportInfo(Guid userId);
         public Task EditPassportInfo(PassportFormDTO passportDTO, Guid userId);
-        public Task<List<EducationDocumentFormDTO>> GetEducationDocumentsInfo(Guid userId);
+        public Task<List<GetEducationDocumentFormDTO>> GetEducationDocumentsInfo(Guid userId);
         public Task EditEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId);
         public Task AddEducationDocumentsInfo(
             EducationDocumentFormDTO educationDocumentDTO, Guid userId);

@@ -1,6 +1,5 @@
 ﻿using Common.Enum;
 using System.ComponentModel.DataAnnotations;
-using UserService.Common.Enum;
 
 namespace UserService.Common.DTO.Profile
 {

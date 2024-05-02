@@ -1,4 +1,5 @@
 using Common.DTO.Profile;
+using Common.DTO.User;
 using Common.Helpers;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;

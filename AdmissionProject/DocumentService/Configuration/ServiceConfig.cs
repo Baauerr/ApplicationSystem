@@ -14,8 +14,8 @@ namespace DocumentService.Configuration
     {
         public static void ConfigureDocumentServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IDocumentFormService, DocumentFormService>();
             builder.Services.AddScoped<IFileService, FilesService>();
+            builder.Services.AddScoped<IDocumentFormService, DocumentFormService>();  
             builder.Services.AddScoped<IRequestService, RequestService>();
             builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
             builder.Services.AddTransient<ExceptionsHandler>();

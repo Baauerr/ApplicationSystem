@@ -35,6 +35,52 @@ namespace DocumentService.Controllers
             await _fileService.UploadPassportFile(file, Guid.Parse(userId));
             return Ok();
         }
+        [HttpPost]
+        [Route("educationDocument")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<ActionResult> UpLoadEducationDocument(IFormFile file, EducationFileDTO educationFileDTO)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            await _fileService.UploadEducationDocumentFile(file, Guid.Parse(userId), educationFileDTO);
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("passport")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<ActionResult> DeletePassport()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            await _fileService.DeletePassportFile(Guid.Parse(userId));
+            return Ok();
+        }
+        [HttpDelete]
+        [Route("educationDocument")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<ActionResult> DeleteEducationDocument(DeleteEducationFormDTO educationFileDTO)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            await _fileService.DeleteEducationDocumentFile(Guid.Parse(userId), educationFileDTO);
+            return Ok();
+        }
 
     }
 }

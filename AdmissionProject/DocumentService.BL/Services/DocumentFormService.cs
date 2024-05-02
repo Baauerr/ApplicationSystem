@@ -14,12 +14,14 @@ namespace DocumentService.BL.Services
         private readonly DocumentDbContext _db;
         private readonly IMapper _mapper;
         private readonly IRequestService _requestService;
+        private readonly IFileService _fileService;
 
-        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IRequestService requestService)
+        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IRequestService requestService, IFileService fileService)
         {
             _db = dbContext;
             _mapper = mapper;
             _requestService = requestService;
+            _fileService = fileService;
         }
 
         public async Task AddEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
@@ -75,6 +77,7 @@ namespace DocumentService.BL.Services
             {
                 _db.PassportsData.Remove(currentPassport);
             }
+            await _fileService.DeletePassportFile(userId);
         }
 
         public async Task EditEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
@@ -111,6 +114,7 @@ namespace DocumentService.BL.Services
 
             _db.EducationDocumentsData.Remove(educationDocument);
             await _db.SaveChangesAsync();
+            await _fileService.DeleteEducationDocumentFile(userId, educationDocumentDTO);
         }
 
         public async Task EditPassportInfo(PassportFormDTO passportDTO, Guid userId)
@@ -125,28 +129,40 @@ namespace DocumentService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<List<EducationDocumentFormDTO>> GetEducationDocumentsInfo(Guid userId)
+        public async Task<List<GetEducationDocumentFormDTO>> GetEducationDocumentsInfo(Guid userId)
         {
             var documentsData = await _db.EducationDocumentsData
               .Where(ed => ed.OwnerId == userId)
               .ToListAsync();
 
-            var educationDocumentDTOList = new List<EducationDocumentFormDTO>();
+            if (documentsData.Count == 0)
+            {
+                throw new NotFoundException("Пользователь ещё не добавил документы об образовании");
+            }
+
+            var educationDocumentDTOList = new List<GetEducationDocumentFormDTO>();
 
             foreach (var document in documentsData)
             {
-                var educationDocumentDTO = _mapper.Map<EducationDocumentFormDTO>(documentsData);
+                var educationDocumentDTO = _mapper.Map<GetEducationDocumentFormDTO>(documentsData);
+                educationDocumentDTO.UserId = userId;
                 educationDocumentDTOList.Add(educationDocumentDTO);
             }
 
             return educationDocumentDTOList;
         }
 
-        public async Task<PassportFormDTO> GetPassportInfo(Guid userId)
+        public async Task<GetPassportFormDTO> GetPassportInfo(Guid userId)
         {
             var passportInfo = await _db.PassportsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId);
 
-            var passportDTO = _mapper.Map<PassportFormDTO>(passportInfo);
+            if (passportInfo == null)
+            {
+                throw new NotFoundException("Пользователь ещё не добавил паспорт");
+            }
+
+            var passportDTO = _mapper.Map<GetPassportFormDTO>(passportInfo);
+            passportDTO.UserId = userId;
 
             return passportDTO;
         }

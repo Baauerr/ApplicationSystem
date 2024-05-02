@@ -6,14 +6,8 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Common.DTO
 {
-    public class EducationDocumentFormDTO
+    public class EducationFileDTO
     {
-        public string Name { get; set; }
         public string EducationLevelId { get; set; }
-    }
-
-    public class GetEducationDocumentFormDTO: EducationDocumentFormDTO
-    {
-        public Guid UserId { get; set; }
     }
 }

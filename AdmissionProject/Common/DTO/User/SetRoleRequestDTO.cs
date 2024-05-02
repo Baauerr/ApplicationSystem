@@ -1,6 +1,8 @@
-﻿using UserService.Common.Enum;
+﻿
 
-namespace UserService.Common.DTO.Profile
+using Common.Enum;
+
+namespace Common.DTO.User
 {
     public class SetRoleRequestDTO
     {

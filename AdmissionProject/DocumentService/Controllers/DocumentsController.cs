@@ -59,6 +59,20 @@ namespace DocumentService.Controllers
             return Ok();
         }
 
+        [HttpGet("passportForm")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(typeof(GetPassportFormDTO), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult> GetPassportForm()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            var passport = await _documentFormService.GetPassportInfo(Guid.Parse(userId));
+            return Ok(passport);
+        }
+
         [HttpPost("educationDocumentForm")]
         [Authorize(Roles = "User")]
         [ProducesResponseType(200)]
@@ -94,6 +108,19 @@ namespace DocumentService.Controllers
             var userId = userIdClaim.Value;
             await _documentFormService.EditEducationDocumentsInfo(educationDocDTO, Guid.Parse(userId));
             return Ok();
+        }
+        [HttpGet("educationDocumentForm")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(typeof(List<GetEducationDocumentFormDTO>), 200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult> GetEducationDocumentForm()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            var educationDocuments = await _documentFormService.GetEducationDocumentsInfo(Guid.Parse(userId));
+            return Ok(educationDocuments);
         }
     }
 }
