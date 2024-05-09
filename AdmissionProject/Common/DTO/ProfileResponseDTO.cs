@@ -6,13 +6,13 @@ namespace Common.DTO.Profile
 {
     public class ProfileResponseDTO
     {
-        public required string FullName { get; set; }
+        public string FullName { get; set; }
         public DateTime? BirthDate { get; set; }
         public Gender Gender { get; set; }
         public string? PhoneNumber { get; set; }
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Неправильный формат адреса электронной почты.")]
-        public required string Email { get; set; }
+        public string Email { get; set; }
         public string? Citizenship { get; set; }
     }
 }

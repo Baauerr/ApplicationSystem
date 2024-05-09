@@ -12,55 +12,37 @@ using System.Threading.Channels;
 
 namespace NotificationService
 {
-    public class NotificationServices: BackgroundService
+    public class NotificationServices
     {
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        private IBus _bus;
+
+
+        public NotificationServices()
         {
-            var factory = new ConnectionFactory()
-            {
-                HostName = "localhost",
-            };
-
-            var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-
-            channel.QueueDeclare(queue: "notification", durable: false, exclusive: false, autoDelete: false, arguments: null);
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                var newEmail = JsonConvert.DeserializeObject<MailStructure>(message);
-                SendNotification(newEmail);
-            };
-
-            channel.BasicConsume(queue: "notification",
-                                 autoAck: true,
-                                 consumer: consumer);
-
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(1000, stoppingToken);
-            }
+            _bus = RabbitHutch.CreateBus("host=localhost");
         }
 
-        public void SendNotification(MailStructure mailStructure)
+        public async Task StartListening()
+        {
+            await _bus.PubSub.SubscribeAsync<MailStructure>("notification", SendNotificationAsync);
+        }
+
+        public void SendNotificationAsync(MailStructure mailStructure)
         {
             SmtpClient client = new SmtpClient("localhost", 1025);
 
             MailMessage message = new MailMessage();
             message.From = new MailAddress("gamarjoba@allow.com");
 
-            if (!IsValidEmail(mailStructure.recipient))
+            if (!IsValidEmail(mailStructure.Recipient))
             {
                 throw new BadRequestException("Неверный формат email");
             }
 
-            message.To.Add(new MailAddress(mailStructure.recipient));
-            message.Subject = mailStructure.subject;
-            message.Body = mailStructure.body;
+            message.To.Add(new MailAddress(mailStructure.Recipient));
+            message.Subject = mailStructure.Subject;
+            message.Body = mailStructure.Body;
 
             try
             {

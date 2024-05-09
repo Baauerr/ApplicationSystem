@@ -2,8 +2,8 @@
 {
     public class MailStructure
     {
-        public string recipient {  get; set; }
-        public string subject { get; set; }
-        public string body { get; set; }
+        public string Recipient {  get; set; }
+        public string Subject { get; set; }
+        public string Body { get; set; }
     }
 }

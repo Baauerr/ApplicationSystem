@@ -1,4 +1,5 @@
 using Common.Configuration;
+using EntranceService.BL.Services;
 using EntranceService.Configuration;
 using EntranceService.DAL;
 using EntranceService.DAL.Config;
@@ -16,6 +17,7 @@ builder.ConfigureRedisDb();
 builder.Services.AddHttpClient();
 builder.ConfigureSwagger();
 builder.configureJWTAuth();
+builder.Services.AddScoped<QueueSender>();
 
 var app = builder.Build();
 

@@ -79,35 +79,68 @@ namespace DictionaryService.BL.Services
 
             if (response.IsSuccessStatusCode)
             {
-                var currentDocumnetTypes = await _db.DocumentTypes.ToListAsync();
-                List<DocumentType> documentTypesList = new List<DocumentType>();
-                List<DocumentTypeDTO> documentTypes = await response.Content.ReadAsAsync<List<DocumentTypeDTO>>();
-                foreach (var docuementType in documentTypes)
+                var currentDocumentTypes = await _db.DocumentTypes.ToListAsync();
+                var newDocumentTypes = await response.Content.ReadAsAsync<List<DocumentTypeDTO>>();
+
+                var toDelete = currentDocumentTypes
+                    .Where(doc => !newDocumentTypes.Any(newDoc => newDoc.Id == doc.Id)) 
+                    .ToList();
+
+                var toAdd = newDocumentTypes
+                    .Where(doc => !currentDocumentTypes.Any(curDoc => curDoc.Id == doc.Id))
+                    .ToList();
+                
+                var toUpdate = currentDocumentTypes
+                    .Where(doc => !newDocumentTypes.Any(newDoc => newDoc.Id == doc.Id)) 
+                    .ToList();
+
+                _db.DocumentTypes.RemoveRange(toDelete);
+
+                await DeleteNextEducationLevels(toDelete);
+               
+                foreach(var documentTypeDTO in toAdd)
                 {
-                    if (!currentDocumnetTypes.Any(doc => doc.Id == docuementType.Id)) {
-                        var newDocumentType = _mapper.Map<DocumentType>(docuementType);
-                        newDocumentType.CreateTime = newDocumentType.CreateTime.ToUniversalTime();
+                    var documentType = _mapper.Map<DocumentType>(documentTypeDTO);
+                    foreach(var nextEducationLevelDTO in documentTypeDTO.NextEducationLevels)
+                    {
+                        var newNextEducationLevel = new NextEducationLevel
+                        {
+                            DocumentTypeId = documentTypeDTO.Id,
+                            EducationLevelId = nextEducationLevelDTO.Id,
+                            EducationLevelName = nextEducationLevelDTO.Name,
+                        };
+                        await _db.NextEducationLevelDocuments.AddAsync(newNextEducationLevel);
+                    }
+                    await _db.DocumentTypes.AddAsync(documentType);
+                }
 
-                        var nextEducationLevelList = new List<NextEducationLevel>();
+                foreach (var documentType in toUpdate)
+                {
 
-                        foreach (var educationLevel in docuementType.NextEducationLevels)
+                    var documentTypeDTO = newDocumentTypes
+                        .Find(ndt => ndt.Id == documentType.Id);
+
+
+                    documentType.EducationLevelId = documentTypeDTO.EducationLevel.Id;
+                    documentType.Id = documentTypeDTO.Id;
+                    documentType.Name = documentTypeDTO.Name;
+                    documentType.CreateTime = documentTypeDTO.CreateTime;
+
+                    _db.DocumentTypes.Update(documentType);
+
+                    var nextEducationLevelList = new List<NextEducationLevel>();
+
+                        foreach (var educationLevel in documentTypeDTO.NextEducationLevels)
                         {
                             var newNextEducationLevel = new NextEducationLevel
                             {
-                                DocumentTypeId = newDocumentType.Id, 
+                                DocumentTypeId = documentType.Id, 
                                 EducationLevelId = educationLevel.Id,
                                 EducationLevelName = educationLevel.Name,
                             };
-
-                            nextEducationLevelList.Add(newNextEducationLevel);
-                        }
-                        await _db.NextEducationLevelDocuments.AddRangeAsync(nextEducationLevelList);
-                        documentTypesList.Add(newDocumentType);
-                    } 
+                        _db.NextEducationLevelDocuments.Update(newNextEducationLevel);
+                        }   
                 }
-
-                await _db.DocumentTypes.AddRangeAsync(documentTypesList);
-           
                 return ImportStatus.Success;
             }
             else
@@ -116,25 +149,52 @@ namespace DictionaryService.BL.Services
             }  
         }
 
-        private async Task<ImportStatus> ImportEducationLevels()
+        private async Task DeleteNextEducationLevels(List<DocumentType> documentTypes)
         {
-        
+            foreach(var documentType in documentTypes)
+            {
+                var nextLevels = await _db.NextEducationLevelDocuments
+                    .Where(nel => nel.DocumentTypeId == documentType.Id)
+                    .ToListAsync();
+
+                _db.NextEducationLevelDocuments.RemoveRange(nextLevels);
+            }
+        }
+
+        private async Task<ImportStatus> ImportEducationLevels()
+        {       
             HttpResponseMessage response = await _httpClient.GetAsync(_baseUrl + "education_levels");
 
             if (response.IsSuccessStatusCode)
             {
                 var currentEducationLevels = await _db.EducationLevels.ToListAsync();
-                List<EducationLevel> educationLevelsList = new List<EducationLevel>();
-                List<EducationLevel> educationLevels = await response.Content.ReadAsAsync<List<EducationLevel>>();
-            
-                foreach (var educationLevel in educationLevels)
+                List<EducationLevel> newEducationLevels = await response.Content.ReadAsAsync<List<EducationLevel>>();
+
+                var toDelete = currentEducationLevels
+                    .Where(doc => !newEducationLevels.Any(newDoc => newDoc.Id == doc.Id))
+                    .ToList();
+
+                var toAdd = newEducationLevels
+                    .Where(doc => !currentEducationLevels.Any(curDoc => curDoc.Id == doc.Id))
+                    .ToList();
+
+                var toUpdate = currentEducationLevels
+                    .Where(doc => !newEducationLevels.Any(newDoc => newDoc.Id == doc.Id))
+                    .ToList();
+
+                await _db.EducationLevels.AddRangeAsync(toAdd);
+                _db.EducationLevels.RemoveRange(toDelete);
+
+
+                foreach (var educationLevel in toUpdate)
                 {
-                    if (!currentEducationLevels.Any(level => level.Id == educationLevel.Id))
-                    {
-                        educationLevelsList.Add(educationLevel);
-                    } 
+                    var educationLevelDTO = newEducationLevels.Find(el => el.Id == educationLevel.Id);
+                    educationLevel.Id = educationLevelDTO.Id;
+                    educationLevel.Name = educationLevelDTO.Name;
+
+                    _db.EducationLevels.Update(educationLevel);
                 }
-                await _db.EducationLevels.AddRangeAsync(educationLevelsList);
+
                 await _db.SaveChangesAsync();
                 return ImportStatus.Success;
             }
@@ -151,18 +211,37 @@ namespace DictionaryService.BL.Services
             if (response.IsSuccessStatusCode)
             {
                 var currentFaculties = await _db.Faculties.ToListAsync();
-                List<Faculty> facultiesList = new List<Faculty>();
-                List<Faculty> faculties = await response.Content.ReadAsAsync<List<Faculty>>();
+                List<Faculty> newFaculties = await response.Content.ReadAsAsync<List<Faculty>>();
 
-                foreach (var faculty in faculties)
+                var toDelete = currentFaculties
+                    .Where(doc => !newFaculties.Any(newDoc => newDoc.Id == doc.Id))
+                    .ToList();
+
+                var toAdd = newFaculties
+                    .Where(doc => !currentFaculties.Any(curDoc => curDoc.Id == doc.Id))
+                    .ToList();
+
+                var toUpdate = currentFaculties
+                    .Where(doc => !newFaculties.Any(newDoc => newDoc.Id == doc.Id))
+                    .ToList();
+
+                await _db.Faculties.AddRangeAsync(toAdd);
+                _db.Faculties.RemoveRange(toDelete);
+
+                foreach (var faculty in toUpdate)
                 {
-                    if (!currentFaculties.Any(faculty => faculty.Id == faculty.Id))
-                    {
-                        faculty.CreateTime = faculty.CreateTime.ToUniversalTime();
-                        facultiesList.Add(faculty);
-                    }        
-                }
-                await _db.Faculties.AddRangeAsync(facultiesList);
+
+                    var facultyDTO = newFaculties.Find(f => f.Id == faculty.Id);
+
+                    faculty.Name = facultyDTO.Name;
+                    faculty.Id = facultyDTO.Id;
+                    faculty.CreateTime = facultyDTO.CreateTime;                  
+
+                    _db.Faculties.Update(faculty);
+                }  
+                
+                _db.SaveChangesAsync();
+
                 return ImportStatus.Success;
             }
             else
@@ -177,18 +256,48 @@ namespace DictionaryService.BL.Services
             if (response.IsSuccessStatusCode)
             {
                 var currentPrograms = await _db.Programs.ToListAsync();
-                List<Program> programsList = new List<Program>();
-                ProgramResponseDTO programs = await response.Content.ReadAsAsync<ProgramResponseDTO>();
-                foreach (var program in programs.programs)
+                ProgramResponseDTO newPrograms = await response.Content.ReadAsAsync<ProgramResponseDTO>();
+
+                var toDelete = currentPrograms
+                    .Where(doc => !newPrograms.programs.Any(newDoc => newDoc.Id == doc.Id))
+                    .ToList();
+
+                var toAdd = newPrograms.programs
+                    .Where(doc => !currentPrograms.Any(curDoc => curDoc.Id == doc.Id))
+                    .ToList();
+
+                var toUpdate = currentPrograms
+                    .Where(doc => !newPrograms.programs.Any(newDoc => newDoc.Id == doc.Id))
+                    .ToList();
+
+                _db.Programs.RemoveRange(toDelete);
+
+                foreach (var program in toUpdate)
                 {
-                    if (!currentPrograms.Any(program => program.Id == program.Id))
-                    {
-                        var newProgram = _mapper.Map<Program>(program);
-                        newProgram.CreateTime = program.CreateTime.ToUniversalTime();
-                        programsList.Add(newProgram);
-                    }
+                    var programDTO = newPrograms.programs.Find(p => p.Id == program.Id);
+                    program.Id = programDTO.Id;
+                    program.FacultyId = programDTO.Faculty.Id;
+                    program.Name = programDTO.Name;
+                    program.CreateTime = programDTO.CreateTime;
+                    program.Code = programDTO.Code;
+                    program.EducationLevelId = programDTO.EducationLevel.Id;
+                    program.Language = programDTO.Language;
+                    program.FacultyId = programDTO.Faculty.Id;
+                
+                        
+                    _db.Programs.Update(program);
                 }
-                await _db.Programs.AddRangeAsync(programsList);
+
+                foreach (var programDTO in toAdd)
+                {
+                    
+                    var program = _mapper.Map<Program>(programDTO);
+
+                    _db.Programs.Add(program);
+                }
+
+                await _db.SaveChangesAsync();
+
                 return ImportStatus.Success;
             }
             else

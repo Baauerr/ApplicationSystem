@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Common.DTO.Entrance;
 using Common.DTO.Profile;
 using Common.DTO.User;
 using Common.Enum;
+using DocumentService.Common.DTO;
+using EasyNetQ;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
@@ -21,11 +24,13 @@ namespace UserService.BL.Services
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
+        private readonly IBus _bus;
 
-        public AccountService(UserManager<User> userManager, ITokenService tokenService, IMapper mapper) {
+        public AccountService(UserManager<User> userManager, ITokenService tokenService, IMapper mapper) {    
             _userManager = userManager;
             _tokenService = tokenService;
             _mapper = mapper;
+            _bus = RabbitHutch.CreateBus("host=localhost");
         }
         public async Task ChangeProfileInfo(ChangeProfileRequestDTO newProfileInfo, string token)
         {
@@ -48,6 +53,8 @@ namespace UserService.BL.Services
             user.UserName = newProfileInfo.Email;
             user.BirthDate = newProfileInfo.BirthDate;
 
+            await SyncProfileInfo(userId, newProfileInfo.FullName);
+
             user.SecurityStamp = Guid.NewGuid().ToString();
 
             var result = await _userManager.UpdateAsync(user);
@@ -61,9 +68,19 @@ namespace UserService.BL.Services
             }
         }
 
-        public async Task<ProfileResponseDTO> GetProfile(string token)
+        private async Task SyncProfileInfo(Guid userId, string newName)
         {
-            var userId = _tokenService.GetUserIdFromToken(token);
+            var updateInfo = new UpdateUserDataDTO
+            {
+                UserId = userId,
+                NewUserName = newName,
+            };
+
+            await _bus.PubSub.PublishAsync(updateInfo);
+        }
+
+        public async Task<ProfileResponseDTO> GetProfile(Guid userId)
+        {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             var userProfile = _mapper.Map<ProfileResponseDTO>(user);
             return userProfile;

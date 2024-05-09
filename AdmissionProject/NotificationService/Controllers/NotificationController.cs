@@ -1,3 +1,4 @@
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NotificationService.DTO;
@@ -10,36 +11,29 @@ namespace NotificationService.Controllers
     public class NotificationController : Controller
     {
 
+        private IBus _bus;
+
+        public NotificationController()
+        {
+            _bus = RabbitHutch.CreateBus("host=localhost");
+        }
+
         [HttpPost("sendNotify")]
         public async Task<ActionResult> LoginAsync()
         {
 
-                var factory = new ConnectionFactory()
-                {
-                    HostName = "localhost",
-                };
+            var message = new MailStructure
+            {
+                Body = "Приходит как-то улитка в бар",
+                Recipient = "umpa@lumpa.com",
+                Subject = "halo"
+            };
 
-                var connection = factory.CreateConnection();
+            await _bus.PubSub.PublishAsync(message);
 
-                using var channel = connection.CreateModel();
 
-                var message = new MailStructure
-                {
-                    body = "Приходит как-то улитка в бар",
-                    recipient = "umpa@lumpa.com",
-                    subject = "halo"
-                };
+            Console.WriteLine("Сообщение отправлено в очередь");
 
-                var jsonString = JsonConvert.SerializeObject(message);
-
-                var body = Encoding.UTF8.GetBytes(jsonString);
-
-                channel.QueueDeclare(queue: "notification", durable: false, exclusive: false, autoDelete: false, arguments: null);
-
-                channel.BasicPublish(exchange: "", routingKey: "notification", basicProperties: null, body: body);
-
-                Console.WriteLine("Сообщение отправлено в очередь");
-            
             return Ok();
         }   
     }

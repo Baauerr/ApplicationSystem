@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Common.DTO;
+using Common.DTO.Dictionary;
 using DocumentService.Common.DTO;
 using DocumentService.Common.Interface;
 using DocumentService.DAL;
 using DocumentService.DAL.Entity;
+using EasyNetQ;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,31 +16,41 @@ namespace DocumentService.BL.Services
 
         private readonly DocumentDbContext _db;
         private readonly IMapper _mapper;
-        private readonly IRequestService _requestService;
         private readonly IFileService _fileService;
+        private readonly IBus _bus;
+        
 
-        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IRequestService requestService, IFileService fileService)
+        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IFileService fileService, IBus bus)
         {
             _db = dbContext;
             _mapper = mapper;
-            _requestService = requestService;
             _fileService = fileService;
+            _bus = bus;
         }
 
         public async Task AddEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
         {
             await ValidateEducationLevel(educationDocumentDTO.EducationLevelId);
 
-            var educationDocument = _mapper.Map<EducationDocumentForm>(educationDocumentDTO);
+/*            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.EducationLevelId == educationDocumentDTO.EducationLevelId);
 
-            await _db.EducationDocumentsData.AddAsync(educationDocument);
+            if (educationDocument == null)
+            {
+                throw new BadRequestException("У пользователя уже есть документ об этом уровне образования");
+            }*/
+
+            var newEducationDocument = _mapper.Map<EducationDocumentForm>(educationDocumentDTO);
+
+            newEducationDocument.OwnerId = userId;
+
+            await _db.EducationDocumentsData.AddAsync(newEducationDocument);
 
             await _db.SaveChangesAsync();
         }
 
         private async Task ValidateEducationLevel(string educationLevelId)
         {
-            var educationLevels = await _requestService.GetEducationLevels();
+            var educationLevels = await GetAllEducationLevels();
 
             var isEducationLevelExist = educationLevels.EducationLevel.Any(el => el.Id == educationLevelId);
 
@@ -45,6 +58,16 @@ namespace DocumentService.BL.Services
             {
                 throw new NotFoundException("Такого уровня образования не существует");
             }
+        }
+
+        private async Task<EducationLevelResponseDTO> GetAllEducationLevels()
+        {
+
+            var educationLevels = _bus.Rpc.Request<GetEducationLevels, EducationLevelResponseDTO>(new GetEducationLevels {UserId = Guid.Empty });
+
+            Console.WriteLine(educationLevels.EducationLevel.Count());
+
+            return educationLevels;
         }
 
         public async Task AddPassportInfo(PassportFormDTO passportDTO, Guid userId)
@@ -154,6 +177,7 @@ namespace DocumentService.BL.Services
 
         public async Task<GetPassportFormDTO> GetPassportInfo(Guid userId)
         {
+
             var passportInfo = await _db.PassportsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId);
 
             if (passportInfo == null)
@@ -165,6 +189,16 @@ namespace DocumentService.BL.Services
             passportDTO.UserId = userId;
 
             return passportDTO;
+        }
+
+        private async Task GetEducationInfoRPC()
+        {
+            await _bus.Rpc.RespondAsync<UserIdDTO, List<GetEducationDocumentFormDTO>>(async request =>
+            {
+                var educationDocumentInfo = await GetEducationDocumentsInfo(request.UserId);
+
+                return educationDocumentInfo;
+            });
         }
     }
 }

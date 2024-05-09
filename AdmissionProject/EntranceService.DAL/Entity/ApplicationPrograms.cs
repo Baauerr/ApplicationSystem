@@ -10,7 +10,9 @@ namespace EntranceService.DAL.Entity
     {
         public Guid ProgramId { get; set; }
         public Guid ApplicationId { get; set; }
+        public string ProgramName { get; set; }
         public string FacultyId { get; set; }
+        public string FacultyName { get; set; }
         public int Priority { get; set; }
     }
 }

@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace EntranceService.Common.Interface
 {
-    public interface IRequestService
+    public interface IQueueSender
     {
-        public Task<ProgramResponseDTO> GetPrograms();
-        public Task<EducationLevelResponseDTO> GetEducationLevels();
+        public Task SendMessage<T>(T message);
     }
 }

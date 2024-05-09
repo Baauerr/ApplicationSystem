@@ -3,13 +3,14 @@ using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UserService.BL.Configuration;
-using UserService.Common.Enum;
 using UserService.Configuration;
 using UserService.DAL;
 using UserService.DAL.Configuration;
 using UserService.DAL.Entity;
 using Common.Configuration;
 using static Common.BannedToken.RedisConfig;
+using Common.Enum;
+using UserService.BL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +25,10 @@ builder.ConfigureSwagger();
 builder.configureJWTAuth();
 builder.Services.AddControllers();
 builder.ConfigureHelpersServices();
+builder.Services.AddListeners();
+
 
 var app = builder.Build();
-
-
 
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<UserDbContext>();

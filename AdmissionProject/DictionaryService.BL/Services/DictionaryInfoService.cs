@@ -164,8 +164,6 @@ namespace DictionaryService.BL.Services
 
             var programDTO = await CreateProgramDTO(program, pageSize, page, programsCount);
 
-            Console.WriteLine(programDTO.ToString());
-
             return programDTO;
         }
 

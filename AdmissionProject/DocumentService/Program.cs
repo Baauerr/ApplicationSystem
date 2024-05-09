@@ -1,5 +1,6 @@
 using Common.BannedToken;
 using Common.Configuration;
+using DocumentService.BL.Services;
 using DocumentService.Configuration;
 using DocumentService.DAL;
 using DocumentService.DAL.Config;
@@ -17,8 +18,11 @@ builder.ConfigureDocumentServices();
 builder.ConfigureRedisDb();
 builder.ConfigureSwagger();
 builder.configureJWTAuth();
+builder.Services.AddListeners();
 
 var app = builder.Build();
+
+
 
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<DocumentDbContext>();

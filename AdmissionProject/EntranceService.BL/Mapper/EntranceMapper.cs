@@ -8,6 +8,8 @@ namespace EntranceService.BL.Mapper
     {
         public EntranceMapper() {
             CreateMap<Application, CreateApplicationDTO>();
+            CreateMap<Application, GetApplicationDTO>();
+            CreateMap<ApplicationPrograms, GetProgramDTO>();
         }
     }
 }

@@ -4,6 +4,7 @@ using Common.Helpers;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using UserService.Common.DTO.Auth;
 using UserService.Common.DTO.Profile;
 using UserService.Common.Interfaces;
@@ -54,7 +55,9 @@ namespace UserService.Controllers
         public async Task<ActionResult<ProfileResponseDTO>> GetProfileAsync()
         {
             string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            return Ok(await _userService.GetProfile(token));
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+            return Ok(await _userService.GetProfile(Guid.Parse(userId)));
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]

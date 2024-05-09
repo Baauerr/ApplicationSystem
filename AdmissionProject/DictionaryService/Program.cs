@@ -5,6 +5,7 @@ using Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Common.Configuration;
 using static Common.BannedToken.RedisConfig;
+using DictionaryService.BL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.configureJWTAuth();
 builder.ConfigureRedisDb();
 builder.Services.AddHttpClient();
 builder.ConfigureSwagger();
+builder.Services.AddListeners();
 
 var app = builder.Build();
 

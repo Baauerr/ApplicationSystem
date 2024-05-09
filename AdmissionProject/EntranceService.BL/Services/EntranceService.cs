@@ -9,6 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Common.DTO.User;
 using Common.Enum;
+using NotificationService.DTO;
+using EasyNetQ;
+using DocumentService.Common.DTO;
+using Common.DTO.Profile;
+using Common.DTO.Dictionary;
 
 namespace EntranceService.BL.Services
 {
@@ -17,22 +22,22 @@ namespace EntranceService.BL.Services
         private readonly EntranceDbContext _db;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly IRequestService _requestService;
-        private readonly QueueManager _queueManager;
+        private readonly QueueSender _queueSender;
+        private readonly IBus _bus;
+
 
         public EntrancingService(
             EntranceDbContext entranceDbContext,
             IMapper mapper,
             IConfiguration configuration,
-            IRequestService requestService, 
-            QueueManager queueManager
+            QueueSender queueSender
             )
         {
             _db = entranceDbContext;
             _mapper = mapper;
             _configuration = configuration;
-            _requestService = requestService;
-            _queueManager = queueManager;
+            _queueSender = queueSender;
+            _bus = RabbitHutch.CreateBus("host=localhost");
         }
 
         public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId)
@@ -63,7 +68,6 @@ namespace EntranceService.BL.Services
                 .Any(ap => programsDTO.Any(program => program.ProgramId == ap.ProgramId));
             }
             
-
             var maxPriority = programsDTO.OrderByDescending(program => program.ProgramPriority).FirstOrDefault();
 
             if (maxPriority.ProgramPriority > (newProgramsCount + applicationProgramsCount) || maxPriority.ProgramPriority < 1)
@@ -96,7 +100,7 @@ namespace EntranceService.BL.Services
 
         private async Task ValidatePrograms(List<ProgramDTO> programsDTO, Guid userId)
         {
-            var availablePrograms = await _requestService.GetPrograms();
+            var availablePrograms = await _queueSender.GetAllPrograms(userId);
 
             availablePrograms.programs.RemoveAll(program => !programsDTO.Any(newProgram => newProgram.ProgramId == program.Id));
 
@@ -144,12 +148,61 @@ namespace EntranceService.BL.Services
             application.ApplicationStatus = status;
             application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
 
+            _db.Applications.Update(application);
+
             await _db.SaveChangesAsync();
         }
 
-        public Task ChangeProgramPriority(int programPriority, Guid programId, Guid applicationId)
+        public async Task ChangeProgramPriority(ChangeProgramPriorityDTO changeProgramPriorityDTO, Guid userId)
         {
-            throw new NotImplementedException();
+
+            var application = _db.Applications.FirstOrDefault(ap => ap.OwnerId == userId);
+
+            if (application == null)
+            {
+                throw new NotFoundException("Заявления с таким id не существует"); 
+            }
+
+            if (application.OwnerId != userId || application.ManagerId != userId)
+            {
+                throw new ForbiddenException("Нет доступа к этой заявке");
+            }
+
+            var programs = await _db.ApplicationsPrograms
+                .Where(ap => ap.ApplicationId == changeProgramPriorityDTO.ApplicationId)
+                .ToListAsync();
+
+            var programToEdit = programs.FirstOrDefault(p => p.ProgramId == changeProgramPriorityDTO.ProgramId);
+
+            
+
+            if (programToEdit == null)
+            {
+                throw new NotFoundException("В этой заявке нет такой программы");
+            }
+
+            _db.ApplicationsPrograms.Update(programToEdit);
+
+            var maxProgramsCount = _configuration.GetValue<int>("Programs:MaxProgramsCount");
+
+            if (programs.Count() < changeProgramPriorityDTO.Priority && changeProgramPriorityDTO.Priority < 1)
+            {
+                throw new BadRequestException("Приоритет не может быть больше количества программ и меньше 1");
+            }
+
+            programToEdit.Priority = changeProgramPriorityDTO.Priority;
+
+            foreach (var program in programs)
+            {
+                if (program.Priority >= changeProgramPriorityDTO.Priority && program.ProgramId != changeProgramPriorityDTO.ProgramId)
+                {
+                    program.Priority = program.Priority + 1;
+                }
+            }
+
+            _db.ApplicationsPrograms.UpdateRange(programs);
+
+            await _db.SaveChangesAsync();
 
         }
 
@@ -159,6 +212,8 @@ namespace EntranceService.BL.Services
 
             await CheckPasportExist(userId);
 
+            var userInfo = await GetUserInfo(userId);
+
             var application = new Application
             {
                 Citizenship = applicationDTO.Citizenship,
@@ -166,6 +221,7 @@ namespace EntranceService.BL.Services
                 OwnerId = userId,
                 LastChangeDate = DateTime.UtcNow.ToUniversalTime(),
                 ApplicationStatus = ApplicationStatus.Pending,
+                OwnerName = userInfo.FullName,
             };
             
             await AddProgramsToApplication(applicationDTO.Programs, application.Id);
@@ -174,13 +230,34 @@ namespace EntranceService.BL.Services
 
             await _db.Applications.AddAsync(application);
             await _db.SaveChangesAsync();
-            GiveEntrantRole(userId);
+            await GiveEntrantRole(userId);
+        }
+        private async Task<ProfileResponseDTO> GetUserInfo(Guid userId)
+        {
+            var userInfo = await _bus.Rpc.RequestAsync<UserIdDTO, ProfileResponseDTO>(new UserIdDTO { UserId = userId });
+
+            return userInfo;
         }
 
-        public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO)
+        public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO, Guid userId)
         {
+            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == deleteProgramDTO.ApplicationId);
+
+            if (application == null)
+            {
+                throw new NotFoundException("Такой заявки не существует");
+            }
+
+                if (application.OwnerId != userId || application.ManagerId == userId)
+                {
+                    throw new ForbiddenException("Пользователь не имеет права редактировать это заявление");
+                }
+            
+            
+
             var applicationProgram = await _db.ApplicationsPrograms.FirstOrDefaultAsync(
-                ap => ap.ProgramId == deleteProgramDTO.ProgramId && ap.ApplicationId == deleteProgramDTO.ApplicationId);
+                ap => ap.ProgramId == deleteProgramDTO.ProgramId
+                && ap.ApplicationId == deleteProgramDTO.ApplicationId);
             
             if (applicationProgram == null)
             {
@@ -204,8 +281,12 @@ namespace EntranceService.BL.Services
 
         private async Task CheckPasportExist(Guid userId)
         {
-                throw new BadRequestException("Невозможно создать заявление, если не загружен паспорт");
-           
+                var passportInfo = await _queueSender.GetUserPassport(userId);
+
+                if (passportInfo == null)
+                {
+                    throw new BadRequestException("Невозможно создать заявление, если не загружен паспорт");
+                }
         }
 
         private async Task CheckEducationLevel(Guid userId, string educationLevelId)
@@ -225,7 +306,7 @@ namespace EntranceService.BL.Services
 
         }
 
-        private void GiveEntrantRole(Guid userId)
+        private async Task GiveEntrantRole(Guid userId)
         {
 
             var message = new SetRoleRequestDTO
@@ -234,12 +315,38 @@ namespace EntranceService.BL.Services
                 Role = Roles.ENTRANT
             };
 
-            var queueName = "give_roles";
-
-            _queueManager.SendMessage(queueName, message);
-
-            
+        //    await _queueSender.SendMessage(message);      
         }
-        
+        public async Task SetManager(AddManagerDTO addManagerDTO)
+        {
+            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == addManagerDTO.ApplicationId);
+
+            if (application == null){
+                throw new NotFoundException("Такой заявки не существует");
+            }
+            if (application.ManagerId == Guid.Empty)
+            {
+                application.ManagerId = addManagerDTO.ManagerId;
+                application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
+                _db.Applications.Update(application);
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new BadRequestException("У этой заявки уже есть менеджер");
+            }
+        }
+        private async Task SendNotification(string recipient, string managerFullName)
+        {
+            var message = new MailStructure
+            {
+                Recipient = recipient,
+                Body =  $"На ваше заявление был назначен менеджер {managerFullName}",
+                Subject = "Назначение менеджера"
+            };
+
+            await _queueSender.SendMessage(message);
+        }
     }
+    
 }

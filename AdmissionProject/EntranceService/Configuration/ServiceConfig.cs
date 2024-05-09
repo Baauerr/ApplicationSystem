@@ -12,10 +12,8 @@ namespace EntranceService.Configuration
     {
         public static void ConfigureEntranceServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IRequestService, RequestService>();
             builder.Services.AddScoped<IEntranceService, EntrancingService>();
             builder.Services.AddScoped<IEntrantService, EntrantService>();
-           
             builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
             builder.Services.AddTransient<ExceptionsHandler>();
             builder.Services.AddAutoMapper(typeof(EntranceMapper));

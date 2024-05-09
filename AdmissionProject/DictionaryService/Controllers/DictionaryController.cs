@@ -6,6 +6,7 @@ using DictionaryService.DAL.Enum;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.Design;
 using System.Security.Claims;
 using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
@@ -56,11 +57,11 @@ namespace UserService.Controllers
             [FromQuery] int pageSize = 10
             )
         {
-            var programs = await _infoService.GetPrograms(
-                name, code, language, educationForm, educationLevel, faculty, page, pageSize
-                );
+               var programs = await _infoService.GetPrograms(
+                   name, code, language, educationForm, educationLevel, faculty, page, pageSize
+                 );
 
-            return Ok(programs);
+            return Ok(programs); 
         }
         [HttpGet("facuilties")]
         [Authorize]
@@ -69,8 +70,7 @@ namespace UserService.Controllers
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
         public async Task<ActionResult<FacultiesResponseDTO>> GetFaculties([FromQuery] string facultyName)
-        {
-            
+        {           
             return Ok(await _infoService.GetFaculties(facultyName));
         }
 

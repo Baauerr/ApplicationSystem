@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.DTO.Entrance;
+using EntranceService.Common.DTO;
 
 namespace EntranceService.Common.Interface
 {
     public interface IEntrantService
     {
-        public Task GetApplicationInfo(Guid applicationId);
-        public Task EditApplicationsInfo(Guid applicationId);
+        public Task<GetApplicationDTO> GetApplicationInfo(Guid applicationId);
+        public Task EditApplicationsInfo(EditApplicationDTO newApplicationInfo, Guid userId);
+        public Task SyncNameInApplication(UpdateUserDataDTO userData);
     }
 }

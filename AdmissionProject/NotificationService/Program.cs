@@ -6,7 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHostedService<NotificationServices>();
+builder.Services.AddSingleton<NotificationServices>();
+
+var notification = new NotificationServices();
+await notification.StartListening();
 
 var app = builder.Build();
 
