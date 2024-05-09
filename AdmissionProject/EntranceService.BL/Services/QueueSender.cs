@@ -1,4 +1,5 @@
-﻿using Common.DTO;
+﻿using Common.Const;
+using Common.DTO;
 using Common.DTO.Dictionary;
 using Common.DTO.Profile;
 using DocumentService.Common.DTO;
@@ -30,15 +31,24 @@ namespace EntranceService.BL.Services
 
         public async Task<EducationLevelResponseDTO> GetAllEducationLevels(Guid userId)
         {
-            var educationLevels = await _bus.Rpc.RequestAsync<GetEducationLevels, EducationLevelResponseDTO>(new GetEducationLevels { UserId = userId }, x => x.WithQueueName("huy"));
+            var educationLevels = await _bus.Rpc.RequestAsync<GetEducationLevels, EducationLevelResponseDTO>
+                (new GetEducationLevels { UserId = userId }, x => x.WithQueueName(QueueConst.GetEducationLevelsQueue));
 
             return educationLevels;
         }
 
         public async Task<PassportFormDTO> GetUserPassport(Guid userId)
         {
-            var passportInfo = await _bus.Rpc.RequestAsync<GetPassportInfo, GetPassportFormDTO>(new GetPassportInfo { UserId = userId });
+            var passportInfo = await _bus.Rpc.RequestAsync<GetPassportInfo, GetPassportFormDTO>
+                (new GetPassportInfo { UserId = userId }, x => x.WithQueueName(QueueConst.GetPassportFormQueue));
             return passportInfo;
+        }
+        public async Task<ProfileResponseDTO> GetProfileInfo(Guid userId)
+        {
+            var userInfo = await _bus.Rpc.RequestAsync<UserIdDTO, ProfileResponseDTO>
+                (new UserIdDTO { UserId = userId }, x => x.WithQueueName(QueueConst.GetProfileInfoQueue));
+
+            return userInfo;
         }
     }
 }

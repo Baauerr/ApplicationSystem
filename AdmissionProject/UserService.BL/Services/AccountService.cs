@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Const;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
 using Common.DTO.User;
@@ -76,7 +77,7 @@ namespace UserService.BL.Services
                 NewUserName = newName,
             };
 
-            await _bus.PubSub.PublishAsync(updateInfo);
+            await _bus.PubSub.PublishAsync(updateInfo, QueueConst.UpdateUserFullNameQueue);
         }
 
         public async Task<ProfileResponseDTO> GetProfile(Guid userId)

@@ -1,4 +1,5 @@
-﻿using Common.DTO;
+﻿using Common.Const;
+using Common.DTO;
 using Common.DTO.Dictionary;
 using DictionaryService.Common.Interfaces;
 using DocumentService.Common.DTO;
@@ -23,19 +24,12 @@ namespace DictionaryService.BL.Services
             var dictionaryService = serviceProvider.GetRequiredService<IDictionaryInfoService>();
 
             bus.Rpc.Respond<GetPrograms, ProgramResponseDTO>(async request =>
-                await dictionaryService.GetPrograms(null, null, null, null, null, null, 1, 1000)
+                await dictionaryService.GetPrograms(null, null, null, null, null, null, 1, 1000), x => x.WithQueueName(QueueConst.GetProgramsQueue)
             );
 
             bus.Rpc.Respond<GetEducationLevels, EducationLevelResponseDTO>(async request =>
-                await dictionaryService.GetEducationLevel(null)
+                await dictionaryService.GetEducationLevel(null), x => x.WithQueueName(QueueConst.GetEducationLevelsQueue)
             );
-
-
-
-            //     bus.Rpc.Respond<UserIdDTO, GetEducationDocumentFormDTO>(async request =>
-            //        await documentFormService.GetEducationDocumentsInfo(request.UserId)
-            //     );
-
         }
     }
 }

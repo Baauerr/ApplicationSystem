@@ -18,14 +18,16 @@ namespace DocumentService.BL.Services
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
         private readonly IBus _bus;
+        private readonly QueueSender _queueSender;
         
 
-        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IFileService fileService, IBus bus)
+        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IFileService fileService, IBus bus, QueueSender queueSender)
         {
             _db = dbContext;
             _mapper = mapper;
             _fileService = fileService;
             _bus = bus;
+            _queueSender = queueSender;
         }
 
         public async Task AddEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
@@ -63,7 +65,7 @@ namespace DocumentService.BL.Services
         private async Task<EducationLevelResponseDTO> GetAllEducationLevels()
         {
 
-            var educationLevels = _bus.Rpc.Request<GetEducationLevels, EducationLevelResponseDTO>(new GetEducationLevels {UserId = Guid.Empty });
+            var educationLevels = _queueSender.GetEducationLevels();
 
             Console.WriteLine(educationLevels.EducationLevel.Count());
 
@@ -189,16 +191,6 @@ namespace DocumentService.BL.Services
             passportDTO.UserId = userId;
 
             return passportDTO;
-        }
-
-        private async Task GetEducationInfoRPC()
-        {
-            await _bus.Rpc.RespondAsync<UserIdDTO, List<GetEducationDocumentFormDTO>>(async request =>
-            {
-                var educationDocumentInfo = await GetEducationDocumentsInfo(request.UserId);
-
-                return educationDocumentInfo;
-            });
         }
     }
 }

@@ -23,7 +23,6 @@ namespace EntranceService.BL.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly QueueSender _queueSender;
-        private readonly IBus _bus;
 
 
         public EntrancingService(
@@ -37,7 +36,6 @@ namespace EntranceService.BL.Services
             _mapper = mapper;
             _configuration = configuration;
             _queueSender = queueSender;
-            _bus = RabbitHutch.CreateBus("host=localhost");
         }
 
         public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId)
@@ -212,7 +210,7 @@ namespace EntranceService.BL.Services
 
             await CheckPasportExist(userId);
 
-            var userInfo = await GetUserInfo(userId);
+            var userInfo = await _queueSender.GetProfileInfo(userId);
 
             var application = new Application
             {
@@ -231,12 +229,6 @@ namespace EntranceService.BL.Services
             await _db.Applications.AddAsync(application);
             await _db.SaveChangesAsync();
             await GiveEntrantRole(userId);
-        }
-        private async Task<ProfileResponseDTO> GetUserInfo(Guid userId)
-        {
-            var userInfo = await _bus.Rpc.RequestAsync<UserIdDTO, ProfileResponseDTO>(new UserIdDTO { UserId = userId });
-
-            return userInfo;
         }
 
         public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO, Guid userId)

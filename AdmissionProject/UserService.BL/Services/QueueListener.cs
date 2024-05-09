@@ -1,4 +1,5 @@
-﻿using Common.DTO;
+﻿using Common.Const;
+using Common.DTO;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
 using Common.DTO.User;
@@ -25,11 +26,11 @@ namespace UserService.BL.Services
 
             var accountService = serviceProvider.GetRequiredService<IAccountService>();
 
-            bus.Rpc.Respond<GetProfile, ProfileResponseDTO>(async request =>
-                  await accountService.GetProfile(request.UserId)
+            bus.Rpc.Respond<Guid, ProfileResponseDTO>(async request =>
+                  await accountService.GetProfile(request), x => x.WithQueueName(QueueConst.GetProfileInfoQueue)
             );
 
-            bus.PubSub.Subscribe<SetRoleRequestDTO>("applicant_register", data => accountService.GiveRole(data));
+            bus.PubSub.Subscribe<SetRoleRequestDTO>(QueueConst.SetRoleQueue, data => accountService.GiveRole(data));
 
         }
     }

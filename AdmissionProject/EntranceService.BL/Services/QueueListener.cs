@@ -1,4 +1,5 @@
-﻿using Common.DTO.Entrance;
+﻿using Common.Const;
+using Common.DTO.Entrance;
 using DocumentService.Common.DTO;
 using EasyNetQ;
 using EntranceService.Common.Interface;
@@ -22,11 +23,11 @@ namespace EntranceService.BL.Services
 
             var entrantService = serviceProvider.GetRequiredService<IEntrantService>();
 
-            bus.Rpc.Respond<UserIdDTO, GetEducationDocumentFormDTO>(async request =>
-                await entrantService.SyncNameInApplication(Guid.Parse(request.UserId), x => x.WithQueueName("huy"))
-            );
+/*            bus.Rpc.Respond<UpdateUserDataDTO, GetEducationDocumentFormDTO>(async request =>
+                await entrantService.SyncNameInApplication(request), x => x.WithQueueName("")
+            );*/
 
-       //     bus.PubSub.Subscribe<UpdateUserDataDTO>("applicant_register", data => entrantService.SyncNameInApplication(data));
+            bus.PubSub.Subscribe<UpdateUserDataDTO>(QueueConst.UpdateUserFullNameQueue, data => entrantService.SyncNameInApplication(data));
 
         }
     }

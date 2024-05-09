@@ -1,4 +1,5 @@
-﻿using EasyNetQ;
+﻿using Common.Const;
+using EasyNetQ;
 using EasyNetQ.Consumer;
 using Exceptions.ExceptionTypes;
 using Microsoft.Extensions.Hosting;
@@ -25,7 +26,7 @@ namespace NotificationService
 
         public async Task StartListening()
         {
-            await _bus.PubSub.SubscribeAsync<MailStructure>("notification", SendNotificationAsync);
+            await _bus.PubSub.SubscribeAsync<MailStructure>(QueueConst.NotificationQueue, SendNotificationAsync);
         }
 
         public void SendNotificationAsync(MailStructure mailStructure)

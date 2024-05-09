@@ -1,4 +1,5 @@
-﻿using Common.DTO;
+﻿using Common.Const;
+using Common.DTO;
 using DocumentService.Common.DTO;
 using DocumentService.Common.Interface;
 using EasyNetQ;
@@ -26,12 +27,12 @@ namespace DocumentService.BL.Services
 
             var documentFormService = serviceProvider.GetRequiredService<IDocumentFormService>();
 
-            bus.Rpc.Respond<GetPassportInfo, GetPassportFormDTO>(async request =>
-                await documentFormService.GetPassportInfo(request.UserId)
+            bus.Rpc.Respond<Guid, GetPassportFormDTO>(async userId =>
+                await documentFormService.GetPassportInfo(userId), x => x.WithQueueName(QueueConst.GetPassportFormQueue)
             );
 
-            bus.Rpc.Respond<GetEducationDocumentForm, List<GetEducationDocumentFormDTO>>(async request =>
-                await documentFormService.GetEducationDocumentsInfo(request.UserId)
+            bus.Rpc.Respond<Guid, List<GetEducationDocumentFormDTO>>(async userId =>
+                await documentFormService.GetEducationDocumentsInfo(userId), x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue)
             );
             
         }
