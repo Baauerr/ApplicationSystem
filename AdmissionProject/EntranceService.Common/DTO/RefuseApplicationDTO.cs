@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace EntranceService.Common.DTO
 {
-    public class AddManagerDTO
+    public class RefuseApplicationDTO
     {
         public Guid ApplicationId { get; set; }
         public Guid ManagerId { get; set; }
-        public string ManagerFullName { get; set; }
     }
 }

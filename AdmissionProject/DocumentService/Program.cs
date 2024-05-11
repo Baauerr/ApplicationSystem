@@ -18,6 +18,7 @@ builder.ConfigureDocumentServices();
 builder.ConfigureRedisDb();
 builder.ConfigureSwagger();
 builder.configureJWTAuth();
+builder.Services.AddScoped<QueueSender>();
 builder.Services.AddListeners();
 
 var app = builder.Build();

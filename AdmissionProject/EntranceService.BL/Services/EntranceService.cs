@@ -14,6 +14,12 @@ using EasyNetQ;
 using DocumentService.Common.DTO;
 using Common.DTO.Profile;
 using Common.DTO.Dictionary;
+using Common.Const;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.IdentityModel.Tokens;
+using System.Drawing;
+using System.Linq;
 
 namespace EntranceService.BL.Services
 {
@@ -38,7 +44,7 @@ namespace EntranceService.BL.Services
             _queueSender = queueSender;
         }
 
-        public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId)
+        public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId, ProgramResponseDTO availablePrograms)
         {
 
             var maxProgramsCount = _configuration.GetValue<int>("Programs:MaxProgramsCount");
@@ -82,11 +88,18 @@ namespace EntranceService.BL.Services
 
             programsDTO.ForEach(program =>
             {
+
+                var allProgramInfo = availablePrograms.programs.FirstOrDefault(ap => ap.Id == program.ProgramId);
+
                 var applicationPrograms = new ApplicationPrograms
                 {
                     ApplicationId = aplicationId,
                     Priority = program.ProgramPriority,
-                    ProgramId = program.ProgramId
+                    ProgramId = program.ProgramId,
+                    FacultyId = program.FacultyId,
+                    ProgramName = allProgramInfo.Name,
+                    FacultyName = allProgramInfo.Faculty.Name,
+                    
                 };
 
                 newPrograms.Add(applicationPrograms);
@@ -96,9 +109,8 @@ namespace EntranceService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        private async Task ValidatePrograms(List<ProgramDTO> programsDTO, Guid userId)
+        private async Task ValidatePrograms(List<ProgramDTO> programsDTO, Guid userId, ProgramResponseDTO availablePrograms)
         {
-            var availablePrograms = await _queueSender.GetAllPrograms(userId);
 
             availablePrograms.programs.RemoveAll(program => !programsDTO.Any(newProgram => newProgram.ProgramId == program.Id));
 
@@ -149,6 +161,15 @@ namespace EntranceService.BL.Services
             _db.Applications.Update(application);
 
             await _db.SaveChangesAsync();
+
+            var message = new MailStructure
+            {
+                Recipient = application.OwnerEmail,
+                Body = $"У вашего заявления изменился статус на {status}",
+                Subject = "Изменение статуса заявления"
+            };
+
+            await SendNotification(message);
         }
 
         public async Task ChangeProgramPriority(ChangeProgramPriorityDTO changeProgramPriorityDTO, Guid userId)
@@ -206,7 +227,10 @@ namespace EntranceService.BL.Services
 
         public async Task CreateApplication(Guid userId, string token, CreateApplicationDTO applicationDTO)
         {
-            await ValidatePrograms(applicationDTO.Programs, userId);
+
+            var availablePrograms = await _queueSender.GetAllPrograms(userId);
+
+            await ValidatePrograms(applicationDTO.Programs, userId, availablePrograms);
 
             await CheckPasportExist(userId);
 
@@ -217,12 +241,13 @@ namespace EntranceService.BL.Services
                 Citizenship = applicationDTO.Citizenship,
                 Id = Guid.NewGuid(),
                 OwnerId = userId,
+                OwnerEmail = userInfo.Email,
                 LastChangeDate = DateTime.UtcNow.ToUniversalTime(),
                 ApplicationStatus = ApplicationStatus.Pending,
                 OwnerName = userInfo.FullName,
             };
             
-            await AddProgramsToApplication(applicationDTO.Programs, application.Id);
+            await AddProgramsToApplication(applicationDTO.Programs, application.Id, availablePrograms);
 
             application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
 
@@ -287,15 +312,260 @@ namespace EntranceService.BL.Services
             //TODO ПРОВЕРИТЬ, ЧТО УРОВЕНЬ ОБРАЗОВАНИЯ ПРОГРММЫ = NEXTEDULEVELID от документа об образовании
             
 
-                throw new BadRequestException("У пользователя нет подходящего документа об образовании");
+          //      throw new BadRequestException("У пользователя нет подходящего документа об образовании");
                     
         }
 
 
-        public async Task GetApplications()
+        public async Task<ApplicationsResponseDTO> GetApplications(
+            string? entrantName, 
+            Guid? programsGuid, 
+            List<string>? faculties, 
+            ApplicationStatus? status, 
+            bool? hasManager, 
+            Guid? managerId, 
+            SortingTypes? sortingTypes,
+            int page, 
+            int pageSize
+            )
         {
-             
 
+            var applications = await FilterApplications(
+                entrantName, 
+                programsGuid, 
+                faculties, 
+                status,
+                hasManager,
+                managerId,
+                sortingTypes,
+                page,
+                pageSize
+                ).ToListAsync();
+
+            var applcationDTO = CreateApplicationDTO(applications, pageSize, page);
+
+            return applcationDTO;
+
+        }
+
+        private IQueryable<Application> FilterApplications(
+            string? entrantName,
+            Guid? programGuid,
+            List<string>? faculties,
+            ApplicationStatus? status,
+            bool? hasManager,
+            Guid? managerId,
+            SortingTypes? sortingTypes,
+            int page,
+            int pageSize
+            )
+        {
+            var applications =  FilterByEntrantName(entrantName);
+            applications =  FilterByFaculties(applications, faculties);
+            applications =  FilterByPrograms(applications, programGuid);
+            applications =  FilterByStatus(applications, status);
+            applications =  FilterByHavingManager(applications, hasManager);
+            applications =  FilterByManagerId(applications, managerId);
+            applications =  FilterByPagination(applications, page, pageSize);
+            applications =  SortApplications(applications, sortingTypes);
+
+            return applications;
+        }
+
+        private IQueryable<Application> FilterByEntrantName(string? entrantName)
+        {
+            var query = _db.Applications.AsQueryable();
+
+            if (!string.IsNullOrEmpty(entrantName))
+            {
+                query = query.Where(ap => ap.OwnerName.Contains(entrantName));
+            }
+
+            return query;
+        }
+
+        private IQueryable<Application> FilterByPrograms(
+            IQueryable<Application> applications,
+            Guid? programGuid
+            )
+        {
+
+            var programApplicationsGuid = _db.ApplicationsPrograms
+                .Where(ap => ap.ProgramId == programGuid)
+                .Select(ap => ap.ApplicationId)
+                .AsQueryable();
+
+            if (programGuid != null)
+            {
+                applications = applications.Where(ap => programApplicationsGuid.Contains(ap.Id));
+            }
+
+            return applications;
+        }
+
+        private IQueryable<Application> FilterByFaculties(
+            IQueryable<Application> applications,
+            List<string>? faculties
+            )
+        {
+
+            if (faculties != null && faculties.Any())
+            {
+                var applicationWithFaculties = _db.ApplicationsPrograms
+                    .Where(ap => faculties.Contains(ap.FacultyId))
+                    .Select(ap => ap.ApplicationId)
+                    .AsQueryable();
+                
+                applications = applications.Where(ap => applicationWithFaculties.Contains(ap.Id));
+            }
+            return applications;
+
+        }
+        private IQueryable<Application> FilterByStatus(
+            IQueryable<Application> applications,
+            ApplicationStatus? status
+            )
+        {
+            if (status != null)
+            {
+                applications = applications.Where(ap => ap.ApplicationStatus == status);
+            }
+            return applications;
+        }
+
+        private IQueryable<Application> FilterByHavingManager(
+            IQueryable<Application> applications,
+            bool? havingManager
+            )
+        {
+            if (havingManager != null)
+            {
+                if (havingManager == true)
+                {
+                    applications = applications.Where(ap => ap.ManagerId != Guid.Empty);
+                }
+                else
+                {
+                    applications = applications.Where(ap => ap.ManagerId == Guid.Empty);
+                }
+            }
+
+            return applications;
+
+        }
+
+        private Pagination GetPagination(int size, int page, int elementsCount)
+        {
+            var pagination = new Pagination
+            {
+                count = (int)Math.Ceiling((double)elementsCount / size),
+                current = page,
+                size = size
+            };
+            return pagination;
+        }
+
+        private IQueryable<Application> FilterByManagerId(
+            IQueryable<Application> applications,
+            Guid? managerId
+            )
+        {
+            if (managerId != null)
+            {
+                applications = applications.Where(ap => ap.ManagerId == managerId);
+            }
+
+            return applications;
+        }
+
+        private IQueryable<Application> FilterByPagination(
+            IQueryable<Application> applications,
+            int page, 
+            int pageSize
+            )
+        {
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            var count = applications.Count();
+
+            var countOfPages = (int)Math.Ceiling((double)applications.Count() / pageSize);
+
+            if (page <= countOfPages)
+            {
+                var lowerBound = page == 1 ? 0 : (page - 1) * pageSize;
+                if (page < countOfPages)
+                {
+                    applications = applications.Skip(lowerBound).Take(pageSize);
+                }
+                else
+                {
+                    applications = applications.Skip(lowerBound).Take(applications.Count() - lowerBound);
+                }
+                return applications;
+            }
+            else
+            {
+                throw new BadRequestException("Такой страницы нет");
+            }
+        }
+
+        private ApplicationsResponseDTO CreateApplicationDTO(
+            List<Application> applications,
+            int pageSize,
+            int page
+            )
+        {
+            var programsCount = applications.Count();
+
+            List<GetApplicationDTO> applicationsDTO = new List<GetApplicationDTO>();
+
+            foreach (var application in applications)
+            {
+                var applicationPrograms = _db.ApplicationsPrograms.Where(ap => ap.ApplicationId == application.Id);
+
+                List<GetProgramDTO> programsDTO = new List<GetProgramDTO>();
+
+                foreach (var programs in applicationPrograms)
+                {
+                    var programDTO = _mapper.Map<GetProgramDTO>(programs);
+
+                    programsDTO.Add(programDTO);
+                }
+
+                var applicationDTO = _mapper.Map<GetApplicationDTO>(application);
+                applicationDTO.Programs = programsDTO;
+
+                applicationsDTO.Add(applicationDTO);
+            }
+
+            var applicationsResponseDTO = new ApplicationsResponseDTO
+            {
+                Applications = applicationsDTO,
+                Pagination = GetPagination(pageSize, page, programsCount)
+            };
+            return applicationsResponseDTO;
+        }
+
+        private IQueryable<Application> SortApplications(
+            IQueryable<Application> application,
+            SortingTypes? sortingType
+            )
+        {
+
+            switch ( sortingType )
+            {
+                case SortingTypes.ChangeTimeDesc:
+                    application = application.OrderByDescending(d => d.LastChangeDate);
+                    break;
+                case SortingTypes.ChangeTimeAsc:
+                    application = application.OrderBy(d => d.LastChangeDate);
+                    break;
+            }
+
+            return application;
         }
 
         private async Task GiveEntrantRole(Guid userId)
@@ -307,8 +577,9 @@ namespace EntranceService.BL.Services
                 Role = Roles.ENTRANT
             };
 
-        //    await _queueSender.SendMessage(message);      
+            await _queueSender.SendMessage(message, QueueConst.SetRoleQueue);      
         }
+
         public async Task SetManager(AddManagerDTO addManagerDTO)
         {
             var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == addManagerDTO.ApplicationId);
@@ -322,22 +593,65 @@ namespace EntranceService.BL.Services
                 application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
+
+                var message = new MailStructure
+                {
+                    Recipient = application.OwnerEmail,
+                    Body = $"На ваше заявление был назначен менеджер {addManagerDTO.ManagerFullName}",
+                    Subject = "Назначение менеджера"
+                };
+
+                await SendNotification(message);
+
             }
             else
             {
                 throw new BadRequestException("У этой заявки уже есть менеджер");
             }
         }
-        private async Task SendNotification(string recipient, string managerFullName)
+        private async Task SendNotification(MailStructure message)
         {
-            var message = new MailStructure
-            {
-                Recipient = recipient,
-                Body =  $"На ваше заявление был назначен менеджер {managerFullName}",
-                Subject = "Назначение менеджера"
-            };
+            await _queueSender.SendMessage(message, QueueConst.NotificationQueue);
+        }
 
-            await _queueSender.SendMessage(message);
+        public async Task RefuseApplication(RefuseApplicationDTO refuseApplicationDTO)
+        {
+            var application = await _db.Applications.FirstOrDefaultAsync
+                (ap => ap.Id == refuseApplicationDTO.ApplicationId);
+
+            if (application == null)
+            {
+                throw new NotFoundException("Такой заявки не существует");
+            }
+
+            if (application.ManagerId != refuseApplicationDTO.ManagerId)
+            {
+                throw new ForbiddenException("Эта заявка не принадлежит этому менеджеру");
+            }
+
+            if (application.ManagerId != Guid.Empty)
+            {
+                application.ManagerId = Guid.Empty;
+                application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
+                _db.Applications.Update(application);
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new BadRequestException("У этой заявки нет менеджера");
+            }
+        }
+
+        public async Task RemoveManager(Guid managerGuid)
+        {
+            var applications = _db.Applications.Where(ap => ap.ManagerId == managerGuid);
+
+            foreach (var application in applications)
+            {
+                application.ManagerId = Guid.Empty;
+            }
+            _db.Applications.UpdateRange(applications);
+            await _db.SaveChangesAsync();
         }
     }
     

@@ -3,9 +3,11 @@ using EasyNetQ;
 using EntranceService.BL.Services;
 using EntranceService.Common.DTO;
 using EntranceService.Common.Interface;
+using EntranceService.DAL.Enum;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
 
@@ -27,16 +29,33 @@ namespace EntranceService.Controllers
         }
 
         [HttpGet("application")]
-        [Authorize(Roles = "Entrant")]
+    //    [Authorize(Roles = "Entrant")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> ChangeProgramPriority()
+        public async Task<ActionResult<ApplicationsResponseDTO>> GetApplications(
+            [FromQuery] string? entrantName,
+            [FromQuery] Guid? programsGuid,
+            [FromQuery] List<string>? faculties,
+            [FromQuery] ApplicationStatus? status,
+            [FromQuery] bool? hasManager,
+            [FromQuery] Guid? managerId,
+            [FromQuery] SortingTypes? sortingTypes,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            var aaplicationInfo = await _entrantService.GetApplicationInfo(Guid.Parse(userId));
-            return Ok(aaplicationInfo);
+            var aplicationInfo = await _entranceService.GetApplications(
+            entrantName,
+            programsGuid,
+            faculties,
+            status,
+            hasManager,
+            managerId,
+            sortingTypes,
+            page,
+            pageSize);
+
+            return Ok(aplicationInfo);
         }
 
         [HttpPost("application")]

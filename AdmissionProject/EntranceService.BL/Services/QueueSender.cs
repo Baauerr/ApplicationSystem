@@ -17,36 +17,36 @@ namespace EntranceService.BL.Services
             _bus = RabbitHutch.CreateBus("host=localhost");
         }
 
-        public async Task SendMessage<T>(T message)
+        public async Task SendMessage<T>(T message, string topik)
         {
-            await _bus.PubSub.PublishAsync(message);
+            await _bus.PubSub.PublishAsync(message, topik);
         }
 
         public async Task<ProgramResponseDTO> GetAllPrograms(Guid userId)
         {
-            var programs = await _bus.Rpc.RequestAsync<GetPrograms, ProgramResponseDTO>(new GetPrograms { UserId = userId});
+            var programs = await _bus.Rpc.RequestAsync<Guid, ProgramResponseDTO>(userId, x => x.WithQueueName(QueueConst.GetProgramsQueue));
 
             return programs;
         }
 
         public async Task<EducationLevelResponseDTO> GetAllEducationLevels(Guid userId)
         {
-            var educationLevels = await _bus.Rpc.RequestAsync<GetEducationLevels, EducationLevelResponseDTO>
-                (new GetEducationLevels { UserId = userId }, x => x.WithQueueName(QueueConst.GetEducationLevelsQueue));
+            var educationLevels = await _bus.Rpc.RequestAsync<Guid, EducationLevelResponseDTO>
+                (userId, x => x.WithQueueName(QueueConst.GetEducationLevelsQueue));
 
             return educationLevels;
         }
 
         public async Task<PassportFormDTO> GetUserPassport(Guid userId)
         {
-            var passportInfo = await _bus.Rpc.RequestAsync<GetPassportInfo, GetPassportFormDTO>
-                (new GetPassportInfo { UserId = userId }, x => x.WithQueueName(QueueConst.GetPassportFormQueue));
+            var passportInfo = await _bus.Rpc.RequestAsync<Guid, GetPassportFormDTO>
+                (userId, x => x.WithQueueName(QueueConst.GetPassportFormQueue));
             return passportInfo;
         }
         public async Task<ProfileResponseDTO> GetProfileInfo(Guid userId)
         {
-            var userInfo = await _bus.Rpc.RequestAsync<UserIdDTO, ProfileResponseDTO>
-                (new UserIdDTO { UserId = userId }, x => x.WithQueueName(QueueConst.GetProfileInfoQueue));
+            var userInfo = await _bus.Rpc.RequestAsync<Guid, ProfileResponseDTO>
+                (userId, x => x.WithQueueName(QueueConst.GetProfileInfoQueue));
 
             return userInfo;
         }

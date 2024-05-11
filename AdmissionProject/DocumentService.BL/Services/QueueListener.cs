@@ -16,9 +16,6 @@ namespace DocumentService.BL.Services
     
     public static class QueueListener
     {
-
-
-
         public static void AddListeners(this IServiceCollection services)
         {
 

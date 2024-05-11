@@ -17,18 +17,12 @@ namespace EntranceService.BL.Services
 
         public static void AddListeners(this IServiceCollection services)
         {
-
             IBus bus = RabbitHutch.CreateBus("host=localhost");
             var serviceProvider = services.BuildServiceProvider();
 
             var entrantService = serviceProvider.GetRequiredService<IEntrantService>();
 
-/*            bus.Rpc.Respond<UpdateUserDataDTO, GetEducationDocumentFormDTO>(async request =>
-                await entrantService.SyncNameInApplication(request), x => x.WithQueueName("")
-            );*/
-
-            bus.PubSub.Subscribe<UpdateUserDataDTO>(QueueConst.UpdateUserFullNameQueue, data => entrantService.SyncNameInApplication(data));
-
+            bus.PubSub.Subscribe<UpdateUserDataDTO>(QueueConst.UpdateUserDataQueue, data => entrantService.SyncUserDataInApplication(data));
         }
     }
 }

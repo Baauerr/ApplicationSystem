@@ -23,11 +23,11 @@ namespace DictionaryService.BL.Services
 
             var dictionaryService = serviceProvider.GetRequiredService<IDictionaryInfoService>();
 
-            bus.Rpc.Respond<GetPrograms, ProgramResponseDTO>(async request =>
+            bus.Rpc.Respond<Guid, ProgramResponseDTO>(async request =>
                 await dictionaryService.GetPrograms(null, null, null, null, null, null, 1, 1000), x => x.WithQueueName(QueueConst.GetProgramsQueue)
             );
 
-            bus.Rpc.Respond<GetEducationLevels, EducationLevelResponseDTO>(async request =>
+            bus.Rpc.Respond<Guid, EducationLevelResponseDTO>(async request =>
                 await dictionaryService.GetEducationLevel(null), x => x.WithQueueName(QueueConst.GetEducationLevelsQueue)
             );
         }

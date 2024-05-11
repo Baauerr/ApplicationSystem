@@ -54,7 +54,7 @@ namespace UserService.BL.Services
             user.UserName = newProfileInfo.Email;
             user.BirthDate = newProfileInfo.BirthDate;
 
-            await SyncProfileInfo(userId, newProfileInfo.FullName);
+            await SyncProfileInfo(userId, newProfileInfo.FullName, newProfileInfo.Email);
 
             user.SecurityStamp = Guid.NewGuid().ToString();
 
@@ -69,15 +69,16 @@ namespace UserService.BL.Services
             }
         }
 
-        private async Task SyncProfileInfo(Guid userId, string newName)
+        private async Task SyncProfileInfo(Guid userId, string newName, string newEmail)
         {
             var updateInfo = new UpdateUserDataDTO
             {
                 UserId = userId,
                 NewUserName = newName,
+                NewEmail = newEmail,
             };
 
-            await _bus.PubSub.PublishAsync(updateInfo, QueueConst.UpdateUserFullNameQueue);
+            await _bus.PubSub.PublishAsync(updateInfo, QueueConst.UpdateUserDataQueue);
         }
 
         public async Task<ProfileResponseDTO> GetProfile(Guid userId)

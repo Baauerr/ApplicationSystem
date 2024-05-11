@@ -19,7 +19,7 @@ namespace EntranceService.Common.DTO
     }
         public class AddProgramDTO
         {
-            public required List<ProgramDTO> programs { get; set; }
+            public required List<ProgramDTO> Programs { get; set; }
             public Guid ApplicationId { get; set; }
         }
 

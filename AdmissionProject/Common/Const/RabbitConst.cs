@@ -15,6 +15,6 @@ namespace Common.Const
         public const string GetPassportFormQueue = "GetPassportFormQueue";
         public const string SetRoleQueue = "SetRoleQueue";
         public const string NotificationQueue = "NotificationQueue";
-        public const string UpdateUserFullNameQueue = "UpdateUserFullNameQueue";
+        public const string UpdateUserDataQueue = "UpdateUserDataQueue";
     }
 }

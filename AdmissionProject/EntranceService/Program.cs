@@ -5,6 +5,7 @@ using EntranceService.DAL;
 using EntranceService.DAL.Config;
 using Microsoft.EntityFrameworkCore;
 using static Common.BannedToken.RedisConfig;
+using Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddHttpClient();
 builder.ConfigureSwagger();
 builder.configureJWTAuth();
 builder.Services.AddScoped<QueueSender>();
+builder.Services.AddListeners();
 
 var app = builder.Build();
 
@@ -30,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//app.ConfigureExceptionHandler();
 
 app.UseAuthentication();
 

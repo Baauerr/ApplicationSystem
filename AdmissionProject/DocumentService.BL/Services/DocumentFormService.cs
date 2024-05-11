@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using Common.DTO;
 using Common.DTO.Dictionary;
 using DocumentService.Common.DTO;
 using DocumentService.Common.Interface;
 using DocumentService.DAL;
 using DocumentService.DAL.Entity;
-using EasyNetQ;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,16 +15,14 @@ namespace DocumentService.BL.Services
         private readonly DocumentDbContext _db;
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
-        private readonly IBus _bus;
         private readonly QueueSender _queueSender;
         
 
-        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IFileService fileService, IBus bus, QueueSender queueSender)
+        public DocumentFormService(DocumentDbContext dbContext, IMapper mapper, IFileService fileService, QueueSender queueSender)
         {
             _db = dbContext;
             _mapper = mapper;
             _fileService = fileService;
-            _bus = bus;
             _queueSender = queueSender;
         }
 
@@ -34,12 +30,12 @@ namespace DocumentService.BL.Services
         {
             await ValidateEducationLevel(educationDocumentDTO.EducationLevelId);
 
-/*            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.EducationLevelId == educationDocumentDTO.EducationLevelId);
+            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.EducationLevelId == educationDocumentDTO.EducationLevelId);
 
-            if (educationDocument == null)
+            if (educationDocument != null)
             {
                 throw new BadRequestException("У пользователя уже есть документ об этом уровне образования");
-            }*/
+            }
 
             var newEducationDocument = _mapper.Map<EducationDocumentForm>(educationDocumentDTO);
 
@@ -191,6 +187,6 @@ namespace DocumentService.BL.Services
             passportDTO.UserId = userId;
 
             return passportDTO;
-        }
+        } 
     }
 }

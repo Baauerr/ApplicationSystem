@@ -19,7 +19,7 @@ namespace DocumentService.BL.Services
 
         public async Task UploadPassportFile(IFormFile file, Guid userId)
         {
-            var passportDirectoryPath = "C:\\Users\\Артем\\Desktop\\ASPNET\\AdmissionProject\\documentFiles\\passport\\";
+            var passportDirectoryPath = Environment.CurrentDirectory + "\\documentFiles\\passport\\";
             
             var passportForm = await _db.PassportsData.FirstOrDefaultAsync(pf => pf.OwnerId == userId);
             
@@ -76,7 +76,7 @@ namespace DocumentService.BL.Services
 
         public async Task UploadEducationDocumentFile(IFormFile file, Guid userId, EducationFileDTO educationLevelId)
         {
-            var educationDocumentDirectoryPath = "C:\\Users\\Артем\\Desktop\\ASPNET\\AdmissionProject\\documentFiles\\educationDocuments";
+            var educationDocumentDirectoryPath = Environment.CurrentDirectory + "\\documentFiles\\educationDocuments";
 
             var educationDocumentForm = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId && ed.EducationLevelId == educationLevelId.EducationLevelId);
             

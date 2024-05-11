@@ -15,13 +15,11 @@ namespace EntranceService.BL.Services
 
         private readonly EntranceDbContext _db;
         private readonly IMapper _mapper;
-        private readonly IBus _bus;
 
         public EntrantService(EntranceDbContext db, IMapper mapper)
         {
             _db = db;
             _mapper = mapper;
-            _bus = RabbitHutch.CreateBus("host=localhost");
         }
 
         public async Task EditApplicationsInfo(EditApplicationDTO newApplicationInfo, Guid userId)
@@ -38,17 +36,17 @@ namespace EntranceService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<GetApplicationDTO> GetApplicationInfo(Guid applicationId)
+        public async Task<GetApplicationDTO> GetApplicationInfo(Guid userId)
         {
-            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == applicationId);
-            var applicationPrograms = _db.ApplicationsPrograms
-                .Where(ap => ap.ApplicationId == applicationId)
-                .ToList();  
+            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.OwnerId == userId);
 
             if (application == null)
             {
                 throw new NotFoundException("Заявки с таким id не существует");
             }
+
+            var applicationPrograms = _db.ApplicationsPrograms
+                .Where(ap => ap.ApplicationId == application.Id);
 
             var applcationDTO = _mapper.Map<GetApplicationDTO>(application);
 
@@ -64,7 +62,7 @@ namespace EntranceService.BL.Services
 
             return applcationDTO;
         }
-        public async Task SyncNameInApplication(UpdateUserDataDTO updateUserDataDTO)
+        public async Task SyncUserDataInApplication(UpdateUserDataDTO updateUserDataDTO)
         {
             var application = _db.Applications.FirstOrDefault(ap => ap.OwnerId == updateUserDataDTO.UserId);
             if (application == null)
@@ -72,6 +70,7 @@ namespace EntranceService.BL.Services
                 throw new NotFoundException("У пользователя нет заявления");
             }
             application.OwnerName = updateUserDataDTO.NewUserName;
+            application.OwnerEmail = updateUserDataDTO.NewEmail;
             _db.Applications.Update(application);
             await _db.SaveChangesAsync();
         }

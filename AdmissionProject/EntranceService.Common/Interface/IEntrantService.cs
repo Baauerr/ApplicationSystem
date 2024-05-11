@@ -5,8 +5,8 @@ namespace EntranceService.Common.Interface
 {
     public interface IEntrantService
     {
-        public Task<GetApplicationDTO> GetApplicationInfo(Guid applicationId);
+        public Task<GetApplicationDTO> GetApplicationInfo(Guid userId);
         public Task EditApplicationsInfo(EditApplicationDTO newApplicationInfo, Guid userId);
-        public Task SyncNameInApplication(UpdateUserDataDTO userData);
+        public Task SyncUserDataInApplication(UpdateUserDataDTO userData);
     }
 }

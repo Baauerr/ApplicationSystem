@@ -13,8 +13,6 @@ namespace DocumentService.Configuration
     {
         public static void ConfigureDocumentServices(this WebApplicationBuilder builder)
         {
-            var bus = RabbitHutch.CreateBus("host=localhost");
-            builder.Services.AddSingleton(bus);
             builder.Services.AddScoped<IFileService, FilesService>();
             builder.Services.AddScoped<IDocumentFormService, DocumentFormService>();  
             builder.Services.AddSingleton<ITokenHelper, TokenHelper>();

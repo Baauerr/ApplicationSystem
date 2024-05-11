@@ -9,6 +9,7 @@ namespace Common.DTO.Entrance
     public class UpdateUserDataDTO
     {
         public string NewUserName { get; set; }
+        public string NewEmail { get; set; }
         public Guid UserId { get; set; }
     }
 }
