@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using Common.DTO.Entrance;
-using EasyNetQ;
 using EntranceService.Common.DTO;
 using EntranceService.Common.Interface;
 using EntranceService.DAL;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
-using NotificationService.DTO;
 
 namespace EntranceService.BL.Services
 {
@@ -25,10 +23,15 @@ namespace EntranceService.BL.Services
         public async Task EditApplicationsInfo(EditApplicationDTO newApplicationInfo, Guid userId)
         {
             var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == newApplicationInfo.applicationId);
-
+            
             if (application == null)
             {
                 throw new NotFoundException("Такой заявки не существует");
+            }
+
+            if (application.OwnerId != userId || application.ManagerId != userId)
+            {
+                throw new ForbiddenException("Редактировать заявку может только владелец или менеджер этой заявки");
             }
 
             application.Citizenship = newApplicationInfo.Citizenship;
@@ -64,14 +67,23 @@ namespace EntranceService.BL.Services
         }
         public async Task SyncUserDataInApplication(UpdateUserDataDTO updateUserDataDTO)
         {
-            var application = _db.Applications.FirstOrDefault(ap => ap.OwnerId == updateUserDataDTO.UserId);
-            if (application == null)
+            var userApplication = _db.Applications.FirstOrDefault(ap => ap.OwnerId == updateUserDataDTO.UserId);
+            var managerApplication = _db.Applications.Where(ap => ap.ManagerId == updateUserDataDTO.UserId);
+
+            if (userApplication != null)
             {
-                throw new NotFoundException("У пользователя нет заявления");
+                userApplication.OwnerName = updateUserDataDTO.NewUserName;
+                userApplication.OwnerEmail = updateUserDataDTO.NewEmail;
+                _db.Applications.Update(userApplication);
             }
-            application.OwnerName = updateUserDataDTO.NewUserName;
-            application.OwnerEmail = updateUserDataDTO.NewEmail;
-            _db.Applications.Update(application);
+            if (managerApplication.Any()) {
+                foreach (var application in managerApplication)
+                {
+                    application.ManagerFullName = updateUserDataDTO.NewUserName;
+                }
+                _db.Applications.UpdateRange(managerApplication);
+            }
+            
             await _db.SaveChangesAsync();
         }
     }

@@ -13,6 +13,6 @@ namespace DocumentService.Common.Interface
         public Task UploadPassportFile(IFormFile file, Guid userId);
         public Task DeletePassportFile(Guid userId);
         public Task UploadEducationDocumentFile(IFormFile file, Guid userId, EducationFileDTO educationLevelId);
-        public Task DeleteEducationDocumentFile(Guid userId, DeleteEducationFormDTO EducationLevelId);
+        public Task DeleteEducationDocumentFile(Guid userId);
     }
 }

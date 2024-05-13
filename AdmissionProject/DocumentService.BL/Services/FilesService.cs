@@ -108,24 +108,20 @@ namespace DocumentService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task DeleteEducationDocumentFile(Guid userId, DeleteEducationFormDTO educationLevelId)
+        public async Task DeleteEducationDocumentFile(Guid userId)
         {
             var educationDocumentFile = await _db.EducationDocumentsFiles
                 .FirstOrDefaultAsync(
-                    ed => ed.OwnerId == userId && 
-                        ed.EducationLevelId == educationLevelId.EducationLevelId);
+                    ed => ed.OwnerId == userId);
 
             var educationDocumentForm = await _db.EducationDocumentsData
                 .FirstOrDefaultAsync(
-                ed => ed.OwnerId == userId &&
-                    ed.EducationLevelId == educationLevelId.EducationLevelId);
+                ed => ed.OwnerId == userId);
 
             if (educationDocumentFile == null)
             {
-                throw new NotFoundException("У пользователя нет скана этого уровня образования");
+                throw new NotFoundException("У пользователя нет скана уровня образования");
             }
-
-
 
             educationDocumentForm.fileId = Guid.Empty;
 

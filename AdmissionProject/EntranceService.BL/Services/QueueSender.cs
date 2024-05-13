@@ -1,10 +1,8 @@
 ﻿using Common.Const;
-using Common.DTO;
 using Common.DTO.Dictionary;
 using Common.DTO.Profile;
 using DocumentService.Common.DTO;
 using EasyNetQ;
-using EntranceService.Common.Interface;
 
 
 namespace EntranceService.BL.Services
@@ -42,6 +40,12 @@ namespace EntranceService.BL.Services
             var passportInfo = await _bus.Rpc.RequestAsync<Guid, GetPassportFormDTO>
                 (userId, x => x.WithQueueName(QueueConst.GetPassportFormQueue));
             return passportInfo;
+        }
+        public async Task<GetEducationDocumentFormDTO> GetUserEducationDocument(Guid userId)
+        {
+            var educationDocument = await _bus.Rpc.RequestAsync<Guid, GetEducationDocumentFormDTO>
+                (userId, x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue));
+            return educationDocument;
         }
         public async Task<ProfileResponseDTO> GetProfileInfo(Guid userId)
         {

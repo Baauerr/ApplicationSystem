@@ -1,4 +1,4 @@
-using EasyNetQ;
+/*using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NotificationService.DTO;
@@ -37,4 +37,4 @@ namespace NotificationService.Controllers
             return Ok();
         }   
     }
-}
+}*/

@@ -26,15 +26,15 @@ namespace DocumentService.BL.Services
             _queueSender = queueSender;
         }
 
-        public async Task AddEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
+        public async Task AddEducationDocumentInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
         {
             await ValidateEducationLevel(educationDocumentDTO.EducationLevelId);
 
-            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.EducationLevelId == educationDocumentDTO.EducationLevelId);
+            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId);
 
             if (educationDocument != null)
             {
-                throw new BadRequestException("У пользователя уже есть документ об этом уровне образования");
+                throw new BadRequestException("У пользователя уже есть документ об уровне образования");
             }
 
             var newEducationDocument = _mapper.Map<EducationDocumentForm>(educationDocumentDTO);
@@ -60,10 +60,7 @@ namespace DocumentService.BL.Services
 
         private async Task<EducationLevelResponseDTO> GetAllEducationLevels()
         {
-
             var educationLevels = _queueSender.GetEducationLevels();
-
-            Console.WriteLine(educationLevels.EducationLevel.Count());
 
             return educationLevels;
         }
@@ -101,18 +98,15 @@ namespace DocumentService.BL.Services
             await _fileService.DeletePassportFile(userId);
         }
 
-        public async Task EditEducationDocumentsInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
+        public async Task EditEducationDocumentInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId)
         {
-
             await ValidateEducationLevel(educationDocumentDTO.EducationLevelId);
 
-            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(
-                ed => ed.EducationLevelId == educationDocumentDTO.EducationLevelId &&
-                ed.OwnerId == userId);
+            var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId);
 
             if (educationDocument == null)
             {
-                throw new NotFoundException("У пользователя нет документа о таком образовании");
+                throw new NotFoundException("У пользователя нет документа об уровне образовании");
             }
 
             educationDocument.Name = educationDocumentDTO.Name;
@@ -122,7 +116,7 @@ namespace DocumentService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task DeleteEducationDocumentsInfo(DeleteEducationFormDTO educationDocumentDTO, Guid userId)
+        public async Task DeleteEducationDocumentInfo(DeleteEducationFormDTO educationDocumentDTO, Guid userId)
         {
             var educationDocument = await _db.EducationDocumentsData.FirstOrDefaultAsync(
                 ed => ed.EducationLevelId == educationDocumentDTO.EducationLevelId &&
@@ -135,7 +129,7 @@ namespace DocumentService.BL.Services
 
             _db.EducationDocumentsData.Remove(educationDocument);
             await _db.SaveChangesAsync();
-            await _fileService.DeleteEducationDocumentFile(userId, educationDocumentDTO);
+            await _fileService.DeleteEducationDocumentFile(userId);
         }
 
         public async Task EditPassportInfo(PassportFormDTO passportDTO, Guid userId)
@@ -150,27 +144,22 @@ namespace DocumentService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<List<GetEducationDocumentFormDTO>> GetEducationDocumentsInfo(Guid userId)
+        public async Task<GetEducationDocumentFormDTO> GetEducationDocumentInfo(Guid userId)
         {
-            var documentsData = await _db.EducationDocumentsData
-              .Where(ed => ed.OwnerId == userId)
-              .ToListAsync();
+            var documentData = await _db.EducationDocumentsData
+              .FirstOrDefaultAsync(ed => ed.OwnerId == userId);
 
-            if (documentsData.Count == 0)
+            if (documentData == null)
             {
-                throw new NotFoundException("Пользователь ещё не добавил документы об образовании");
+                throw new NotFoundException("Пользователь ещё не добавил документ об образовании");
             }
 
             var educationDocumentDTOList = new List<GetEducationDocumentFormDTO>();
 
-            foreach (var document in documentsData)
-            {
-                var educationDocumentDTO = _mapper.Map<GetEducationDocumentFormDTO>(documentsData);
-                educationDocumentDTO.UserId = userId;
-                educationDocumentDTOList.Add(educationDocumentDTO);
-            }
-
-            return educationDocumentDTOList;
+            var educationDocumentDTO = _mapper.Map<GetEducationDocumentFormDTO>(documentData);
+            educationDocumentDTO.UserId = userId;
+            
+            return educationDocumentDTO;
         }
 
         public async Task<GetPassportFormDTO> GetPassportInfo(Guid userId)

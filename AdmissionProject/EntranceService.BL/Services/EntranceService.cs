@@ -10,16 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Common.DTO.User;
 using Common.Enum;
 using NotificationService.DTO;
-using EasyNetQ;
-using DocumentService.Common.DTO;
-using Common.DTO.Profile;
 using Common.DTO.Dictionary;
 using Common.Const;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.IdentityModel.Tokens;
-using System.Drawing;
-using System.Linq;
+
 
 namespace EntranceService.BL.Services
 {
@@ -44,47 +37,13 @@ namespace EntranceService.BL.Services
             _queueSender = queueSender;
         }
 
-        public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId, ProgramResponseDTO availablePrograms)
+        public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId, Guid userId)
         {
-
-            var maxProgramsCount = _configuration.GetValue<int>("Programs:MaxProgramsCount");
-
-            var applicationPrograms = _db.ApplicationsPrograms
-                .Where(application => application.ApplicationId == aplicationId);
-
-
-            var applicationProgramsCount = applicationPrograms.Count();
-
-            var newProgramsCount = programsDTO.Count();
-
-            if (newProgramsCount + applicationProgramsCount > maxProgramsCount) {
-                throw new BadRequestException($"Число программ в одном заявлении не может быть больше {maxProgramsCount}");
-            }
-
-            var hasDublicatePriority = programsDTO.GroupBy(x => x.ProgramPriority)
-                .Where(program => program.Count() > 1)
-                .Select(program => program.Key)
-                .Any();
-
-            if (applicationPrograms != null && applicationPrograms.Any())
-            {
-               var hasDublicateProgram = applicationPrograms
-                .Any(ap => programsDTO.Any(program => program.ProgramId == ap.ProgramId));
-            }
-            
-            var maxPriority = programsDTO.OrderByDescending(program => program.ProgramPriority).FirstOrDefault();
-
-            if (maxPriority.ProgramPriority > (newProgramsCount + applicationProgramsCount) || maxPriority.ProgramPriority < 1)
-            {
-                throw new BadRequestException("Приоритет программы не может быть больше количества программ в заявке и не может быть меньше 1");
-            }
-
-            if (hasDublicatePriority)
-            {
-                throw new BadRequestException("Нельзя добавить программы с одинаковыми приоритетами");
-            }
-
             List<ApplicationPrograms> newPrograms = new List<ApplicationPrograms>();
+
+            var availablePrograms = await _queueSender.GetAllPrograms(Guid.NewGuid());
+
+            await ValidatePrograms(programsDTO, userId, availablePrograms, aplicationId);
 
             programsDTO.ForEach(program =>
             {
@@ -109,14 +68,43 @@ namespace EntranceService.BL.Services
             await _db.SaveChangesAsync();
         }
 
-        private async Task ValidatePrograms(List<ProgramDTO> programsDTO, Guid userId, ProgramResponseDTO availablePrograms)
+        private async Task ValidatePrograms(List<ProgramDTO> programsDTO, Guid userId, ProgramResponseDTO availablePrograms, Guid applicationId)
         {
+
+            var maxProgramsCount = _configuration.GetValue<int>("Programs:MaxProgramsCount");
+
+            var applicationPrograms = _db.ApplicationsPrograms
+                .Where(application => application.ApplicationId == applicationId);
+
+            var applicationProgramsCount = applicationPrograms.Count();
+
+            var newProgramsCount = programsDTO.Count();
+
+            if (newProgramsCount + applicationProgramsCount > maxProgramsCount)
+            {
+                throw new BadRequestException($"Число программ в одном заявлении не может быть больше {maxProgramsCount}");
+            }
+
+            var maxPriority = programsDTO.OrderByDescending(program => program.ProgramPriority).FirstOrDefault();
+
+            if (maxPriority.ProgramPriority > (newProgramsCount + applicationProgramsCount) || maxPriority.ProgramPriority < 1)
+            {
+                throw new BadRequestException("Приоритет программы не может быть больше количества программ в заявке и не может быть меньше 1");
+            }
+
+            var hasDublicatePriority = programsDTO.GroupBy(x => x.ProgramPriority)
+                .Where(program => program.Count() > 1)
+                .Select(program => program.Key)
+                .Any();
+
+            if (hasDublicatePriority)
+            {
+                throw new BadRequestException("Нельзя добавить программы с одинаковыми приоритетами");
+            }
 
             availablePrograms.programs.RemoveAll(program => !programsDTO.Any(newProgram => newProgram.ProgramId == program.Id));
 
             var firstEducationLevelId = availablePrograms.programs.First().EducationLevel.Id;
-
-            await CheckEducationLevel(userId, firstEducationLevelId);
 
             bool allSameId = availablePrograms.programs.All(program => program.EducationLevel.Id == firstEducationLevelId);
 
@@ -142,6 +130,8 @@ namespace EntranceService.BL.Services
             {
                 throw new BadRequestException("Группы не могут повторяться в заявлении");
             }
+
+            await CheckEducationLevel(firstEducationLevelId, userId );
         }
 
         public async Task ChangeApplicationStatus(ApplicationStatus status, Guid applicationId)
@@ -193,8 +183,6 @@ namespace EntranceService.BL.Services
 
             var programToEdit = programs.FirstOrDefault(p => p.ProgramId == changeProgramPriorityDTO.ProgramId);
 
-            
-
             if (programToEdit == null)
             {
                 throw new NotFoundException("В этой заявке нет такой программы");
@@ -226,28 +214,26 @@ namespace EntranceService.BL.Services
         }
 
         public async Task CreateApplication(Guid userId, string token, CreateApplicationDTO applicationDTO)
-        {
-
-            var availablePrograms = await _queueSender.GetAllPrograms(userId);
-
-            await ValidatePrograms(applicationDTO.Programs, userId, availablePrograms);
-
+        {  
             await CheckPasportExist(userId);
+
+            var applicationId = Guid.NewGuid();
+      
+            await AddProgramsToApplication(applicationDTO.Programs, applicationId, userId);
 
             var userInfo = await _queueSender.GetProfileInfo(userId);
 
             var application = new Application
             {
                 Citizenship = applicationDTO.Citizenship,
-                Id = Guid.NewGuid(),
+                Id = applicationId,
                 OwnerId = userId,
                 OwnerEmail = userInfo.Email,
                 LastChangeDate = DateTime.UtcNow.ToUniversalTime(),
                 ApplicationStatus = ApplicationStatus.Pending,
                 OwnerName = userInfo.FullName,
             };
-            
-            await AddProgramsToApplication(applicationDTO.Programs, application.Id, availablePrograms);
+          
 
             application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
 
@@ -268,9 +254,7 @@ namespace EntranceService.BL.Services
                 if (application.OwnerId != userId || application.ManagerId == userId)
                 {
                     throw new ForbiddenException("Пользователь не имеет права редактировать это заявление");
-                }
-            
-            
+                }     
 
             var applicationProgram = await _db.ApplicationsPrograms.FirstOrDefaultAsync(
                 ap => ap.ProgramId == deleteProgramDTO.ProgramId
@@ -306,16 +290,29 @@ namespace EntranceService.BL.Services
                 }
         }
 
-        private async Task CheckEducationLevel(Guid userId, string educationLevelId)
+        private async Task CheckEducationLevel(string programEducationLevelId, Guid userId)
         {
 
-            //TODO ПРОВЕРИТЬ, ЧТО УРОВЕНЬ ОБРАЗОВАНИЯ ПРОГРММЫ = NEXTEDULEVELID от документа об образовании
-            
+            var educationDocument = await _queueSender.GetUserEducationDocument(userId);
 
-          //      throw new BadRequestException("У пользователя нет подходящего документа об образовании");
-                    
+            var educationDocumentLevelId = educationDocument.EducationLevelId;
+
+            Dictionary<string, HashSet<string>> allowedEducationLevelsByDocumentLevel = new Dictionary<string, HashSet<string>>
+            {
+                { "0", new HashSet<string> { "0", "3", "5", "6", "2" } },
+                { "1", new HashSet<string> { "0", "1", "2", "3", "5", "6" } },
+                { "2", new HashSet<string> { "0", "1", "2", "3", "5", "6" } },
+                { "3", new HashSet<string> { "0", "1", "3", "5", "6" } },
+                { "5", new HashSet<string> { "5", "6", "0", "3" } },
+                { "6", new HashSet<string> { "5", "6", "0", "3" } }
+            };
+
+            if (!allowedEducationLevelsByDocumentLevel.TryGetValue(educationDocumentLevelId, out HashSet<string> allowedEducationLevels)
+                || !allowedEducationLevels.Contains(programEducationLevelId))
+            {
+                throw new BadRequestException("Ваш уровень образования не подходит для данной программы");
+            }
         }
-
 
         public async Task<ApplicationsResponseDTO> GetApplications(
             string? entrantName, 
@@ -329,7 +326,6 @@ namespace EntranceService.BL.Services
             int pageSize
             )
         {
-
             var applications = await FilterApplications(
                 entrantName, 
                 programsGuid, 
@@ -449,9 +445,7 @@ namespace EntranceService.BL.Services
                     applications = applications.Where(ap => ap.ManagerId == Guid.Empty);
                 }
             }
-
             return applications;
-
         }
 
         private Pagination GetPagination(int size, int page, int elementsCount)
@@ -554,7 +548,6 @@ namespace EntranceService.BL.Services
             SortingTypes? sortingType
             )
         {
-
             switch ( sortingType )
             {
                 case SortingTypes.ChangeTimeDesc:
@@ -567,7 +560,6 @@ namespace EntranceService.BL.Services
 
             return application;
         }
-
         private async Task GiveEntrantRole(Guid userId)
         {
 
@@ -584,12 +576,15 @@ namespace EntranceService.BL.Services
         {
             var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == addManagerDTO.ApplicationId);
 
+            var managerInfo = await _queueSender.GetProfileInfo(addManagerDTO.ManagerId);
+
             if (application == null){
                 throw new NotFoundException("Такой заявки не существует");
             }
             if (application.ManagerId == Guid.Empty)
             {
                 application.ManagerId = addManagerDTO.ManagerId;
+                application.ManagerFullName = managerInfo.FullName;
                 application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
@@ -600,9 +595,7 @@ namespace EntranceService.BL.Services
                     Body = $"На ваше заявление был назначен менеджер {addManagerDTO.ManagerFullName}",
                     Subject = "Назначение менеджера"
                 };
-
                 await SendNotification(message);
-
             }
             else
             {
@@ -649,6 +642,7 @@ namespace EntranceService.BL.Services
             foreach (var application in applications)
             {
                 application.ManagerId = Guid.Empty;
+                application.ManagerFullName = null;
             }
             _db.Applications.UpdateRange(applications);
             await _db.SaveChangesAsync();

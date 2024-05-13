@@ -28,8 +28,8 @@ namespace DocumentService.BL.Services
                 await documentFormService.GetPassportInfo(userId), x => x.WithQueueName(QueueConst.GetPassportFormQueue)
             );
 
-            bus.Rpc.Respond<Guid, List<GetEducationDocumentFormDTO>>(async userId =>
-                await documentFormService.GetEducationDocumentsInfo(userId), x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue)
+            bus.Rpc.Respond<Guid, GetEducationDocumentFormDTO>(async userId =>
+                await documentFormService.GetEducationDocumentInfo(userId), x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue)
             );
             
         }

@@ -14,5 +14,6 @@ namespace EntranceService.DAL.Entity
         public DateTime LastChangeDate { get; set; }
         public ApplicationStatus ApplicationStatus { get; set; }
         public Guid ManagerId { get; set; } = Guid.Empty;
+        public string ManagerFullName { get; set; } = null;
     }
 }

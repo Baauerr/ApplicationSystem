@@ -10,7 +10,7 @@ namespace EntranceService.Common.Interface
     {
         public Task DeleteProgram(DeleteProgramDTO deleteProgramDTO, Guid userId);
         public Task ChangeProgramPriority(ChangeProgramPriorityDTO changeProgramPriorityDTO, Guid userId);
-        public Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId, ProgramResponseDTO availablePrograms);
+        public Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId, Guid userId);
         public Task ChangeApplicationStatus(ApplicationStatus status, Guid applicationId);
         public Task<ApplicationsResponseDTO> GetApplications(
             string? entrantName,
