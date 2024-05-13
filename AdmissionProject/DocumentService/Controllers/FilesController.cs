@@ -20,6 +20,41 @@ namespace DocumentService.Controllers
             _fileService = fileService;
         }
 
+
+        [HttpGet]
+        [Route("passport")]
+        [Authorize(Roles = "User")]
+        [Produces("application/octet-stream")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<FileStreamResult> DownloadPassportFile()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            var passportFile = await _fileService.GetPassportFile(Guid.Parse(userId));
+            return passportFile;
+        }
+
+        [HttpGet]
+        [Route("educationDocument")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(200)]
+        [Produces("application/octet-stream")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<FileStreamResult> DownloadEducationDocumentFile()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            var educationDocumentFile = await _fileService.GetEducationDocumentFile(Guid.Parse(userId));
+            return educationDocumentFile;
+        }
+
         [HttpPost]
         [Route("passport")]
         [Authorize(Roles = "User")]
@@ -78,7 +113,7 @@ namespace DocumentService.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
 
-            await _fileService.DeleteEducationDocumentFile(Guid.Parse(userId), educationFileDTO);
+            await _fileService.DeleteEducationDocumentFile(Guid.Parse(userId));
             return Ok();
         }
 

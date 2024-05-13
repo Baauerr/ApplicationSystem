@@ -82,7 +82,7 @@ namespace DocumentService.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _documentFormService.AddEducationDocumentsInfo(educationDocDTO, Guid.Parse(userId));
+            await _documentFormService.AddEducationDocumentInfo(educationDocDTO, Guid.Parse(userId));
             return Ok();
         }
         [HttpDelete("educationDocumentForm")]
@@ -94,7 +94,7 @@ namespace DocumentService.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _documentFormService.DeleteEducationDocumentsInfo(educationDocDTO, Guid.Parse(userId));
+            await _documentFormService.DeleteEducationDocumentInfo(educationDocDTO, Guid.Parse(userId));
             return Ok();
         }
         [HttpPut("educationDocumentForm")]
@@ -106,7 +106,7 @@ namespace DocumentService.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _documentFormService.EditEducationDocumentsInfo(educationDocDTO, Guid.Parse(userId));
+            await _documentFormService.EditEducationDocumentInfo(educationDocDTO, Guid.Parse(userId));
             return Ok();
         }
         [HttpGet("educationDocumentForm")]
@@ -119,7 +119,7 @@ namespace DocumentService.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
 
-            var educationDocuments = await _documentFormService.GetEducationDocumentsInfo(Guid.Parse(userId));
+            var educationDocuments = await _documentFormService.GetEducationDocumentInfo(Guid.Parse(userId));
             return Ok(educationDocuments);
         }
     }

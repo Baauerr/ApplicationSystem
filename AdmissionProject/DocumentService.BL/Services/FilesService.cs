@@ -4,6 +4,7 @@ using DocumentService.DAL;
 using DocumentService.DAL.Entity;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocumentService.BL.Services
@@ -129,6 +130,50 @@ namespace DocumentService.BL.Services
             _db.EducationDocumentsData.Update(educationDocumentForm);
             await _db.SaveChangesAsync();
             File.Delete(educationDocumentFile.Path);
+        }
+
+        public async Task<FileStreamResult> GetEducationDocumentFile(Guid userId)
+        {
+            var educationDocumentFile = await _db.EducationDocumentsFiles
+                .FirstOrDefaultAsync(edf => edf.OwnerId == userId);
+
+            if (educationDocumentFile == null)
+            {
+                throw new NotFoundException("Пользователь ещё не добавил скан");
+            }
+
+            var educationDocumentFilePath = educationDocumentFile.Path;
+
+            if (!File.Exists(educationDocumentFilePath))
+            {
+                throw new NotFoundException("У пользователя нет документа об образовании"); 
+            }
+
+            var fileStream = new FileStream(educationDocumentFilePath, FileMode.Open, FileAccess.Read);
+
+            return new FileStreamResult(fileStream, "application/pdf");
+        }
+
+        public async Task<FileStreamResult> GetPassportFile(Guid userId)
+        {
+            var passportFile = await _db.PassportsFiles
+                .FirstOrDefaultAsync(p => p.OwnerId == userId);
+
+            if (passportFile == null)
+            {
+                throw new NotFoundException("Пользователь ещё не добавил скан");
+            }
+
+            var passportFilePath = passportFile.Path;
+                              
+            if (!File.Exists(passportFilePath))
+            {
+                throw new NotFoundException("У пользователя нет паспорта");
+            }
+
+            var fileStream = new FileStream(passportFilePath, FileMode.Open, FileAccess.Read);
+
+            return new FileStreamResult(fileStream, "application/pdf");
         }
     }
 }
