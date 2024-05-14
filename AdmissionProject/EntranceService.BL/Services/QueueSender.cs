@@ -3,6 +3,7 @@ using Common.DTO.Dictionary;
 using Common.DTO.Profile;
 using DocumentService.Common.DTO;
 using EasyNetQ;
+using Exceptions.ExceptionTypes;
 
 
 namespace EntranceService.BL.Services
@@ -37,12 +38,21 @@ namespace EntranceService.BL.Services
 
         public async Task<PassportFormDTO> GetUserPassport(Guid userId)
         {
-            var passportInfo = await _bus.Rpc.RequestAsync<Guid, GetPassportFormDTO>
+            try
+            {
+                var passportInfo = await _bus.Rpc.RequestAsync<Guid, GetPassportFormDTO>
                 (userId, x => x.WithQueueName(QueueConst.GetPassportFormQueue));
-            return passportInfo;
+                return passportInfo;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                throw new BadRequestException(ex.Message);
+            }            
         }
         public async Task<GetEducationDocumentFormDTO> GetUserEducationDocument(Guid userId)
         {
+            
             var educationDocument = await _bus.Rpc.RequestAsync<Guid, GetEducationDocumentFormDTO>
                 (userId, x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue));
             return educationDocument;

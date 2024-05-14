@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using UserService.Common.DTO.Auth;
 using UserService.Common.DTO.Profile;
 using UserService.Common.Interfaces;
@@ -95,6 +97,10 @@ namespace UserService.BL.Services
 
         public async Task<AuthResponseDTO> Register(RegistrationRequestDTO registrationData)
         {
+
+            ValidateBirthDate(registrationData.BirthDate);
+            ValidatePhoneNumber(registrationData.PhoneNumber);
+
             var newUser = _mapper.Map<User>(registrationData);
             newUser.UserName = newUser.Email;
             newUser.SecurityStamp = Guid.NewGuid().ToString();
@@ -120,5 +126,32 @@ namespace UserService.BL.Services
                 throw new BadRequestException($"Ошибка при регистрации: {errorMessage}");
             }
         }
+
+        private void ValidatePhoneNumber(string phoneNumber)
+        {
+            string regexPattern = @"^((\+7)| 8)\d{ 10}$";
+
+            if (!Regex.IsMatch(phoneNumber, regexPattern))
+            {
+                throw new BadRequestException("Номер телефона не соответствует маске +7(8) 000 000 00 00");
+            }
+        }
+        private void ValidateBirthDate(DateTime birthDate)
+        {
+            var minCheck = birthDate < DateTime.UtcNow.AddYears(-10);
+
+            var maxCheck = birthDate > DateTime.UtcNow.AddYears(-95);
+
+            if (minCheck)
+            {
+                throw new BadRequestException("Возраст должен быть минимум 10 лет");
+            }
+            if (maxCheck)
+            {
+                throw new BadRequestException("Возраст не должен быть больше 95 лет");
+            }
+        }
+
+
     }
 }

@@ -1,13 +1,7 @@
 ﻿using Common.Const;
-using Common.DTO;
 using Common.DTO.Dictionary;
-using DocumentService.Common.DTO;
 using EasyNetQ;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Exceptions.ExceptionTypes;
 
 namespace DocumentService.BL.Services
 {
@@ -21,10 +15,21 @@ namespace DocumentService.BL.Services
 
         public EducationLevelResponseDTO GetEducationLevels()
         {
-            var educationLevels = _bus.Rpc.Request<Guid, EducationLevelResponseDTO>
-                (Guid.Empty, x => x.WithQueueName(QueueConst.GetEducationLevelsQueue));
+            try
+            {
+                var educationLevels = _bus.Rpc.Request<Guid, EducationLevelResponseDTO>
+                                (Guid.Empty,
+                                x => x.WithQueueName(QueueConst.GetEducationLevelsQueue));
 
-            return educationLevels;
+                return educationLevels;
+            }
+            catch (Exception ex)
+            {                
+                throw new BadRequestException(ex.ToString());
+            }
+
+            //ЭТО НАДО ПРОТЕСТИРОВАТЬ
+            
         }
     }
 }
