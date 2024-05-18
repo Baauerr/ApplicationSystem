@@ -11,4 +11,8 @@
     <ProjectReference Include="..\EntranceService.DAL\EntranceService.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\" />
+  </ItemGroup>
+
 </Project>

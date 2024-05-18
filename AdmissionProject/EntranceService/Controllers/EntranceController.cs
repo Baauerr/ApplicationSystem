@@ -1,9 +1,9 @@
+using Common.DTO.Entrance;
+using Common.Enum;
 using DocumentService.Common.DTO;
 using EasyNetQ;
 using EntranceService.BL.Services;
-using EntranceService.Common.DTO;
 using EntranceService.Common.Interface;
-using EntranceService.DAL.Enum;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +39,7 @@ namespace EntranceService.Controllers
             [FromQuery] List<string>? faculties,
             [FromQuery] ApplicationStatus? status,
             [FromQuery] bool? hasManager,
-            [FromQuery] Guid? managerId,
+            [FromQuery] string? managerName,
             [FromQuery] SortingTypes? sortingTypes,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
@@ -50,7 +50,7 @@ namespace EntranceService.Controllers
             faculties,
             status,
             hasManager,
-            managerId,
+            managerName,
             sortingTypes,
             page,
             pageSize);

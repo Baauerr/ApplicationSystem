@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Common.DTO.Entrance;
-using EntranceService.Common.DTO;
 using EntranceService.Common.Interface;
 using EntranceService.DAL;
 using Exceptions.ExceptionTypes;
@@ -79,6 +78,7 @@ namespace EntranceService.BL.Services
             if (managerApplication.Any()) {
                 foreach (var application in managerApplication)
                 {
+                    application.ManagerEmail = updateUserDataDTO.NewEmail;
                     application.ManagerFullName = updateUserDataDTO.NewUserName;
                 }
                 _db.Applications.UpdateRange(managerApplication);

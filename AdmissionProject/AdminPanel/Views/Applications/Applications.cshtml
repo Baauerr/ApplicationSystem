@@ -1,0 +1,171 @@
+﻿@using Common.Enum
+@{
+    ViewData["Title"] = "Applications";
+}
+
+
+<div class="container">
+    <form id="filter-form">
+        <div class="card mb-3 ">
+            <div class="card-header">
+                Фильтры
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="entrantName">Поиск по имени абитуриента</label>
+                        <input type="text" class="form-control" name="entrantName" id="entrantName">
+                            <div class="d-flex flex-column w-100">
+                            <label for="faculties" class="form-label">Поиск по факультетам</label>
+                            <select class="form-select w-100 border p-1" name="faculties" id="faculties" multiple>
+                                    
+                                    <option value="null">--</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="sorting" class="d-block">Сортировать</label>
+                                <select class="form-control w-100 border p-1" name="sorting" id="sorting">
+                                    <option value="CreateDesc" id="CreateDesc">По дате последних изменений (сначала новые)</option>
+                                    <option value="CreateAsc" id="CreateAsc">По дате последних изменений (сначала старые)</option>
+                                </select>
+                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div>
+                            <label for="managerName">Поиск по имени менеджера</label>
+                            <input type="text" class="form-control" name="managerName" id="managerName">
+                        </div>
+                            <div>
+                            <label for="status" class="form-label">Статус заявки</label>
+                                <select class="form-control w-100 border p-1" name="status" id="status">
+                                <option value="Pending" id="Pending">В ожидании</option>
+                                <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                <option value="Approved" id="Approved">Одобрена</option>
+                                <option value="Rejected" id="Rejected">Отклонена</option>
+                                <option value="Closed" id="CreateAsc">Закрыта</option>
+                                </select>
+                            </div>
+                        <div>
+                            <label for="programsGuid" class="form-label">Поиск по программе</label>
+                            <select class="form-control w-100 border p-1" name="programsGuid" id="programsGuid">
+                                <option value="Pending" id="CreateDesc">В ожидании</option>
+                            </select>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <input type="checkbox" name="hasManager" id="has_managers" value="true">
+                                <label for="has_managers" class="mb-0 ml-1">Есть менеджер</label>
+                            </div>
+                            <div>
+                                <button class="btn btn-primary mt-3" id="apply_button">Применить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+        <div class="card">
+        <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Имя абитуриента</th>
+                        <th scope="col">Email абитуриента</th>
+                        <th scope="col">Гражданство абитуриента</th>
+                        <th scope="col">Статус заявки</th>
+                        <th scope="col">Менеджер</th>
+                        <th scope="col">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var application in Model.Applications)
+                {
+                    <tr>
+                        <td class="card-text">@application.OwnerName</td>
+                        <td class="card-text">@application.OwnerEmail</td>
+                        <td class="card-text">@application.Citizenship</td>
+                        @if (application.ManagerEmail == ViewBag.Email && application.ApplicationStatus != ApplicationStatus.Closed)
+                        {
+                            <td class="card-text">
+                                <form asp-action="UpdateStatus" asp-controller="Applications" method="post">
+                                    <input type="hidden" name="applicationId" value="@application.Id" />
+                                    <select class="form-control w-100 border p-1" name="status" id="status" onchange="this.form.submit()">
+                                        @if (application.ApplicationStatus == ApplicationStatus.InProcess)
+                                        {
+                                            <option value="InProcess" id="InProcess" selected>На рассмотрении</option>
+                                            <option value="Approved" id="Approved">Подтверждена</option>
+                                            <option value="Rejected" id="Rejected">Отклонена</option>
+                                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                                        }
+                                        else if (application.ApplicationStatus == ApplicationStatus.Approved)
+                                        {
+                                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                            <option value="Approved" id="Approved" selected>Подтверждена</option>
+                                            <option value="Rejected" id="Rejected">Отклонена</option>
+                                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                                        }
+                                        else if (application.ApplicationStatus == ApplicationStatus.Rejected)
+                                        {
+                                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                            <option value="Approved" id="Approved">Подтверждена</option>
+                                            <option value="Rejected" id="Rejected" selected>Отклонена</option>
+                                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                                        }
+                                        else if (application.ApplicationStatus == ApplicationStatus.Closed)
+                                        {
+                                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                            <option value="Approved" id="Approved">Подтверждена</option>
+                                            <option value="Rejected" id="Rejected">Отклонена</option>
+                                            <option value="Closed" id="CreateAsc" selected>Закрыта</option>
+                                        }
+                                    </select>
+                                </form>
+                            </td>                        
+                        }
+                        else
+                        {
+                            <td class="card-text">@application.ApplicationStatus</td>
+                        }                       
+                        <td class="card-text">@(application.ManagerName == null ? "-" : application.ManagerName)</td>
+                        <td class="card-text">
+                            @if (application.ManagerEmail == ViewBag.Email && application.ApplicationStatus != ApplicationStatus.Closed)
+                            {
+                                <form asp-action="RefuseApplication" asp-controller="Applications" method="post">
+                                    <input type="hidden" name="applicationId" value="@application.Id" />
+                                    <button class="btn-danger">Отказаться</button>
+                                </form>
+                            }
+                            else if (application.ManagerEmail == null && application.ApplicationStatus != ApplicationStatus.Closed)
+                            {
+                                <form asp-action="TakeApplication" asp-controller="Applications" method="post">
+                                    <input type="hidden" name="applicationId" value="@application.Id" />
+                                    <button class="btn-success">Взять</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>     
+            </table>
+                </div>
+
+
+        <ul class="pagination" style="margin-top: 10px">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        @for (int i = 0; i < Model.Pagination.Count; i++)
+        {
+            <li class="@(Model.Pagination.Current == i+1 ? "page-item active" : "page-item")"><a class="page-link" href="#">@(i + 1)</a></li>
+        }
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+        
+          
+</div>

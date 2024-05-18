@@ -259,22 +259,22 @@ namespace DictionaryService.BL.Services
                 ProgramResponseDTO newPrograms = await response.Content.ReadAsAsync<ProgramResponseDTO>();
 
                 var toDelete = currentPrograms
-                    .Where(doc => !newPrograms.programs.Any(newDoc => newDoc.Id == doc.Id))
+                    .Where(doc => !newPrograms.Programs.Any(newDoc => newDoc.Id == doc.Id))
                     .ToList();
 
-                var toAdd = newPrograms.programs
+                var toAdd = newPrograms.Programs
                     .Where(doc => !currentPrograms.Any(curDoc => curDoc.Id == doc.Id))
                     .ToList();
 
                 var toUpdate = currentPrograms
-                    .Where(doc => !newPrograms.programs.Any(newDoc => newDoc.Id == doc.Id))
+                    .Where(doc => !newPrograms.Programs.Any(newDoc => newDoc.Id == doc.Id))
                     .ToList();
 
                 _db.Programs.RemoveRange(toDelete);
 
                 foreach (var program in toUpdate)
                 {
-                    var programDTO = newPrograms.programs.Find(p => p.Id == program.Id);
+                    var programDTO = newPrograms.Programs.Find(p => p.Id == program.Id);
                     program.Id = programDTO.Id;
                     program.FacultyId = programDTO.Faculty.Id;
                     program.Name = programDTO.Name;

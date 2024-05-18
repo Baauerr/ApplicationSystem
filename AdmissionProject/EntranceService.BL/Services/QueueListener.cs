@@ -21,8 +21,34 @@ namespace EntranceService.BL.Services
             var serviceProvider = services.BuildServiceProvider();
 
             var entrantService = serviceProvider.GetRequiredService<IEntrantService>();
+            var entranceService = serviceProvider.GetRequiredService<IEntranceService>();
 
-            bus.PubSub.Subscribe<UpdateUserDataDTO>(QueueConst.UpdateUserDataQueue, data => entrantService.SyncUserDataInApplication(data));
+            bus.PubSub.Subscribe<UpdateUserDataDTO>
+                (QueueConst.UpdateUserDataQueue, data => entrantService.SyncUserDataInApplication(data));
+
+            bus.PubSub.Subscribe<ApplicationManager>
+                (QueueConst.RemoveApplicationManagerQueue, data => entranceService.RefuseApplication(data));
+
+            bus.PubSub.Subscribe<ApplicationManager>
+                (QueueConst.SetManagerQueue, data => entranceService.SetManager(data));
+
+            bus.PubSub.Subscribe<ChangeApplicationStatusDTO>
+                (QueueConst.ChangeApplicationStatusQueue, data => entranceService.ChangeApplicationStatus(data.ApplcationStatus, data.ApplicationId));
+
+            bus.Rpc.Respond<ApplicationFiltersDTO, ApplicationsResponseDTO>(async filters =>
+                await entranceService.GetApplications(
+                    filters.entrantName,
+                    filters.programsGuid,
+                    filters.faculties, 
+                    filters.status, 
+                    filters.hasManager, 
+                    filters.managerName,
+                    filters.sortingTypes,
+                    filters.page,
+                    filters.pageSize
+                ), 
+                x => x.WithQueueName(QueueConst.GetApplicationsQueue)
+            );
         }
     }
 }

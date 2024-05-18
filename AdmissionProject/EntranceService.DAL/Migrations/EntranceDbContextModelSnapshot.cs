@@ -38,6 +38,12 @@ namespace EntranceService.DAL.Migrations
                     b.Property<DateTime>("LastChangeDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ManagerEmail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ManagerFullName")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ManagerId")
                         .HasColumnType("uuid");
 

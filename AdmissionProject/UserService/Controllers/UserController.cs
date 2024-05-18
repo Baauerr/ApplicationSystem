@@ -1,3 +1,4 @@
+using Common.DTO.Auth;
 using Common.DTO.Profile;
 using Common.DTO.User;
 using Common.Helpers;
@@ -54,9 +55,9 @@ namespace UserService.Controllers
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
         public async Task<ActionResult<ProfileResponseDTO>> GetProfileAsync()
         {
-            string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
+
             return Ok(await _userService.GetProfile(Guid.Parse(userId)));
         }
 
@@ -69,8 +70,25 @@ namespace UserService.Controllers
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
         public async Task<ActionResult> ChangeProfileAsync([FromBody] ChangeProfileRequestDTO newProfileInfo)
         {
-            var token = _tokenHelper.GetTokenFromHeader();
-            await _userService.ChangeProfileInfo(newProfileInfo, token);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            await _userService.ChangeProfileInfo(newProfileInfo, Guid.Parse(userId));
+            return Ok();
+        }
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPut("password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 401)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult> ChangePasswordAsync([FromBody] PasswordChangeRequestDTO newPassword)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
+            await _authService.ChangePassword(newPassword, Guid.Parse(userId));
             return Ok();
         }
 

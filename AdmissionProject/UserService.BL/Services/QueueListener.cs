@@ -1,18 +1,10 @@
 ﻿using Common.Const;
-using Common.DTO;
-using Common.DTO.Entrance;
+using Common.DTO.Auth;
 using Common.DTO.Profile;
 using Common.DTO.User;
-using DocumentService.Common.DTO;
 using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UserService.Common.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UserService.BL.Services
 {
@@ -25,13 +17,27 @@ namespace UserService.BL.Services
             var serviceProvider = services.BuildServiceProvider();
 
             var accountService = serviceProvider.GetRequiredService<IAccountService>();
+            var authService = serviceProvider.GetRequiredService<IAuthService>();
 
             bus.Rpc.Respond<Guid, ProfileResponseDTO>(async request =>
                   await accountService.GetProfile(request), x => x.WithQueueName(QueueConst.GetProfileInfoQueue)
             );
 
-            bus.PubSub.Subscribe<SetRoleRequestDTO>(QueueConst.SetRoleQueue, data => accountService.GiveRole(data));
+            bus.Rpc.Respond<LoginRequestDTO, AuthResponseDTO>(async request =>
+                  await authService.Login(request), x => x.WithQueueName(QueueConst.LoginQueue)
+            );
 
+            bus.Rpc.Respond<LoginRequestDTO, AuthResponseDTO>(async request =>
+                  await authService.Login(request), x => x.WithQueueName(QueueConst.LoginQueue)
+            );
+
+            bus.PubSub.Subscribe<ChangeProfileRequestRPCDTO>
+                (QueueConst.ChangeProfileQueue, data => accountService.ChangeProfileInfo(data.ProfileData, data.UserId));
+
+            bus.PubSub.Subscribe<PasswordChangeRequestRPCDTO>
+                (QueueConst.ChangePasswordQueue, data => authService.ChangePassword(data.passwordInfo, data.UserId));
+
+            bus.PubSub.Subscribe<SetRoleRequestDTO>(QueueConst.SetRoleQueue, data => accountService.GiveRole(data));
         }
     }
 }

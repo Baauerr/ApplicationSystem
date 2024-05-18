@@ -1,5 +1,6 @@
-﻿using UserService.Common.DTO.Auth;
-using UserService.Common.DTO.Profile;
+﻿using Common.DTO.Auth;
+using Common.DTO.Profile;
+using UserService.Common.DTO.Auth;
 
 namespace UserService.Common.Interfaces
 {
@@ -7,7 +8,7 @@ namespace UserService.Common.Interfaces
     {
         public Task<AuthResponseDTO> Login(LoginRequestDTO loginData);
         public Task<AuthResponseDTO> Register(RegistrationRequestDTO registrationData);
-        public Task ChangePassword(PasswordChangeRequestDTO passwordData, string token);
+        public Task ChangePassword(PasswordChangeRequestDTO passwordData, Guid userId);
         public Task Logout(string accessToken);
     }
 }

@@ -4,16 +4,9 @@ using Common.DTO.Entrance;
 using Common.DTO.Profile;
 using Common.DTO.User;
 using Common.Enum;
-using DocumentService.Common.DTO;
 using EasyNetQ;
 using Exceptions.ExceptionTypes;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using StackExchange.Redis;
-using System.Text;
 using UserService.Common.DTO.Profile;
 using UserService.Common.Interfaces;
 using UserService.DAL.Entity;
@@ -33,10 +26,8 @@ namespace UserService.BL.Services
             _mapper = mapper;
             _bus = RabbitHutch.CreateBus("host=localhost");
         }
-        public async Task ChangeProfileInfo(ChangeProfileRequestDTO newProfileInfo, string token)
+        public async Task ChangeProfileInfo(ChangeProfileRequestDTO newProfileInfo, Guid userId)
         {
-            var userId = _tokenService.GetUserIdFromToken(token);
-
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
@@ -53,6 +44,7 @@ namespace UserService.BL.Services
             user.Email = newProfileInfo.Email;
             user.UserName = newProfileInfo.Email;
             user.BirthDate = newProfileInfo.BirthDate;
+            user.Gender = newProfileInfo.Gender;
 
             await SyncProfileInfo(userId, newProfileInfo.FullName, newProfileInfo.Email);
 

@@ -5,7 +5,6 @@ using DocumentService.Common.DTO;
 using EasyNetQ;
 using Exceptions.ExceptionTypes;
 
-
 namespace EntranceService.BL.Services
 {
     public class QueueSender

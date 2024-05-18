@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EntranceService.Common.DTO;
+using Common.DTO.Entrance;
 using EntranceService.DAL.Entity;
 
 namespace EntranceService.BL.Mapper

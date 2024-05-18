@@ -1,7 +1,6 @@
 ﻿using Common.DTO.Dictionary;
-using Common.DTO.Profile;
-using EntranceService.Common.DTO;
-using EntranceService.DAL.Enum;
+using Common.DTO.Entrance;
+using Common.Enum;
 
 
 namespace EntranceService.Common.Interface
@@ -18,14 +17,14 @@ namespace EntranceService.Common.Interface
             List<string>? faculties,
             ApplicationStatus? status,
             bool? hasManager,
-            Guid? managerId,
+            string? managerName,
             SortingTypes? sortingTypes,
             int page,
             int pageSize
             );
         public Task CreateApplication(Guid userId, string token, CreateApplicationDTO applicationDTO);
-        public Task SetManager(AddManagerDTO addManagerDTO);
-        public Task RefuseApplication(RefuseApplicationDTO refuseApplicationDTO);
+        public Task SetManager(ApplicationManager addManagerDTO);
+        public Task RefuseApplication(ApplicationManager refuseApplicationDTO);
         public Task RemoveManager(Guid managerGuid);
     }
 }

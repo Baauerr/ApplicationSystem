@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Common.DTO.Auth;
+using Common.DTO.Profile;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using UserService.Common.DTO.Auth;
 using UserService.Common.DTO.Profile;
@@ -19,32 +21,53 @@ namespace UserService.BL.Services
         private readonly ITokenService _tokenService;
         private readonly UserManager<User> _userManager;
         private readonly RedisRepository _redisRepository;
+        private readonly SignInManager<User> _signInManager;
 
         public AuthService(
             IMapper mapper,
             ITokenService tokenService,
             UserManager<User> userManager,
-            RedisRepository redisRepository
+            RedisRepository redisRepository,
+            SignInManager<User> signInManager
         )
         {
             _mapper = mapper;
             _tokenService = tokenService;
             _userManager = userManager;
             _redisRepository = redisRepository;
+            _signInManager = signInManager;
         }
 
-        public async Task ChangePassword(PasswordChangeRequestDTO passwordData, string token)
+        public async Task ChangePassword(PasswordChangeRequestDTO passwordData, Guid userId)
         {
-            var userId = _tokenService.GetUserIdFromToken(token);
-
-            if (passwordData.Password == passwordData.ConfrimPassword)
+            if (passwordData.Password == passwordData.ConfirmPassword)
             {
+                
+
                 var user = await _userManager.FindByIdAsync(userId.ToString());
+
                 if (user == null)
                 {
                     throw new NotFoundException("Такого пользователя не существует");
                 }
-                await _userManager.ChangePasswordAsync(user, user.PasswordHash, passwordData.Password);
+
+                var result = await _signInManager.CheckPasswordSignInAsync(user, passwordData.CurrentPassword, lockoutOnFailure: false);
+
+                if (result.Succeeded)
+                {
+                    var changeResult = await _userManager.ChangePasswordAsync(user, passwordData.CurrentPassword, passwordData.Password);
+                    if (!changeResult.Succeeded)
+                    {
+                        throw new BadRequestException(string.Join(", ", changeResult.Errors.Select(x => x.Description)));
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Неверный текущий пароль");
+                }
+
+
+                
             }
             else
             {
@@ -55,30 +78,33 @@ namespace UserService.BL.Services
         public async Task<AuthResponseDTO> Login(LoginRequestDTO loginData)
         {
 
-            Console.WriteLine(loginData.Email);
-
             var user = await _userManager.FindByEmailAsync(loginData.Email);
 
-            if (user != null)
-            {
-                var accessToken = await _tokenService.GenerateAccessToken(user.Id);
-                var refreshToken = await _tokenService.GenerateRefreshToken(user.Id);
+        
 
-                Console.WriteLine(user.Id);
-                await _tokenService.SaveRefreshTokenAsync(refreshToken.Token, user.Id);
+                var result = await _signInManager.CheckPasswordSignInAsync(user, loginData.Password, lockoutOnFailure: false);
 
-                var tokenPair = new AuthResponseDTO
+                if (result.Succeeded)
                 {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken.Token,
-                };
+                    var accessToken = await _tokenService.GenerateAccessToken(user.Id);
+                    var refreshToken = await _tokenService.GenerateRefreshToken(user.Id);
 
-                return tokenPair;
-            }
-            else
-            {
-                throw new BadRequestException("Неверный логин или пароль");
-            }
+                    await _tokenService.SaveRefreshTokenAsync(refreshToken.Token, user.Id);
+
+                    var tokenPair = new AuthResponseDTO
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken.Token,
+                    };
+
+                    return tokenPair;
+                }
+                else
+                {
+                    throw new BadRequestException("Неверный логин или пароль");
+                }
+            
+
         }
 
         public async Task Logout(string accessToken)

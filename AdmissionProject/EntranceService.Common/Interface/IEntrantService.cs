@@ -1,5 +1,4 @@
 ﻿using Common.DTO.Entrance;
-using EntranceService.Common.DTO;
 
 namespace EntranceService.Common.Interface
 {

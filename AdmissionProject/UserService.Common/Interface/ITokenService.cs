@@ -1,4 +1,6 @@
-﻿using UserService.Common.DTO.Auth;
+﻿
+
+using Common.DTO.Auth;
 
 namespace UserService.Common.Interfaces
 {

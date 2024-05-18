@@ -274,9 +274,9 @@ namespace DictionaryService.BL.Services
         {
             var pagination = new Pagination
             {
-                count = (int)Math.Ceiling((double)elementsCount / size),
-                current = page,
-                size = size
+                Count = (int)Math.Ceiling((double)elementsCount / size),
+                Current = page,
+                Size = size
             };
             return pagination;
         }
@@ -333,8 +333,8 @@ namespace DictionaryService.BL.Services
 
             var programResponseDTO = new ProgramResponseDTO
             {
-                programs = programsElements,
-                pagination = GetPagination(size, page, programsCount)
+                Programs = programsElements,
+                Pagination = GetPagination(size, page, programsCount)
             };
 
             return programResponseDTO;

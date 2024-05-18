@@ -16,5 +16,15 @@ namespace Common.Const
         public const string SetRoleQueue = "SetRoleQueue";
         public const string NotificationQueue = "NotificationQueue";
         public const string UpdateUserDataQueue = "UpdateUserDataQueue";
+
+
+        //MVC
+        public const string LoginQueue = "LoginQueue";
+        public const string ChangePasswordQueue = "ChangePasswordQueue";
+        public const string ChangeProfileQueue = "ChangeProfileQueue";
+        public const string GetApplicationsQueue = "GetApplicationsQueue";
+        public const string ChangeApplicationStatusQueue = "ChangeApplicationStatusQueue";
+        public const string SetManagerQueue = "SetManagerQueue";
+        public const string RemoveApplicationManagerQueue = "RemoveApplicationManagerQueue";
     }
 }

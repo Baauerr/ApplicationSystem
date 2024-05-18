@@ -5,8 +5,8 @@ namespace Common.DTO.Dictionary
 
     public class ProgramResponseDTO
     {
-        public List<ProgramsDTO> programs { get; set; }
-        public Pagination pagination { get; set; }
+        public List<ProgramsDTO> Programs { get; set; }
+        public Pagination Pagination { get; set; }
     }
 
     public class ProgramsDTO
@@ -22,8 +22,8 @@ namespace Common.DTO.Dictionary
     }
     public class Pagination
     {
-        public int size { get; set; }
-        public int count { get; set; }
-        public int current { get; set; }
+        public int Size { get; set; }
+        public int Count { get; set; }
+        public int Current { get; set; }
     }
 }

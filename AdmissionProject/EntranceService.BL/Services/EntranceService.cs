@@ -1,9 +1,7 @@
 ﻿using EntranceService.Common.Interface;
-using EntranceService.Common.DTO;
 using EntranceService.DAL;
 using AutoMapper;
 using EntranceService.DAL.Entity;
-using EntranceService.DAL.Enum;
 using Exceptions.ExceptionTypes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +10,8 @@ using Common.Enum;
 using NotificationService.DTO;
 using Common.DTO.Dictionary;
 using Common.Const;
+using Common.DTO.Entrance;
+using Microsoft.Extensions.Hosting.Internal;
 
 
 namespace EntranceService.BL.Services
@@ -48,7 +48,7 @@ namespace EntranceService.BL.Services
             programsDTO.ForEach(program =>
             {
 
-                var allProgramInfo = availablePrograms.programs.FirstOrDefault(ap => ap.Id == program.ProgramId);
+                var allProgramInfo = availablePrograms.Programs.FirstOrDefault(ap => ap.Id == program.ProgramId);
 
                 var applicationPrograms = new ApplicationPrograms
                 {
@@ -102,18 +102,18 @@ namespace EntranceService.BL.Services
                 throw new BadRequestException("Нельзя добавить программы с одинаковыми приоритетами");
             }
 
-            availablePrograms.programs.RemoveAll(program => !programsDTO.Any(newProgram => newProgram.ProgramId == program.Id));
+            availablePrograms.Programs.RemoveAll(program => !programsDTO.Any(newProgram => newProgram.ProgramId == program.Id));
 
-            var firstEducationLevelId = availablePrograms.programs.First().EducationLevel.Id;
+            var firstEducationLevelId = availablePrograms.Programs.First().EducationLevel.Id;
 
-            bool allSameId = availablePrograms.programs.All(program => program.EducationLevel.Id == firstEducationLevelId);
+            bool allSameId = availablePrograms.Programs.All(program => program.EducationLevel.Id == firstEducationLevelId);
 
             if (!allSameId)
             {
                 throw new BadRequestException("Нельзя добавить в одно заявление программы с разным уровнем образования");
             }
 
-            var isProgramsExist = availablePrograms.programs.Count() == programsDTO.Count();
+            var isProgramsExist = availablePrograms.Programs.Count() == programsDTO.Count();
 
             if (!isProgramsExist)
             {
@@ -230,7 +230,7 @@ namespace EntranceService.BL.Services
                 OwnerId = userId,
                 OwnerEmail = userInfo.Email,
                 LastChangeDate = DateTime.UtcNow.ToUniversalTime(),
-                ApplicationStatus = ApplicationStatus.Pending,
+                ApplicationStatus = ApplicationStatus.Created,
                 OwnerName = userInfo.FullName,
             };
           
@@ -319,8 +319,8 @@ namespace EntranceService.BL.Services
             Guid? programsGuid, 
             List<string>? faculties, 
             ApplicationStatus? status, 
-            bool? hasManager, 
-            Guid? managerId, 
+            bool? hasManager,
+            string? managerName, 
             SortingTypes? sortingTypes,
             int page, 
             int pageSize
@@ -332,7 +332,7 @@ namespace EntranceService.BL.Services
                 faculties, 
                 status,
                 hasManager,
-                managerId,
+                managerName,
                 sortingTypes,
                 page,
                 pageSize
@@ -350,7 +350,7 @@ namespace EntranceService.BL.Services
             List<string>? faculties,
             ApplicationStatus? status,
             bool? hasManager,
-            Guid? managerId,
+            string? managerName,
             SortingTypes? sortingTypes,
             int page,
             int pageSize
@@ -361,7 +361,7 @@ namespace EntranceService.BL.Services
             applications =  FilterByPrograms(applications, programGuid);
             applications =  FilterByStatus(applications, status);
             applications =  FilterByHavingManager(applications, hasManager);
-            applications =  FilterByManagerId(applications, managerId);
+            applications =  FilterByManagerId(applications, managerName);
             applications =  FilterByPagination(applications, page, pageSize);
             applications =  SortApplications(applications, sortingTypes);
 
@@ -452,21 +452,21 @@ namespace EntranceService.BL.Services
         {
             var pagination = new Pagination
             {
-                count = (int)Math.Ceiling((double)elementsCount / size),
-                current = page,
-                size = size
+                Count = (int)Math.Ceiling((double)elementsCount / size),
+                Current = page,
+                Size = size
             };
             return pagination;
         }
 
         private IQueryable<Application> FilterByManagerId(
             IQueryable<Application> applications,
-            Guid? managerId
+            string? managerName
             )
         {
-            if (managerId != null)
+            if (managerName != null)
             {
-                applications = applications.Where(ap => ap.ManagerId == managerId);
+                applications = applications.Where(ap => ap.ManagerFullName.Contains(managerName));
             }
 
             return applications;
@@ -486,6 +486,11 @@ namespace EntranceService.BL.Services
             var count = applications.Count();
 
             var countOfPages = (int)Math.Ceiling((double)applications.Count() / pageSize);
+
+            if (countOfPages == 0)
+            {
+                return applications;
+            }
 
             if (page <= countOfPages)
             {
@@ -572,7 +577,7 @@ namespace EntranceService.BL.Services
             await _queueSender.SendMessage(message, QueueConst.SetRoleQueue);      
         }
 
-        public async Task SetManager(AddManagerDTO addManagerDTO)
+        public async Task SetManager(ApplicationManager addManagerDTO)
         {
             var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == addManagerDTO.ApplicationId);
 
@@ -583,8 +588,10 @@ namespace EntranceService.BL.Services
             }
             if (application.ManagerId == Guid.Empty)
             {
+                application.ApplicationStatus = ApplicationStatus.InProcess;
                 application.ManagerId = addManagerDTO.ManagerId;
                 application.ManagerFullName = managerInfo.FullName;
+                application.ManagerEmail = managerInfo.Email;
                 application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
@@ -592,7 +599,7 @@ namespace EntranceService.BL.Services
                 var message = new MailStructure
                 {
                     Recipient = application.OwnerEmail,
-                    Body = $"На ваше заявление был назначен менеджер {addManagerDTO.ManagerFullName}",
+                    Body = $"На ваше заявление был назначен менеджер {managerInfo.FullName}",
                     Subject = "Назначение менеджера"
                 };
                 await SendNotification(message);
@@ -607,7 +614,7 @@ namespace EntranceService.BL.Services
             await _queueSender.SendMessage(message, QueueConst.NotificationQueue);
         }
 
-        public async Task RefuseApplication(RefuseApplicationDTO refuseApplicationDTO)
+        public async Task RefuseApplication(ApplicationManager refuseApplicationDTO)
         {
             var application = await _db.Applications.FirstOrDefaultAsync
                 (ap => ap.Id == refuseApplicationDTO.ApplicationId);
@@ -624,7 +631,10 @@ namespace EntranceService.BL.Services
 
             if (application.ManagerId != Guid.Empty)
             {
+                application.ApplicationStatus = ApplicationStatus.Created;
                 application.ManagerId = Guid.Empty;
+                application.ManagerFullName = null;
+                application.ManagerEmail = null;
                 application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
@@ -641,6 +651,7 @@ namespace EntranceService.BL.Services
 
             foreach (var application in applications)
             {
+                application.ApplicationStatus = ApplicationStatus.Created;
                 application.ManagerId = Guid.Empty;
                 application.ManagerFullName = null;
             }

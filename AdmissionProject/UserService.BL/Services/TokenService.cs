@@ -1,5 +1,5 @@
-﻿using Exceptions.ExceptionTypes;
-using Microsoft.AspNetCore.Http;
+﻿using Common.DTO.Auth;
+using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using UserService.BL.Configuration;
-using UserService.Common.DTO.Auth;
 using UserService.Common.Interfaces;
 using UserService.DAL;
 using UserService.DAL.Entity;
