@@ -1,0 +1,16 @@
+﻿
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Скан паспорта</h5>
+        @if (Model.DocumentExists)
+        {
+            <button type="button" class="btn btn-danger delete-button" data-document-id="@Model.DocumentId">&times; Удалить</button>
+        }
+        else
+        {
+            <input type="file" id="fileInput" class="form-control-file">
+            <button type="button" class="btn btn-primary upload-button">Загрузить</button>
+        }
+    </div>
+</div>

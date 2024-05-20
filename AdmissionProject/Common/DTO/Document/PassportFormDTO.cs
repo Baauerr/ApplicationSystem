@@ -20,10 +20,6 @@ namespace DocumentService.Common.DTO
     {
         public Guid UserId { get; set; }
     }
-    public class UserIdDTO
-    {
-        public Guid UserId { get; set; }
-    }
     public class GetEducationDocuments
     {
         public Guid UserId { get; set; }

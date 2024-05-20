@@ -577,7 +577,7 @@ namespace EntranceService.BL.Services
             await _queueSender.SendMessage(message, QueueConst.SetRoleQueue);      
         }
 
-        public async Task SetManager(ApplicationManager addManagerDTO)
+        public async Task SetManager(TakeApplication addManagerDTO)
         {
             var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == addManagerDTO.ApplicationId);
 
@@ -614,7 +614,7 @@ namespace EntranceService.BL.Services
             await _queueSender.SendMessage(message, QueueConst.NotificationQueue);
         }
 
-        public async Task RefuseApplication(ApplicationManager refuseApplicationDTO)
+        public async Task RefuseApplication(RefuseApplication refuseApplicationDTO)
         {
             var application = await _db.Applications.FirstOrDefaultAsync
                 (ap => ap.Id == refuseApplicationDTO.ApplicationId);

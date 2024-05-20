@@ -23,8 +23,8 @@ namespace EntranceService.Common.Interface
             int pageSize
             );
         public Task CreateApplication(Guid userId, string token, CreateApplicationDTO applicationDTO);
-        public Task SetManager(ApplicationManager addManagerDTO);
-        public Task RefuseApplication(ApplicationManager refuseApplicationDTO);
+        public Task SetManager(TakeApplication addManagerDTO);
+        public Task RefuseApplication(RefuseApplication refuseApplicationDTO);
         public Task RemoveManager(Guid managerGuid);
     }
 }

@@ -5,8 +5,7 @@ using Common.DTO.Profile;
 using Common.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Common;
-using NuGet.Protocol.Plugins;
+
 
 namespace AdminPanel.Controllers
 {
@@ -27,15 +26,17 @@ namespace AdminPanel.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult ChangePassword()
         {
             return View();
         }
 
         [HttpGet]
+       // [Authorize]
         public async Task<IActionResult> Profile()
         {
-            var token = HttpContext.Session.GetString("AccessToken");
+            var token = HttpContext.Request.Cookies["AccessToken"];
 
             var userId = _tokenHelper.GetUserIdFromToken(token);
 
@@ -60,25 +61,39 @@ namespace AdminPanel.Controllers
                     var loginResponse = await _queueSender.Login(loginCreds);
 
                     HttpContext.Session.SetString("Email", loginCreds.Email);
-                    HttpContext.Session.SetString("AccessToken", loginResponse.AccessToken);
-                    HttpContext.Session.SetString("RefreshToken", loginResponse.RefreshToken);
+                    Response.Cookies.Append("AccessToken", loginResponse.AccessToken, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddHours(1)
+                    });
 
-                    return RedirectToAction("Index", "Home");
+                    Response.Cookies.Append("RefreshToken", loginResponse.RefreshToken, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddDays(10)
+                    });
+
+                    return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = ex.Message;
+                    return Json(new { success = false, message = ex.Message });
                 }
             }
 
-            return View();
+            return Json(new { success = false, message = "Неправильный логин или пароль" });
         }
 
-        [HttpPost]
+    [HttpPost]
+      //  [Authorize]
         public async Task<IActionResult> ChangePassword(PasswordChangeRequestDTO newPasswordData)
         {
 
-            var token = HttpContext.Session.GetString("AccessToken");
+            var token = HttpContext.Request.Cookies["AccessToken"];
 
             if (token != null)
             {
@@ -107,21 +122,21 @@ namespace AdminPanel.Controllers
         }
 
 
-            [HttpPost]
-            public async Task<IActionResult> Profile(ChangeProfileRequestDTO newProfileInfo)
+        [HttpPost]
+        public async Task<IActionResult> Profile(ChangeProfileRequestDTO newProfileInfo)
+        {
+            var token = HttpContext.Request.Cookies["AccessToken"];
+
+            var userId = _tokenHelper.GetUserIdFromToken(token);
+
+            if (token != null)
             {
-
-                var token = HttpContext.Session.GetString("AccessToken");
-
-            var userId = _tokenHelper.GetUserIdFromToken(token); 
-
-                if (token != null)
+                var editProfileDTO = new ChangeProfileRequestRPCDTO
                 {
-                    var editProfileDTO = new ChangeProfileRequestRPCDTO
-                    {
-                        ProfileData = newProfileInfo,
-                        UserId = userId
-                    };
+                    ProfileData = newProfileInfo,
+                    UserId = userId
+                };
+
                 try
                 {
                     await _queueSender.SendMessage(editProfileDTO, QueueConst.ChangeProfileQueue);
@@ -129,13 +144,34 @@ namespace AdminPanel.Controllers
                 catch (Exception ex)
                 {
                     TempData["ErrorMessage"] = ex.Message;
-                }              
+                }
             }
 
             var profileInfo = await _queueSender.GetProfile(userId);
 
-            return View(profileInfo);
-            }
+            return Json(profileInfo);
         }
+
+
+
+        //  [HttpPost]
+        //   [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+
+            Response.Cookies.Delete("AccessToken", new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(-1) 
+            });
+
+            Response.Cookies.Delete("RefreshToken", new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(-1)
+            });
+
+            return RedirectToAction("Index", "Home");
+        }
+    }
 }
+
 

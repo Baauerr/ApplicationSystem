@@ -1,0 +1,106 @@
+﻿@model ApplicationsViewModel;
+@using Common.Enum
+
+<div class="card">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Имя абитуриента</th>
+                <th scope="col">Email абитуриента</th>
+                <th scope="col">Гражданство абитуриента</th>
+                <th scope="col">Статус заявки</th>
+                <th scope="col">Менеджер</th>
+                <th scope="col">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+@foreach (var application in Model.ApplicationsResponse.Applications)
+{
+    <tr>
+        <td class="card-text">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Entrant" asp-action="Entrant" asp-route-OwnerId="@application.OwnerId">
+                @application.OwnerName
+            </a>
+        </td>
+        <td class="card-text">@application.OwnerEmail</td>
+        <td class="card-text">@application.Citizenship</td>
+        @if (application.ManagerId == Model.myId && application.ApplicationStatus != ApplicationStatus.Closed)
+        {
+            <td class="card-text">
+                <form asp-action="UpdateStatus" asp-controller="Applications" method="post">
+                    <input type="hidden" name="applicationId" value="@application.Id" />
+                    <select class="form-control w-100 border p-1" name="status" id="status" onchange="this.form.submit()">
+                        @if (application.ApplicationStatus == ApplicationStatus.InProcess)
+                        {
+                            <option value="InProcess" id="InProcess" selected>На рассмотрении</option>
+                            <option value="Approved" id="Approved">Подтверждена</option>
+                            <option value="Rejected" id="Rejected">Отклонена</option>
+                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                        }
+                        else if (application.ApplicationStatus == ApplicationStatus.Approved)
+                        {
+                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                            <option value="Approved" id="Approved" selected>Подтверждена</option>
+                            <option value="Rejected" id="Rejected">Отклонена</option>
+                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                        }
+                        else if (application.ApplicationStatus == ApplicationStatus.Rejected)
+                        {
+                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                            <option value="Approved" id="Approved">Подтверждена</option>
+                            <option value="Rejected" id="Rejected" selected>Отклонена</option>
+                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                        }
+                        else if (application.ApplicationStatus == ApplicationStatus.Closed)
+                        {
+                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                            <option value="Approved" id="Approved">Подтверждена</option>
+                            <option value="Rejected" id="Rejected">Отклонена</option>
+                            <option value="Closed" id="CreateAsc" selected>Закрыта</option>
+                        }
+                    </select>
+                </form>
+            </td>
+        }
+        else
+        {
+            <td class="card-text">@application.ApplicationStatus</td>
+        }
+        <td class="card-text">@application.ManagerName</td>
+        <td class="card-text">
+            @if (application.ManagerId == Model.myId && application.ApplicationStatus != ApplicationStatus.Closed)
+            {
+                <form asp-action="RefuseApplication" asp-controller="Applications" method="post" id="refuseApplication">
+                    <input type="hidden" name="applicationId" value="@application.Id" />
+                    <button class="btn-danger">Отказаться</button>
+                </form>
+            }
+            else if (application.ManagerEmail == null && application.ApplicationStatus != ApplicationStatus.Closed)
+            {
+                <form asp-action="TakeApplication" asp-controller="Applications" method="post" id ="takeApplication">
+                    <input type="hidden" name="applicationId" value="@application.Id" />
+                    <button class="btn-success">Взять</button>
+                </form>
+            }
+        </td>
+    </tr>
+}
+                </tbody>
+            </table>
+                </div>
+
+<ul class="pagination" style="margin-top: 10px">
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>
+    @for (int i = 0; i < Model.ApplicationsResponse.Pagination.Count; i++)
+    {
+        <li class="@(Model.ApplicationsResponse.Pagination.Current == i+1 ? "page-item active" : "page-item")"><a class="page-link" href="#">@(i + 1)</a></li>
+    }
+    <a class="page-link" href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+    </a>
+    </li>
+</ul>  

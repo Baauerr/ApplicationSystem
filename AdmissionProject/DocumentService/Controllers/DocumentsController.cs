@@ -90,11 +90,11 @@ namespace DocumentService.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> DeleteEducationForm([FromBody] DeleteEducationFormDTO educationDocDTO)
+        public async Task<ActionResult> DeleteEducationForm()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _documentFormService.DeleteEducationDocumentInfo(educationDocDTO, Guid.Parse(userId));
+            await _documentFormService.DeleteEducationDocumentInfo(Guid.Parse(userId));
             return Ok();
         }
         [HttpPut("educationDocumentForm")]

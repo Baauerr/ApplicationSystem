@@ -3,6 +3,7 @@ using Common.Const;
 using Common.DTO.Auth;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
+using DocumentService.Common.DTO;
 using EasyNetQ;
 using EasyNetQ.DI;
 
@@ -23,6 +24,24 @@ namespace AdminPanel.BL.Serivces.Impl
                                 x => x.WithQueueName(QueueConst.GetProfileInfoQueue));
 
             return profileInfo;
+        }
+
+        public async Task<PassportFormDTO> GetPassportForm(Guid userId)
+        {
+            var passportForm = await _bus.Rpc.RequestAsync<Guid, PassportFormDTO>
+                                (userId,
+                                x => x.WithQueueName(QueueConst.GetPassportFormQueue));
+
+            return passportForm;
+        }
+
+        public async Task<GetEducationDocumentFormDTO> GetEducationDocumentForm(Guid userId)
+        {
+            var educationDocumentForm = await _bus.Rpc.RequestAsync<Guid, GetEducationDocumentFormDTO>
+                                (userId,
+                                x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue));
+
+            return educationDocumentForm;
         }
 
         public async Task<AuthResponseDTO> Login(LoginRequestDTO loginCreds)

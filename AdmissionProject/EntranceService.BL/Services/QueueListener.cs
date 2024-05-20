@@ -26,10 +26,10 @@ namespace EntranceService.BL.Services
             bus.PubSub.Subscribe<UpdateUserDataDTO>
                 (QueueConst.UpdateUserDataQueue, data => entrantService.SyncUserDataInApplication(data));
 
-            bus.PubSub.Subscribe<ApplicationManager>
+            bus.PubSub.Subscribe<RefuseApplication>
                 (QueueConst.RemoveApplicationManagerQueue, data => entranceService.RefuseApplication(data));
 
-            bus.PubSub.Subscribe<ApplicationManager>
+            bus.PubSub.Subscribe<TakeApplication>
                 (QueueConst.SetManagerQueue, data => entranceService.SetManager(data));
 
             bus.PubSub.Subscribe<ChangeApplicationStatusDTO>

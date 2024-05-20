@@ -3,11 +3,14 @@ using AdminPanel.Models;
 using Common.Const;
 using Common.DTO.Entrance;
 using Common.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
+
 namespace AdminPanel.Controllers
 {
+  //  [Authorize(Roles = "Manager")]
     public class ApplicationsController : Controller
     {
 
@@ -20,23 +23,51 @@ namespace AdminPanel.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Applications()
+        {
+                var emptyFilters = new ApplicationFiltersDTO();
+
+                var applicationsModel = await GetApplications(emptyFilters);
+
+                return View(applicationsModel);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Applications(ApplicationFiltersDTO filters)
         {
             try
             {
-                var applications = await _queueSender.GetApplications(filters); 
-                var email = HttpContext.Session.GetString("Email");
-                ViewBag.Email = email;
-                return View(applications);
+                var applicationsModel = await GetApplications(filters);
+
+                return PartialView("_ApplicationsList", applicationsModel);
             }
-            catch (Exception ex)
+            catch
             {
-                TempData["ErrorMessage"] = ex.Message;
+                ModelState.AddModelError("", "Ошибка при получении заявок");
+                return BadRequest(new { success = false, message = "Ошибка при получении заявок" });
             }
-            return View();
+        }
+
+        public async Task<ApplicationsViewModel> GetApplications(ApplicationFiltersDTO filters)
+        {
+
+                var applications = await _queueSender.GetApplications(filters);
+
+                var token = HttpContext.Request.Cookies["AccessToken"];
+                var userId = _tokenHelper.GetUserIdFromToken(token);
+
+                var viewModel = new ApplicationsViewModel
+                {
+                    ApplicationsResponse = applications,
+                    Filters = filters,
+                    myId = userId
+                };
+
+                return viewModel;            
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> UpdateStatus(GetApplicationStatus data)
         {
             var changeStatus = new ChangeApplicationStatusDTO
@@ -51,13 +82,14 @@ namespace AdminPanel.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> RefuseApplication(Guid applicationId)
         {
 
-            var token = HttpContext.Session.GetString("AccessToken");
+            var token = HttpContext.Request.Cookies["AccessToken"];
             var userId = _tokenHelper.GetUserIdFromToken(token);
 
-            var refuseApplication = new ApplicationManager
+            var refuseApplication = new RefuseApplication
             {
                 ManagerId = userId,
                 ApplicationId = applicationId
@@ -69,12 +101,13 @@ namespace AdminPanel.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> TakeApplication(Guid applicationId)
         {
-            var token = HttpContext.Session.GetString("AccessToken");
+            var token = HttpContext.Request.Cookies["AccessToken"];
             var userId = _tokenHelper.GetUserIdFromToken(token);
 
-            var takeApplication = new ApplicationManager
+            var takeApplication = new TakeApplication
             {
                 ManagerId = userId, 
                 ApplicationId = applicationId

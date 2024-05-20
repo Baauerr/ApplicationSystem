@@ -65,7 +65,6 @@ namespace DocumentService.BL.Services
                 throw new NotFoundException("У пользователя нет сканов паспорта");
             }
 
-
             passportForm.fileId = Guid.Empty;
 
             _db.PassportsFiles.Remove(passportFile);

@@ -3,13 +3,13 @@ using AdminPanel.BL.Serivces.Interface;
 using Common.Helpers;
 using Common.Helpers.Impl;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IQueueSender, QueueSender>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+builder.configureAuthWithCookieToken();
 
 builder.Services.AddSession(options =>
 {
@@ -26,6 +26,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -38,5 +39,15 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
     );
+
+
+app.MapControllerRoute(
+    name: "Entrant",
+    pattern: "Entrant/{userId:Guid}",
+    defaults: new { controller = "Entrant", action = "Entrant" }
+    );
+
+
+
 
 app.Run();

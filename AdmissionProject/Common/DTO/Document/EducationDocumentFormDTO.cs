@@ -14,6 +14,6 @@ namespace DocumentService.Common.DTO
 
     public class GetEducationDocumentFormDTO: EducationDocumentFormDTO
     {
-        public Guid UserId { get; set; }
+        public string EducationLevelName { get; set; }
     }
 }

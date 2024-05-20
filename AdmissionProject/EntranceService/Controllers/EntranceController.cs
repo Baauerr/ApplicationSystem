@@ -120,7 +120,7 @@ namespace EntranceService.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var _bus = RabbitHutch.CreateBus("host=localhost");
             var userId = userIdClaim.Value;
-            var passport = await _bus.Rpc.RequestAsync<UserIdDTO, GetPassportFormDTO>(new UserIdDTO { UserId = Guid.Parse(userId) });
+            var passport = await _bus.Rpc.RequestAsync<Guid, GetPassportFormDTO>(Guid.Parse(userId));
             return Ok(passport);
         }
     }

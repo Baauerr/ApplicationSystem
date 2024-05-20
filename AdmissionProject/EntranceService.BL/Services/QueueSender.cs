@@ -51,7 +51,6 @@ namespace EntranceService.BL.Services
         }
         public async Task<GetEducationDocumentFormDTO> GetUserEducationDocument(Guid userId)
         {
-            
             var educationDocument = await _bus.Rpc.RequestAsync<Guid, GetEducationDocumentFormDTO>
                 (userId, x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue));
             return educationDocument;

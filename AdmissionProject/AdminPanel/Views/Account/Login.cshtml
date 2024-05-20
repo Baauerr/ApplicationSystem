@@ -1,27 +1,52 @@
 ﻿@{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Вход";
 }
 
-    
-    <form asp-action="Login" asp-controller="Account" method="post">
-    <h2>Вход</h2>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label for="password">Пароль:</label>
-            <input type="password" id="password" name="password" class="form-control" required />
-        </div>
+<h2>Вход</h2>
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger" role="alert" style="margin-top: 10px">
-            @TempData["ErrorMessage"]
-        </div>
-    }
+<form id="loginForm" asp-action="Login" asp-controller="Account" method="post">
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="Email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="Password" class="form-control" required />
+    </div>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 10px">Войти</button>
-    </form>
+    <button type="submit" class="btn btn-primary" style="margin-top: 10px">Войти</button>
+</form>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert" style="margin-top: 10px">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
+<div id="error-message" class="text-danger" style="margin-top: 10px"></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#loginForm").submit(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/Account/Login",
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            $("#error-message").text(response.message);
+                        }
+                    },
+                    error: function () {
+                        $("#error-message").text("Произошла ошибка. Попробуйте снова.");
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -27,9 +27,7 @@ namespace DocumentService.BL.Services
             {                
                 throw new BadRequestException(ex.ToString());
             }
-
-            //ЭТО НАДО ПРОТЕСТИРОВАТЬ
-            
+          
         }
     }
 }

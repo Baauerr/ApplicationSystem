@@ -10,8 +10,7 @@ namespace DocumentService.Common.Interface
         public Task EditEducationDocumentInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId);
         public Task AddEducationDocumentInfo(
             EducationDocumentFormDTO educationDocumentDTO, Guid userId);
-        public Task DeleteEducationDocumentInfo(
-            DeleteEducationFormDTO educationDocumentDTO, Guid userId);
+        public Task DeleteEducationDocumentInfo(Guid userId);
 
         public Task AddPassportInfo(
             PassportFormDTO passportDTO, Guid userId);

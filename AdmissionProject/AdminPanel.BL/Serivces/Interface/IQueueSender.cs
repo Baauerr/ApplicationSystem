@@ -1,6 +1,7 @@
 ﻿using Common.DTO.Auth;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
+using DocumentService.Common.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,7 @@ namespace AdminPanel.BL.Serivces.Interface
         public Task<ProfileResponseDTO> GetProfile(Guid userId);
         public Task SendMessage<T>(T message, string topik);
         public Task<ApplicationsResponseDTO> GetApplications(ApplicationFiltersDTO applicationFilters);
+        public Task<PassportFormDTO> GetPassportForm(Guid userId);
+        public Task<GetEducationDocumentFormDTO> GetEducationDocumentForm(Guid userId);
     }
 }
