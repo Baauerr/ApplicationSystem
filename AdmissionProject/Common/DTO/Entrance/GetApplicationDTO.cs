@@ -41,7 +41,7 @@ namespace Common.DTO.Entrance
 
         public bool? hasManager { get; set; }
 
-        public string? managerName { get; set; }
+        public Guid? managerId { get; set; }
 
         public SortingTypes? sortingTypes { get; set; }
 

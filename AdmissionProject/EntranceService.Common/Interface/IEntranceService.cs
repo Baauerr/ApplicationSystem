@@ -17,7 +17,7 @@ namespace EntranceService.Common.Interface
             List<string>? faculties,
             ApplicationStatus? status,
             bool? hasManager,
-            string? managerName,
+            Guid? managerId,
             SortingTypes? sortingTypes,
             int page,
             int pageSize

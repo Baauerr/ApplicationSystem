@@ -5,12 +5,14 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DictionaryService.DAL.Enum
+namespace Common.Enum
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum ImportStatus
+    public enum ImportTypes
     {
-        Success,
-        Failed
+        DocumentType,
+        EducationLevel,
+        Faculty,
+        Program
     }
 }

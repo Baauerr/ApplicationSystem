@@ -2,11 +2,10 @@ using Common.DTO.Dictionary;
 using Common.Enum;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL.Entities;
-using DictionaryService.DAL.Enum;
+using Common.DTO;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.Design;
 using System.Security.Claims;
 using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
@@ -32,7 +31,7 @@ namespace UserService.Controllers
         [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> ImportDictionary([FromQuery] OperationType operationType)
+        public async Task<ActionResult> ImportDictionary([FromQuery] ImportTypes operationType)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
@@ -103,9 +102,9 @@ namespace UserService.Controllers
         [ProducesResponseType(typeof(List<ImportHistory>), 200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<ImportHistory>> GetImportHistory()
+        public async Task<ActionResult<AllImportHistoryDTO>> GetImportHistory()
         {
-            return Ok(await _infoService.GetImportHistory());
+            return Ok(await _importService.GetImportHistory());
         }
     }
 

@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Common.DTO.Dictionary;
+using Common.Enum;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL;
 using DictionaryService.DAL.Entities;
-using DictionaryService.DAL.Enum;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -40,22 +40,22 @@ namespace DictionaryService.BL.Services
             return client;
         }
 
-        public async Task ImportDictionary(OperationType operationType, Guid userId)
+        public async Task ImportDictionary(ImportTypes operationType, Guid userId)
         {
             var operationResult = ImportStatus.Failed;
 
             switch (operationType)
             {
-                case OperationType.Faculty:
+                case ImportTypes.Faculty:
                     operationResult = await ImportFaculties();
                     break;
-                case OperationType.DocumentType:
+                case ImportTypes.DocumentType:
                     operationResult = await ImportDocumentTypes();
                     break;
-                case OperationType.Program:
+                case ImportTypes.Program:
                     operationResult = await ImportPrograms();
                     break;
-                case OperationType.EducationLevel:
+                case ImportTypes.EducationLevel:
                     operationResult = await ImportEducationLevels();
                     break;
             }
@@ -317,15 +317,20 @@ namespace DictionaryService.BL.Services
             }   
             return import.ImportStatus;
         }
-        public async Task<List<ImportHistory>> GetImportHistory()
+        public async Task<AllImportHistoryDTO> GetImportHistory()
         {
-            var import = await _db.ImportHistory.ToListAsync();
+            var importHistory = _db.ImportHistory.AsQueryable();
 
-            if (import == null)
+            var allHistory = new AllImportHistoryDTO();
+
+            foreach(var item in importHistory)
             {
-                throw new NotFoundException("Такого импорта нет");
+                var historyElement = _mapper.Map<HistoryDTO>(item);
+
+                allHistory.History.Add(historyElement);
             }
-            return import;
+
+            return allHistory;
         }
     }
 }

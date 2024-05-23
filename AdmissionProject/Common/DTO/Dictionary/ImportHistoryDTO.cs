@@ -1,15 +1,17 @@
 ﻿using Common.Enum;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.OpenApi.Models;
 
-namespace DictionaryService.DAL.Entities
+namespace Common.DTO.Dictionary
 {
-    public class ImportHistory
+    public class HistoryDTO
     {
-        [Key]
-        public Guid Id {  get; set; }
         public required ImportTypes OperationType { get; set; }
         public required ImportStatus ImportStatus { get; set; }
         public required DateTime OperationTime { get; set; }
-        public required Guid UserId { get; set; }
+    }
+
+    public class AllImportHistoryDTO
+    {
+        public List<HistoryDTO> History { get; set;} = new List<HistoryDTO>();
     }
 }

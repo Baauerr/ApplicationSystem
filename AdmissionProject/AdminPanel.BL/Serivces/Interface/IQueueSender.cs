@@ -1,4 +1,5 @@
 ﻿using Common.DTO.Auth;
+using Common.DTO.Dictionary;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
 using DocumentService.Common.DTO;
@@ -18,5 +19,9 @@ namespace AdminPanel.BL.Serivces.Interface
         public Task<ApplicationsResponseDTO> GetApplications(ApplicationFiltersDTO applicationFilters);
         public Task<PassportFormDTO> GetPassportForm(Guid userId);
         public Task<GetEducationDocumentFormDTO> GetEducationDocumentForm(Guid userId);
+        public Task<ProfileResponseDTO> GetAllManagers();
+        public Task<FacultiesResponseDTO> GetAllFaculties();
+        public Task<ProgramResponseDTO> GetAllPrograms();
+        public Task<AllImportHistoryDTO> GetImportHistory();
     }
 }

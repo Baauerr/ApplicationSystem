@@ -39,7 +39,7 @@ namespace EntranceService.Controllers
             [FromQuery] List<string>? faculties,
             [FromQuery] ApplicationStatus? status,
             [FromQuery] bool? hasManager,
-            [FromQuery] string? managerName,
+            [FromQuery] Guid? managerId,
             [FromQuery] SortingTypes? sortingTypes,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
@@ -50,7 +50,7 @@ namespace EntranceService.Controllers
             faculties,
             status,
             hasManager,
-            managerName,
+            managerId,
             sortingTypes,
             page,
             pageSize);

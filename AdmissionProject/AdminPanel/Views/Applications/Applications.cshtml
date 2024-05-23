@@ -19,8 +19,12 @@
                         <input type="text" asp-for="Filters.entrantName" class="form-control" id="entrantName">
                             <div class="d-flex flex-column w-100">
                                 <label for="faculties" class="form-label">Поиск по факультетам</label>
-                                <select class="form-select w-100 border p-1" asp-for="Filters.faculties" id="faculties" multiple>                               
-                                    <option value="null">--</option>
+                                <select class="form-select w-100 border p-1" asp-for="Filters.faculties" id="faculties" multiple>
+                                <option value="null">--</option>
+                                @foreach(var faculty in Model.Faculties.Faculties)
+                                {
+                                    <option value=@faculty.Id>@faculty.Name</option>
+                                }
                                 </select>
                             </div>
                             <div>
@@ -35,7 +39,7 @@
                     <div class="col-md-6">
                         <div>
                             <label for="managerName">Поиск по имени менеджера</label>
-                            <input type="text" class="form-control" asp-for="Filters.managerName" id="managerName">
+                            <input type="text" class="form-control" asp-for="Filters.managerId" id="managerName">
                         </div>
                             <div>
                             <label for="status" class="form-label">Статус заявки</label>
@@ -50,7 +54,11 @@
                         <div>
                             <label for="programsGuid" class="form-label">Поиск по программе</label>
                             <select class="form-control w-100 border p-1" asp-for="Filters.programsGuid" id="programsGuid">
-                                <option value="Pending" id="CreateDesc">В ожидании</option>
+                                <option value="null">--</option>
+                                @foreach (var program in Model.Programs.Programs)
+                                {
+                                    <option value=@program.Id>@program.Name</option>
+                                }
                             </select>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">

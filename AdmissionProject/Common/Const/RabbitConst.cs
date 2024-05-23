@@ -16,6 +16,7 @@ namespace Common.Const
         public const string SetRoleQueue = "SetRoleQueue";
         public const string NotificationQueue = "NotificationQueue";
         public const string UpdateUserDataQueue = "UpdateUserDataQueue";
+        public const string CreateManagerQueue = "CreateManagerQueue";
 
 
         //MVC
@@ -26,5 +27,9 @@ namespace Common.Const
         public const string ChangeApplicationStatusQueue = "ChangeApplicationStatusQueue";
         public const string SetManagerQueue = "SetManagerQueue";
         public const string RemoveApplicationManagerQueue = "RemoveApplicationManagerQueue";
+        public const string GetAllManagersQueue = "GetAllManagersQueue";
+        public const string GetAllFacultiesQueue = "GetAllFacultiesQueue";
+        public const string GetImportHistoryQueue = "GetImportHistoryQueue";
+        public const string MakeImportQueue = "MakeImportQueue";
     }
 }

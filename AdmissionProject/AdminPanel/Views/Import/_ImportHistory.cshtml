@@ -1,0 +1,24 @@
+﻿@using Common.DTO.Dictionary
+@model AllImportHistoryDTO
+
+<div class="card">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Тип импорта</th>
+                <th scope="col">Время импорта</th>
+                <th scope="col">Статус импорта</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var import in Model.History)
+            {
+                <tr>
+                    <td class="card-text">@import.OperationType</td>
+                    <td class="card-text">@import.OperationTime</td>
+                    <td class="card-text">@import.ImportStatus</td>                   
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

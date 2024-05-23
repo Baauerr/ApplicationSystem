@@ -1,5 +1,6 @@
 ﻿using Common.Const;
 using Common.DTO.Entrance;
+using Common.DTO.Profile;
 using DocumentService.Common.DTO;
 using EasyNetQ;
 using EntranceService.Common.Interface;
@@ -35,6 +36,9 @@ namespace EntranceService.BL.Services
             bus.PubSub.Subscribe<ChangeApplicationStatusDTO>
                 (QueueConst.ChangeApplicationStatusQueue, data => entranceService.ChangeApplicationStatus(data.ApplcationStatus, data.ApplicationId));
 
+      //      bus.PubSub.Subscribe<ProfileResponseDTO>
+      //         (QueueConst.GetAllManagersQueue, data => entranceService.(data.ApplcationStatus, data.ApplicationId));
+
             bus.Rpc.Respond<ApplicationFiltersDTO, ApplicationsResponseDTO>(async filters =>
                 await entranceService.GetApplications(
                     filters.entrantName,
@@ -42,7 +46,7 @@ namespace EntranceService.BL.Services
                     filters.faculties, 
                     filters.status, 
                     filters.hasManager, 
-                    filters.managerName,
+                    filters.managerId,
                     filters.sortingTypes,
                     filters.page,
                     filters.pageSize

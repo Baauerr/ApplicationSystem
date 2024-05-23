@@ -1,0 +1,44 @@
+﻿@using Common.Enum
+@using Common.DTO.Dictionary
+@model AllImportHistoryDTO
+
+@{
+    ViewData["Title"] = "Импорт";
+}
+
+<div>
+    <button class="btn-primary" data-importtype="@ImportTypes.EducationLevel">Import Education Levels</button>
+    <button class="btn-primary" data-importtype="@ImportTypes.Program">Import Programs</button>
+    <button class="btn-primary" data-importtype="@ImportTypes.Faculty">Import Faculties</button>
+    <button class="btn-primary" data-importtype="@ImportTypes.DocumentType">Import DocumentTypes</button>
+</div>
+
+<div id="historyInfo">
+    @await Html.PartialAsync("_ImportHistory", Model)
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.btn-primary').click(function () {
+                var importType = $(this).data('importtype');
+                makeImport(importType);
+            });
+        });
+
+        function makeImport(importType) {
+            $.ajax({
+                url: '/Import/Import',
+                type: 'POST',
+                data: { value: importType },
+                success: function (response) {
+                    $('#historyInfo').html(response);
+                },
+                error: function () {
+                    alert('Error loading content.');
+                }
+            });
+        }
+    </script>
+}

@@ -320,7 +320,7 @@ namespace EntranceService.BL.Services
             List<string>? faculties, 
             ApplicationStatus? status, 
             bool? hasManager,
-            string? managerName, 
+            Guid? managerId, 
             SortingTypes? sortingTypes,
             int page, 
             int pageSize
@@ -332,7 +332,7 @@ namespace EntranceService.BL.Services
                 faculties, 
                 status,
                 hasManager,
-                managerName,
+                managerId,
                 sortingTypes,
                 page,
                 pageSize
@@ -350,7 +350,7 @@ namespace EntranceService.BL.Services
             List<string>? faculties,
             ApplicationStatus? status,
             bool? hasManager,
-            string? managerName,
+            Guid? managerId,
             SortingTypes? sortingTypes,
             int page,
             int pageSize
@@ -361,7 +361,7 @@ namespace EntranceService.BL.Services
             applications =  FilterByPrograms(applications, programGuid);
             applications =  FilterByStatus(applications, status);
             applications =  FilterByHavingManager(applications, hasManager);
-            applications =  FilterByManagerId(applications, managerName);
+            applications =  FilterByManagerId(applications, managerId);
             applications =  FilterByPagination(applications, page, pageSize);
             applications =  SortApplications(applications, sortingTypes);
 
@@ -461,12 +461,12 @@ namespace EntranceService.BL.Services
 
         private IQueryable<Application> FilterByManagerId(
             IQueryable<Application> applications,
-            string? managerName
+            Guid? managerId
             )
         {
-            if (managerName != null)
+            if (managerId != null)
             {
-                applications = applications.Where(ap => ap.ManagerFullName.Contains(managerName));
+                applications = applications.Where(ap => ap.ManagerId == managerId);
             }
 
             return applications;
@@ -590,8 +590,6 @@ namespace EntranceService.BL.Services
             {
                 application.ApplicationStatus = ApplicationStatus.InProcess;
                 application.ManagerId = addManagerDTO.ManagerId;
-                application.ManagerFullName = managerInfo.FullName;
-                application.ManagerEmail = managerInfo.Email;
                 application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
@@ -633,8 +631,6 @@ namespace EntranceService.BL.Services
             {
                 application.ApplicationStatus = ApplicationStatus.Created;
                 application.ManagerId = Guid.Empty;
-                application.ManagerFullName = null;
-                application.ManagerEmail = null;
                 application.LastChangeDate = DateTime.UtcNow.ToUniversalTime();
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
@@ -653,8 +649,15 @@ namespace EntranceService.BL.Services
             {
                 application.ApplicationStatus = ApplicationStatus.Created;
                 application.ManagerId = Guid.Empty;
-                application.ManagerFullName = null;
             }
+
+
+            var manager = await _db.Managers.FirstOrDefaultAsync(m => m.ManagerId == managerGuid);
+
+            if (manager != null) {
+                _db.Managers.Remove(manager);
+            }
+            
             _db.Applications.UpdateRange(applications);
             await _db.SaveChangesAsync();
         }

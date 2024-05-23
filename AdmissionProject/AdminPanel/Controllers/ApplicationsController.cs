@@ -1,6 +1,7 @@
 ﻿using AdminPanel.BL.Serivces.Interface;
 using AdminPanel.Models;
 using Common.Const;
+using Common.DTO.Dictionary;
 using Common.DTO.Entrance;
 using Common.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ using System;
 
 namespace AdminPanel.Controllers
 {
-  //  [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Manager")]
     public class ApplicationsController : Controller
     {
 
@@ -25,11 +26,14 @@ namespace AdminPanel.Controllers
         [HttpGet]
         public async Task<IActionResult> Applications()
         {
-                var emptyFilters = new ApplicationFiltersDTO();
+            var emptyFilters = new ApplicationFiltersDTO();
 
-                var applicationsModel = await GetApplications(emptyFilters);
+            var applicationsModel = await GetApplications(emptyFilters);
 
-                return View(applicationsModel);
+            applicationsModel.Programs = await GetAllPrograms();
+            applicationsModel.Faculties = await GetAllFaculties(); 
+
+            return View(applicationsModel);
         }
 
         [HttpPost]
@@ -51,29 +55,28 @@ namespace AdminPanel.Controllers
         public async Task<ApplicationsViewModel> GetApplications(ApplicationFiltersDTO filters)
         {
 
-                var applications = await _queueSender.GetApplications(filters);
+            var applications = await _queueSender.GetApplications(filters);
 
-                var token = HttpContext.Request.Cookies["AccessToken"];
-                var userId = _tokenHelper.GetUserIdFromToken(token);
+            var token = HttpContext.Request.Cookies["AccessToken"];
+            var userId = _tokenHelper.GetUserIdFromToken(token);
 
-                var viewModel = new ApplicationsViewModel
-                {
-                    ApplicationsResponse = applications,
-                    Filters = filters,
-                    myId = userId
-                };
+            var viewModel = new ApplicationsViewModel
+            {
+                ApplicationsResponse = applications,
+                Filters = filters,
+                myId = userId
+            };
 
-                return viewModel;            
+            return viewModel;
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> UpdateStatus(GetApplicationStatus data)
         {
             var changeStatus = new ChangeApplicationStatusDTO
             {
                 ApplcationStatus = data.status,
-                ApplicationId =  data.applicationId
+                ApplicationId = data.applicationId
             };
 
             await _queueSender.SendMessage(changeStatus, QueueConst.ChangeApplicationStatusQueue);
@@ -82,7 +85,6 @@ namespace AdminPanel.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> RefuseApplication(Guid applicationId)
         {
 
@@ -101,7 +103,6 @@ namespace AdminPanel.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> TakeApplication(Guid applicationId)
         {
             var token = HttpContext.Request.Cookies["AccessToken"];
@@ -109,7 +110,7 @@ namespace AdminPanel.Controllers
 
             var takeApplication = new TakeApplication
             {
-                ManagerId = userId, 
+                ManagerId = userId,
                 ApplicationId = applicationId
             };
 
@@ -118,5 +119,17 @@ namespace AdminPanel.Controllers
             return RedirectToAction("Applications");
         }
 
+        private async Task<FacultiesResponseDTO> GetAllFaculties()
+        {
+            var faculties = await _queueSender.GetAllFaculties();
+
+            return faculties;
+        }
+        private async Task<ProgramResponseDTO> GetAllPrograms()
+        {
+            var programs = await _queueSender.GetAllPrograms();
+
+            return programs;
+        }
     }
 }

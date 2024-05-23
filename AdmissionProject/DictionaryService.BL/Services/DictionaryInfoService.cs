@@ -22,13 +22,6 @@ namespace DictionaryService.BL.Services
             _mapper = mapper;
         }
 
-        public async Task<List<ImportHistory>> GetImportHistory()
-        {
-            var historyList = await _db.ImportHistory.ToListAsync();
-            return historyList;
-
-        }
-
         public async Task<DocumentTypeResponseDTO> GetDocumentTypes(string? documentName)
         {
             IQueryable<DocumentType> query = _db.DocumentTypes;

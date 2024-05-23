@@ -1,6 +1,7 @@
 ﻿using AdminPanel.BL.Serivces.Interface;
 using Common.Const;
 using Common.DTO.Auth;
+using Common.DTO.Dictionary;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
 using DocumentService.Common.DTO;
@@ -9,7 +10,7 @@ using EasyNetQ.DI;
 
 namespace AdminPanel.BL.Serivces.Impl
 {
-    public class QueueSender: IQueueSender
+    public class QueueSender : IQueueSender
     {
         private IBus _bus;
         public QueueSender()
@@ -46,10 +47,10 @@ namespace AdminPanel.BL.Serivces.Impl
 
         public async Task<AuthResponseDTO> Login(LoginRequestDTO loginCreds)
         {
-                var loginResponse = await _bus.Rpc.RequestAsync<LoginRequestDTO, AuthResponseDTO>
-                                (loginCreds, x => x.WithQueueName(QueueConst.LoginQueue));
+            var loginResponse = await _bus.Rpc.RequestAsync<LoginRequestDTO, AuthResponseDTO>
+                            (loginCreds, x => x.WithQueueName(QueueConst.LoginQueue));
 
-                return loginResponse;
+            return loginResponse;
         }
 
         public async Task<ApplicationsResponseDTO> GetApplications(ApplicationFiltersDTO applicationFilters)
@@ -60,10 +61,44 @@ namespace AdminPanel.BL.Serivces.Impl
             return applicationsResponse;
         }
 
+        public async Task<ProfileResponseDTO> GetAllManagers()
+        {
+            var applicationsResponse = await _bus.Rpc.RequestAsync<Guid, ProfileResponseDTO>
+                (Guid.Empty, x => x.WithQueueName(QueueConst.GetAllManagersQueue));
+
+            return applicationsResponse;
+        }
+
         public async Task SendMessage<T>(T message, string topik)
         {
             await _bus.PubSub.PublishAsync(message, topik);
         }
 
+        public async Task<FacultiesResponseDTO> GetAllFaculties()
+        {
+            var faculties = await _bus.Rpc.RequestAsync<Guid, FacultiesResponseDTO>
+                (Guid.Empty, x => x.WithQueueName(QueueConst.GetAllFacultiesQueue));
+
+            return faculties;
+        }
+
+        public async Task<ProgramResponseDTO> GetAllPrograms()
+        {
+            var filters = new ProgramsFilterDTO();
+            filters.pageSize = 5000;
+
+            var applicationsResponse = await _bus.Rpc.RequestAsync<ProgramsFilterDTO, ProgramResponseDTO>
+                (filters, x => x.WithQueueName(QueueConst.GetProgramsQueue));
+
+            return applicationsResponse;
+        }
+
+        public async Task<AllImportHistoryDTO> GetImportHistory()
+        {
+            var importHistory = await _bus.Rpc.RequestAsync<Guid, AllImportHistoryDTO>
+                (Guid.Empty, x => x.WithQueueName(QueueConst.GetImportHistoryQueue));
+
+            return importHistory;
+        }
     }
 }

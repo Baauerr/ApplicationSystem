@@ -22,8 +22,9 @@ namespace DictionaryService.BL.Mapper
                 .ReverseMap();
             CreateMap<Faculty, FacultyDTO>()
                 .ReverseMap();
-
             CreateMap<Faculty, FacultyDTO>()
+                .ReverseMap();
+            CreateMap<ImportHistory, HistoryDTO>()
                 .ReverseMap();
         }
     }
