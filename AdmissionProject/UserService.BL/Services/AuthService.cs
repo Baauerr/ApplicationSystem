@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using UserService.Common.DTO.Auth;
 using UserService.Common.DTO.Profile;
-using UserService.Common.Interfaces;
+using UserService.Common.Interface;
 using UserService.DAL.Entity;
 using UserService.DAL.Repository;
 
@@ -155,7 +155,7 @@ namespace UserService.BL.Services
 
         private void ValidatePhoneNumber(string phoneNumber)
         {
-            string regexPattern = @"^((\+7)| 8)\d{ 10}$";
+            string regexPattern = @"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$";
 
             if (!Regex.IsMatch(phoneNumber, regexPattern))
             {
@@ -164,9 +164,9 @@ namespace UserService.BL.Services
         }
         private void ValidateBirthDate(DateTime birthDate)
         {
-            var minCheck = birthDate < DateTime.UtcNow.AddYears(-10);
+            var minCheck = birthDate > DateTime.UtcNow.AddYears(-10);
 
-            var maxCheck = birthDate > DateTime.UtcNow.AddYears(-95);
+            var maxCheck = birthDate < DateTime.UtcNow.AddYears(-95);
 
             if (minCheck)
             {

@@ -7,31 +7,24 @@
 }
 
 <div>
-    <button class="btn-primary" data-importtype="@ImportTypes.EducationLevel">Import Education Levels</button>
-    <button class="btn-primary" data-importtype="@ImportTypes.Program">Import Programs</button>
-    <button class="btn-primary" data-importtype="@ImportTypes.Faculty">Import Faculties</button>
-    <button class="btn-primary" data-importtype="@ImportTypes.DocumentType">Import DocumentTypes</button>
+    <button class="btn-primary" onclick="makeImport('@ImportTypes.EducationLevel')">Import Education Levels</button>
+    <button class="btn-primary" onclick="makeImport('@ImportTypes.Program')">Import Programs</button>
+    <button class="btn-primary" onclick="makeImport('@ImportTypes.Faculty')">Import Faculties</button>
+    <button class="btn-primary" onclick="makeImport('@ImportTypes.DocumentType')">Import DocumentTypes</button>
 </div>
 
 <div id="historyInfo">
     @await Html.PartialAsync("_ImportHistory", Model)
 </div>
 
-
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            $('.btn-primary').click(function () {
-                var importType = $(this).data('importtype');
-                makeImport(importType);
-            });
-        });
-
         function makeImport(importType) {
             $.ajax({
                 url: '/Import/Import',
                 type: 'POST',
-                data: { value: importType },
+                contentType: 'application/json',
+                data: importType,
                 success: function (response) {
                     $('#historyInfo').html(response);
                 },
@@ -42,3 +35,45 @@
         }
     </script>
 }
+
+
+
+
+
+@* <div>
+    <button class="btn-primary import-btn" data-importtype="@ImportTypes.EducationLevel">Import Education Levels</button>
+    <button class="btn-primary import-btn" data-importtype="@ImportTypes.Program">Import Programs</button>
+    <button class="btn-primary import-btn" data-importtype="@ImportTypes.Faculty">Import Faculties</button>
+    <button class="btn-primary import-btn" data-importtype="@ImportTypes.DocumentType">Import DocumentTypes</button>
+</div>
+
+<div id="historyInfo">
+    @await Html.PartialAsync("_ImportHistory", Model)
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.import-btn').click(function () {
+                var importType = $(this).data('importtype');
+                makeImport(importType);
+            });
+        });
+
+        function makeImport(importType) {
+            $.ajax({
+                url: '/Import/Import',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ importType: importType }),
+                success: function (response) {
+                    $('#historyInfo').html(response);
+                },
+                error: function () {
+                    alert('Error loading content.');
+                }
+            });
+        }
+    </script>
+} *@

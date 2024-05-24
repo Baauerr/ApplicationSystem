@@ -10,6 +10,7 @@ namespace EntranceService.BL.Mapper
             CreateMap<Application, CreateApplicationDTO>();
             CreateMap<Application, GetApplicationDTO>().ReverseMap();
             CreateMap<ApplicationPrograms, GetProgramDTO>();
+            CreateMap<ManagerDTO, Manager>().ReverseMap();
         }
     }
 }

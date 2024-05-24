@@ -26,7 +26,8 @@ namespace UserService.BL.Configuration
                 .AddEntityFrameworkStores<UserDbContext>()
                 .AddDefaultTokenProviders()
                 .AddUserManager<UserManager<User>>()
-                .AddRoleManager<RoleManager<IdentityRole<Guid>>>();
+                .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+                .AddSignInManager<SignInManager<User>>();
         }
     }
 }

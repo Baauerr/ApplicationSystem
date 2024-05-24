@@ -568,9 +568,9 @@ namespace EntranceService.BL.Services
         private async Task GiveEntrantRole(Guid userId)
         {
 
-            var message = new SetRoleRequestDTO
+            var message = new UserRoleActionDTO
             {
-                RecipientId = userId.ToString(),
+                UserId = userId,
                 Role = Roles.ENTRANT
             };
 
@@ -641,25 +641,55 @@ namespace EntranceService.BL.Services
             }
         }
 
-        public async Task RemoveManager(Guid managerGuid)
+        public async Task RemoveManager(Guid managerId)
         {
-            var applications = _db.Applications.Where(ap => ap.ManagerId == managerGuid);
+            var applications = _db.Applications.Where(ap => ap.ManagerId == managerId);
 
-            foreach (var application in applications)
+            if (applications.Any())
             {
-                application.ApplicationStatus = ApplicationStatus.Created;
-                application.ManagerId = Guid.Empty;
+                foreach (var application in applications)
+                {
+                    application.ApplicationStatus = ApplicationStatus.Created;
+                    application.ManagerId = Guid.Empty;                   
+                }
+                _db.Applications.UpdateRange(applications);
             }
-
-
-            var manager = await _db.Managers.FirstOrDefaultAsync(m => m.ManagerId == managerGuid);
+            
+            var manager = await _db.Managers.FirstOrDefaultAsync(m => m.Id == managerId);
 
             if (manager != null) {
                 _db.Managers.Remove(manager);
             }
             
-            _db.Applications.UpdateRange(applications);
+            
             await _db.SaveChangesAsync();
+        }
+
+        public async Task CreateManager(ManagerDTO managerInfo)
+        {
+            var newManager = new Manager {
+                FullName = managerInfo.FullName,
+                Email = managerInfo.Email,
+                Id = managerInfo.Id,
+                Role = managerInfo.Role
+            };
+
+            await _db.Managers.AddAsync(newManager);
+            await _db.SaveChangesAsync();
+        }
+
+        public ManagersListDTO GetAllManagers()
+        {
+            var managers = _db.Managers.AsQueryable();
+            var managersListDTO = new ManagersListDTO();
+            foreach (var manager in managers)
+            {
+                var managerDTO = _mapper.Map<ManagerDTO>(manager);
+                managersListDTO.ManagerDTO.Add(managerDTO);
+            }
+
+            return managersListDTO;
+
         }
     }
     

@@ -2,14 +2,14 @@
 using Common.DTO.User;
 using UserService.Common.DTO.Profile;
 
-namespace UserService.Common.Interfaces
+namespace UserService.Common.Interface
 {
     public interface IAccountService
     { 
         public Task<ProfileResponseDTO> GetProfile(Guid userId);
         public Task ChangeProfileInfo(ChangeProfileRequestDTO newProfileInfo, Guid userId);
         public Task<UserRoleResponseDTO> GetMyRoles(string token);
-        public Task GiveRole(SetRoleRequestDTO roleRequesData);
-        public Task<List<ProfileResponseDTO>> GetManagers(string fullName);
+        public Task GiveRole(UserRoleActionDTO roleRequesData);
+        public Task RemoveRole(DeleteUserRoleDTO userInfo);
     }
 }

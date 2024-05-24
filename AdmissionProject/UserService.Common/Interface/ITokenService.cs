@@ -2,7 +2,7 @@
 
 using Common.DTO.Auth;
 
-namespace UserService.Common.Interfaces
+namespace UserService.Common.Interface
 {
     public interface ITokenService
     {

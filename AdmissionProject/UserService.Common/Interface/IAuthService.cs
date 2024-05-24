@@ -2,7 +2,7 @@
 using Common.DTO.Profile;
 using UserService.Common.DTO.Auth;
 
-namespace UserService.Common.Interfaces
+namespace UserService.Common.Interface
 {
     public interface IAuthService
     {

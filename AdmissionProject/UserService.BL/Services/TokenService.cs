@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using UserService.BL.Configuration;
-using UserService.Common.Interfaces;
+using UserService.Common.Interface;
 using UserService.DAL;
 using UserService.DAL.Entity;
 

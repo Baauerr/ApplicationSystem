@@ -84,6 +84,21 @@ namespace EntranceService.Controllers
             await _entrantService.EditApplicationsInfo(applicationEditInfo, Guid.Parse(userId));
             return Ok();
         }
+
+        [HttpPut("agagagaga")]
+      //  [Authorize(Roles = "Entrant")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult> GetManagers([FromBody] EditApplicationDTO applicationEditInfo)
+        {
+          //  var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+          //  var userId = userIdClaim.Value;
+            var managers = _entranceService.GetAllManagers();
+            return Ok(managers);
+        }
+
+
         [HttpDelete("program")]
         [Authorize(Roles = "Entrant")]
         [ProducesResponseType(200)]

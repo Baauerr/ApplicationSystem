@@ -4,7 +4,7 @@ using Common.DTO.Profile;
 using Common.DTO.User;
 using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
-using UserService.Common.Interfaces;
+using UserService.Common.Interface;
 
 namespace UserService.BL.Services
 {
@@ -27,17 +27,15 @@ namespace UserService.BL.Services
                   await authService.Login(request), x => x.WithQueueName(QueueConst.LoginQueue)
             );
 
-            bus.Rpc.Respond<LoginRequestDTO, AuthResponseDTO>(async request =>
-                  await authService.Login(request), x => x.WithQueueName(QueueConst.LoginQueue)
-            );
-
             bus.PubSub.Subscribe<ChangeProfileRequestRPCDTO>
                 (QueueConst.ChangeProfileQueue, data => accountService.ChangeProfileInfo(data.ProfileData, data.UserId));
 
             bus.PubSub.Subscribe<PasswordChangeRequestRPCDTO>
                 (QueueConst.ChangePasswordQueue, data => authService.ChangePassword(data.passwordInfo, data.UserId));
 
-            bus.PubSub.Subscribe<SetRoleRequestDTO>(QueueConst.SetRoleQueue, data => accountService.GiveRole(data));
+            bus.PubSub.Subscribe<UserRoleActionDTO>(QueueConst.SetRoleQueue, data => accountService.GiveRole(data));
+            bus.PubSub.Subscribe<DeleteUserRoleDTO>(QueueConst.RemoveUserRoleQueue, data => accountService.RemoveRole(data));
+
         }
     }
 }

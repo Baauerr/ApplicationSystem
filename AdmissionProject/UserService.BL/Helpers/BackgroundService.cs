@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Common.DTO.User;
-using UserService.Common.Interfaces;
+using UserService.Common.Interface;
 
 namespace UserService.BL.Helpers
 
@@ -40,7 +40,7 @@ namespace UserService.BL.Helpers
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var newEmail = JsonConvert.DeserializeObject<SetRoleRequestDTO>(message);
+                var newEmail = JsonConvert.DeserializeObject<UserRoleActionDTO>(message);
                 _accountService.GiveRole(newEmail);
             };
 

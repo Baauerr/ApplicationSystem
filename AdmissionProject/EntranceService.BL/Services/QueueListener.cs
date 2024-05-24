@@ -27,6 +27,9 @@ namespace EntranceService.BL.Services
             bus.PubSub.Subscribe<UpdateUserDataDTO>
                 (QueueConst.UpdateUserDataQueue, data => entrantService.SyncUserDataInApplication(data));
 
+            bus.PubSub.Subscribe<Guid>
+                (QueueConst.RemoveManagerFromEntranceQueue, data => entranceService.RemoveManager(data));
+
             bus.PubSub.Subscribe<RefuseApplication>
                 (QueueConst.RemoveApplicationManagerQueue, data => entranceService.RefuseApplication(data));
 
@@ -36,8 +39,12 @@ namespace EntranceService.BL.Services
             bus.PubSub.Subscribe<ChangeApplicationStatusDTO>
                 (QueueConst.ChangeApplicationStatusQueue, data => entranceService.ChangeApplicationStatus(data.ApplcationStatus, data.ApplicationId));
 
-      //      bus.PubSub.Subscribe<ProfileResponseDTO>
-      //         (QueueConst.GetAllManagersQueue, data => entranceService.(data.ApplcationStatus, data.ApplicationId));
+            bus.PubSub.Subscribe<ManagerDTO>
+                (QueueConst.CreateManagerProfileQueue, data => entranceService.CreateManager(data));
+
+            bus.Rpc.Respond<Guid, ManagersListDTO>(info =>
+                    entranceService.GetAllManagers(), x => x.WithQueueName(QueueConst.GetAllManagersQueue)
+            );
 
             bus.Rpc.Respond<ApplicationFiltersDTO, ApplicationsResponseDTO>(async filters =>
                 await entranceService.GetApplications(

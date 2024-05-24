@@ -3,6 +3,7 @@ using System;
 using EntranceService.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntranceService.DAL.Migrations
 {
     [DbContext(typeof(EntranceDbContext))]
-    partial class EntranceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240524113255_addManagersTable")]
+    partial class addManagersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,22 +90,22 @@ namespace EntranceService.DAL.Migrations
 
             modelBuilder.Entity("EntranceService.DAL.Entity.Manager", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ManagerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("ManagerEmail")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("ManagerName")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("ManagerId");
 
                     b.ToTable("Managers");
                 });

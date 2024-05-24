@@ -39,7 +39,7 @@
                         if (response.success) {
                             window.location.href = response.redirectUrl;
                         } else {
-                            $("#error-message").text(response.message);
+                            $("#error-message").text("Неверный логин или пароль");
                         }
                     },
                     error: function () {

@@ -26,5 +26,7 @@ namespace EntranceService.Common.Interface
         public Task SetManager(TakeApplication addManagerDTO);
         public Task RefuseApplication(RefuseApplication refuseApplicationDTO);
         public Task RemoveManager(Guid managerGuid);
+        public ManagersListDTO GetAllManagers();
+        public Task CreateManager(ManagerDTO managerInfo);
     }
 }

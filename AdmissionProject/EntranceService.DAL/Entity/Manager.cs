@@ -1,9 +1,12 @@
-﻿namespace EntranceService.DAL.Entity
+﻿using Common.Enum;
+
+namespace EntranceService.DAL.Entity
 {
     public class Manager
     {
-        public Guid ManagerId { get; set; }
-        public string ManagerName { get; set; } 
-        public string ManagerEmail { get; set; }
+        public Guid Id { get; set; }
+        public string FullName { get; set; } 
+        public string Email { get; set; }
+        public Roles Role { get; set; }
     }
 }

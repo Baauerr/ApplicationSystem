@@ -61,12 +61,12 @@ namespace AdminPanel.BL.Serivces.Impl
             return applicationsResponse;
         }
 
-        public async Task<ProfileResponseDTO> GetAllManagers()
+        public async Task<ManagersListDTO> GetAllManagers()
         {
-            var applicationsResponse = await _bus.Rpc.RequestAsync<Guid, ProfileResponseDTO>
+            var managers = await _bus.Rpc.RequestAsync<Guid, ManagersListDTO>
                 (Guid.Empty, x => x.WithQueueName(QueueConst.GetAllManagersQueue));
 
-            return applicationsResponse;
+            return managers;
         }
 
         public async Task SendMessage<T>(T message, string topik)

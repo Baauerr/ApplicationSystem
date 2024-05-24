@@ -7,8 +7,10 @@ using Common.Enum;
 using EasyNetQ;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using UserService.Common.DTO.Profile;
-using UserService.Common.Interfaces;
+using UserService.Common.Interface;
+using UserService.DAL;
 using UserService.DAL.Entity;
 
 namespace UserService.BL.Services
@@ -16,15 +18,22 @@ namespace UserService.BL.Services
     public class AccountService : IAccountService
     {
         private readonly UserManager<User> _userManager;
+        private readonly UserDbContext _db;
+        private readonly SignInManager<User> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly IQueueSender _queueSender;
         private readonly IMapper _mapper;
-        private readonly IBus _bus;
 
-        public AccountService(UserManager<User> userManager, ITokenService tokenService, IMapper mapper) {    
+        public AccountService(
+            UserManager<User> userManager, ITokenService tokenService, IMapper mapper,
+            IQueueSender queueSender, SignInManager<User> signInManager, UserDbContext db
+            ) {
             _userManager = userManager;
             _tokenService = tokenService;
             _mapper = mapper;
-            _bus = RabbitHutch.CreateBus("host=localhost");
+            _queueSender = queueSender;
+            _signInManager = signInManager;
+            _db = db;
         }
         public async Task ChangeProfileInfo(ChangeProfileRequestDTO newProfileInfo, Guid userId)
         {
@@ -57,7 +66,7 @@ namespace UserService.BL.Services
             }
             else
             {
-                throw new BadRequestException($"{result}"); 
+                throw new BadRequestException($"{result}");
             }
         }
 
@@ -70,7 +79,7 @@ namespace UserService.BL.Services
                 NewEmail = newEmail,
             };
 
-            await _bus.PubSub.PublishAsync(updateInfo, QueueConst.UpdateUserDataQueue);
+            await _queueSender.SendMessage(updateInfo, QueueConst.UpdateUserDataQueue);
         }
 
         public async Task<ProfileResponseDTO> GetProfile(Guid userId)
@@ -96,41 +105,59 @@ namespace UserService.BL.Services
             return rolesDTO;
         }
 
-        public async Task GiveRole(SetRoleRequestDTO roleRequesData)
+        public async Task GiveRole(UserRoleActionDTO roleRequesData)
         {
             var role = roleRequesData.Role;
-            var user = await _userManager.FindByIdAsync(roleRequesData.RecipientId);
+            var user = await _db.Users.FirstOrDefaultAsync(us => us.Id == roleRequesData.UserId);
             if (user == null) throw new NotFoundException("Такого пользователя не существует");
             await _userManager.AddToRoleAsync(user, role.ToString());
+
+
+
+            if (roleRequesData.Role == Roles.MAINMANAGER || roleRequesData.Role == Roles.MANAGER)
+            {
+                await CreateManagerProfile(user, roleRequesData.Role); 
+            }
+
         }
-        public async Task<List<ProfileResponseDTO>> GetManagers(string fullName)
+
+        private async Task CreateManagerProfile(User userInfo, Roles role)
         {
-            var allManagersDTO = new List<ProfileResponseDTO>();
-
-            var managers = await _userManager.GetUsersInRoleAsync(Roles.MANAGER.ToString());
-            var mainManagers = await _userManager.GetUsersInRoleAsync(Roles.MAINMANAGER.ToString());
-
-            foreach (var manager in managers)
+            var managerProfile = new ManagerDTO
             {
-                if (manager.FullName.Contains(fullName))
-                {
-                    var managerDTO = _mapper.Map<ProfileResponseDTO>(manager);
-                    allManagersDTO.Add(managerDTO);
-                }
-            }
+                Email = userInfo.Email,
+                FullName = userInfo.FullName,
+                Id = userInfo.Id,
+                Role = role
+            };
 
-            foreach (var mainManager in mainManagers)
-            {
-                if (mainManager.FullName.Contains(fullName))
-                {
-                    var mainManagerDTO = _mapper.Map<ProfileResponseDTO>(mainManager);
-                    allManagersDTO.Add(mainManagerDTO);
-                }
-            }
-
-            return allManagersDTO;
+            await _queueSender.SendMessage(managerProfile, QueueConst.CreateManagerProfileQueue);
         }
 
+        public async Task RemoveRole(DeleteUserRoleDTO userInfo)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(us => us.Id == userInfo.UserId);
 
+            if (user != null)
+            {
+
+                IEnumerable<string> role = new List<string> { userInfo.Role.ToString() };
+                var result = await _userManager.RemoveFromRolesAsync(user, role);
+
+                if (result.Succeeded)
+                {
+                    if (userInfo.Role == Roles.MAINMANAGER || userInfo.Role == Roles.MANAGER)
+                    {
+                        await _queueSender.SendMessage(userInfo.UserId, QueueConst.RemoveManagerFromEntranceQueue);
+                    }
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                    throw new BadRequestException($"О: {errors}");
+                }
+            }   
+        }
     }
 }

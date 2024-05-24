@@ -26,6 +26,7 @@ builder.configureJWTAuth();
 builder.Services.AddControllers();
 builder.ConfigureHelpersServices();
 builder.Services.AddListeners();
+builder.Services.AddHttpClient();
 
 
 var app = builder.Build();

@@ -19,7 +19,7 @@ namespace AdminPanel.BL.Serivces.Interface
         public Task<ApplicationsResponseDTO> GetApplications(ApplicationFiltersDTO applicationFilters);
         public Task<PassportFormDTO> GetPassportForm(Guid userId);
         public Task<GetEducationDocumentFormDTO> GetEducationDocumentForm(Guid userId);
-        public Task<ProfileResponseDTO> GetAllManagers();
+        public Task<ManagersListDTO> GetAllManagers();
         public Task<FacultiesResponseDTO> GetAllFaculties();
         public Task<ProgramResponseDTO> GetAllPrograms();
         public Task<AllImportHistoryDTO> GetImportHistory();

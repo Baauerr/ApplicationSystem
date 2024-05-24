@@ -7,8 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UserService.Common.DTO.Auth;
-using UserService.Common.DTO.Profile;
-using UserService.Common.Interfaces;
+using UserService.Common.Interface;
 using UserService.Controllers.Policies.HITSBackEnd.Controllers.AttributeUsage;
 
 namespace UserService.Controllers
@@ -110,27 +109,28 @@ namespace UserService.Controllers
             return Ok();
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMINISTRATOR")]
+    //    [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMINISTRATOR")]
         [HttpPut("giveRole")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<AuthResponseDTO>> GiveRole([FromBody] SetRoleRequestDTO properties)
+        public async Task<ActionResult<AuthResponseDTO>> GiveRole([FromBody] UserRoleActionDTO properties)
         {
             await _userService.GiveRole(properties);
             return Ok();
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer", Roles = ("ADMINISTRATOR, MAINMANAGER"))]
-        [HttpGet("getManagers")]
-        [ProducesResponseType(typeof(List<ProfileResponseDTO>), 200)]
+      //  [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMINISTRATOR")]
+        [HttpPut("REMOVEEEEEEEE")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<List<ProfileResponseDTO>>> GetUsers([FromQuery] string fullName)
+        public async Task<ActionResult<AuthResponseDTO>> RemoveRole([FromBody] DeleteUserRoleDTO properties)
         {
-            return Ok(await _userService.GetManagers(fullName));
+            await _userService.RemoveRole(properties);
+            return Ok();
         }
     }
 

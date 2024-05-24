@@ -67,7 +67,7 @@ namespace EntranceService.BL.Services
         public async Task SyncUserDataInApplication(UpdateUserDataDTO updateUserDataDTO)
         {
             var userApplication = _db.Applications.FirstOrDefault(ap => ap.OwnerId == updateUserDataDTO.UserId);
-            var managerApplication = _db.Applications.Where(ap => ap.ManagerId == updateUserDataDTO.UserId);
+            var manager = await _db.Managers.FirstOrDefaultAsync(ap => ap.Id == updateUserDataDTO.UserId);
 
             if (userApplication != null)
             {
@@ -75,13 +75,12 @@ namespace EntranceService.BL.Services
                 userApplication.OwnerEmail = updateUserDataDTO.NewEmail;
                 _db.Applications.Update(userApplication);
             }
-            if (managerApplication.Any()) {
-                foreach (var application in managerApplication)
-                {
-                 //    application.ManagerEmail = updateUserDataDTO.NewEmail;
-                  //  application.ManagerFullName = updateUserDataDTO.NewUserName;
-                }
-                _db.Applications.UpdateRange(managerApplication);
+            if (manager != null) {
+
+                manager.FullName = updateUserDataDTO.NewUserName;
+                manager.Email = updateUserDataDTO.NewEmail;
+
+                _db.Managers.Update(manager);
             }
             
             await _db.SaveChangesAsync();

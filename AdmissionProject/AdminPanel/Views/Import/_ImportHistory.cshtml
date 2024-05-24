@@ -11,7 +11,12 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var import in Model.History)
+
+            @{
+                var reversedHistory = Model.History.OrderByDescending(h => h.OperationTime);
+            }
+
+            @foreach (var import in reversedHistory)
             {
                 <tr>
                     <td class="card-text">@import.OperationType</td>

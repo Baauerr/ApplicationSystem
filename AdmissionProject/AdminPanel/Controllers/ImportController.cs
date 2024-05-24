@@ -4,6 +4,7 @@ using Common.DTO.Dictionary;
 using Common.Enum;
 using Common.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace AdminPanel.Controllers
 {
@@ -18,23 +19,22 @@ namespace AdminPanel.Controllers
             _tokenHelper = token;
         }
         [HttpPost]
-        public async Task Import(ImportTypes importType)
+        public async Task<IActionResult> Import(ImportTypes importType)
         {
             var token = HttpContext.Request.Cookies["AccessToken"];
             var userId = _tokenHelper.GetUserIdFromToken(token);
 
             var importData = new MakeImportDTO
             {
-                ImportTypes = importType, 
+                ImportTypes = importType,
                 UserId = userId
             };
 
             await _queueSender.SendMessage(importData, QueueConst.MakeImportQueue);
 
-            await Import();
-
+            var history = await _queueSender.GetImportHistory();
+            return PartialView("_ImportHistory", history);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Import()
