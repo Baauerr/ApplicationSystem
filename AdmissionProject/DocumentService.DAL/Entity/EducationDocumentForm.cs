@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DocumentService.DAL.Entity
 {
     public class EducationDocumentForm
     {
+        [Key]
         public Guid OwnerId { get; set; }
         public string EducationLevelId { get; set; }
         public string Name { get; set; }

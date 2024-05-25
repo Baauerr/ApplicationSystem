@@ -1,0 +1,39 @@
+﻿@using Common.Enum
+@using Common.DTO.Document
+@model EducationDocumentViewModel
+
+<div class="card mb-3 ">
+    <div class="card-body">
+        <h2>Документ об образовании</h2>
+        <form id="educationDocumentForm" asp-action="EntrantEducationDocument" asp-controller="Entrant" method="post" asp-route-OwnerId="@ViewBag.OwnerId">
+            <div class="form-group">
+                <label for="name">Название документа</label>
+                <input type="text" id="name" name="name" value="@Model.EducationDocumentForm.Name" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="number">Уровень образования</label>
+                <select class="form-control" asp-for="EducationDocumentForm.EducationLevelId" id="EducationLevelId" name="EducationLevelId">
+                    @foreach (var educationLevel in Model.EducationLevel.EducationLevel)
+                    {
+                        @if (Model.EducationDocumentForm.EducationLevelId == educationLevel.Id)
+                        {
+                            <option value=@educationLevel.Id selected>@educationLevel.Name</option>
+                        }
+                        else
+                        {
+                            <option value=@educationLevel.Id>@educationLevel.Name</option>
+                        }
+                        
+                    }
+                </select>
+            </div>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert" style="margin-top: 10px">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            <button type="button" onclick="updateEducationDocumentForm()" class="btn btn-primary" style="margin-top: 10px">Изменить</button>
+        </form>
+    </div>

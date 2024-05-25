@@ -17,10 +17,12 @@ namespace EntranceService.Common.Interface
             List<string>? faculties,
             ApplicationStatus? status,
             bool? hasManager,
+            bool? onlyMyManaging,
             Guid? managerId,
             SortingTypes? sortingTypes,
             int page,
-            int pageSize
+            int pageSize,
+            Guid myId
             );
         public Task CreateApplication(Guid userId, string token, CreateApplicationDTO applicationDTO);
         public Task SetManager(TakeApplication addManagerDTO);
@@ -28,5 +30,7 @@ namespace EntranceService.Common.Interface
         public Task RemoveManager(Guid managerGuid);
         public ManagersListDTO GetAllManagers();
         public Task CreateManager(ManagerDTO managerInfo);
+        public Task<GetApplicationPrograms> GetApplicationPrograms(Guid userId);
     }
+
 }

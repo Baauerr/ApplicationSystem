@@ -38,8 +38,14 @@
                     </div>
                     <div class="col-md-6">
                         <div>
-                            <label for="managerName">Поиск по имени менеджера</label>
-                            <input type="text" class="form-control" asp-for="Filters.managerId" id="managerName">
+                            <label for="managerName">Фильтрация по менеджерам</label>
+                            <select class="form-select w-100 border p-1" asp-for="Filters.managerId" id="managers">
+                                <option value="">--</option>
+                            @foreach (var manager in Model.Managers.ManagerDTO)
+                            {
+                                <option value=@manager.Id>@manager.FullName</option>
+                            }
+                            </select>
                         </div>
                             <div>
                             <label for="status" class="form-label">Статус заявки</label>
@@ -72,10 +78,10 @@
                             </div>
                             <div>
                                 <label for="hasManager" class="mb-0 ml-1">Только мои заявки</label>
-                                    <select class="form-control" id="hasManager">
+                                <select asp-for="Filters.onlyMyManaging" class="form-control" id="onlyMyManaging">
                                         <option value="">Не указано</option>
-                                        <option value="true">Да</option>
-                                        <option value="false">Нет</option>
+                                        <option value="true">Только мои</option>
+                                        <option value="false">Только не мои</option>
                                     </select>
                             </div>
                             <div>

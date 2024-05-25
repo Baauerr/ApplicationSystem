@@ -1,0 +1,57 @@
+﻿@using Common.Enum
+@using Common.DTO.Entrance
+@model GetApplicationPrograms
+
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h2>Программы пользователя</h2>
+        
+            @foreach (var program in Model.Programs)
+            {
+            
+               <div class="card mb-3">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="mr-3">
+                        <div>@program.ProgramName</div>
+                    </div>
+                    <div class="mr-3">
+                        <form class="programsForm" asp-action="EntrantPrograms" asp-controller="Entrant" method="post" asp-route-OwnerId="@ViewBag.OwnerId">
+                            <input type="hidden" name="programid" value="@program.ProgramId" />
+                            <select class="form-control w-auto" name="Priority" onchange="changeProgramPriority(this)">
+                                @for (int i = 0; i < Model.Programs.Count(); i++)
+                                {
+                                    if (program.Priority == i + 1)
+                                    {
+                                        <option value="@(i+1)" selected>@(i + 1)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@(i+1)">@(i + 1)</option>
+                                    }
+
+                                }
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <form class="deleteForm" asp-action="DeleteProgram" asp-controller="Entrant" method="post" asp-route-OwnerId="@ViewBag.OwnerId">
+                            <input type="hidden" name="programid" class="ProgramId" value="@program.ProgramId" />
+                            <button type="button" class="btn btn-danger" onclick="deleteProgram(this)">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert" style="margin-top: 10px">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+        
+    </div>
+</div>

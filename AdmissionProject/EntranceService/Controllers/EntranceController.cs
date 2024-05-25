@@ -1,13 +1,12 @@
 using Common.DTO.Entrance;
 using Common.Enum;
-using DocumentService.Common.DTO;
+using Common.DTO.Document;
 using EasyNetQ;
 using EntranceService.BL.Services;
 using EntranceService.Common.Interface;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
 
@@ -39,21 +38,28 @@ namespace EntranceService.Controllers
             [FromQuery] List<string>? faculties,
             [FromQuery] ApplicationStatus? status,
             [FromQuery] bool? hasManager,
+            [FromQuery] bool? onlyMyManaging,
             [FromQuery] Guid? managerId,
             [FromQuery] SortingTypes? sortingTypes,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+
             var aplicationInfo = await _entranceService.GetApplications(
             entrantName,
             programsGuid,
             faculties,
             status,
             hasManager,
+            onlyMyManaging,
             managerId,
             sortingTypes,
             page,
-            pageSize);
+            pageSize,
+            Guid.Parse(userId)
+            );
 
             return Ok(aplicationInfo);
         }
@@ -125,19 +131,19 @@ namespace EntranceService.Controllers
             return Ok();
         }
 
-        [HttpPut("AGADA")]
-        [Authorize(Roles = "User")]
+        [HttpPost("program")]
+        [Authorize]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> passp([FromBody] ChangeProgramPriorityDTO changeProgramPriorityDTO)
+        public async Task<ActionResult> AddProgramToApplicartion([FromBody] AddProgramsToApplicationDTO addProgramDTO)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var _bus = RabbitHutch.CreateBus("host=localhost");
             var userId = userIdClaim.Value;
-            var passport = await _bus.Rpc.RequestAsync<Guid, GetPassportFormDTO>(Guid.Parse(userId));
-            return Ok(passport);
+            await _entranceService.AddProgramsToApplication(addProgramDTO.programsDTO, addProgramDTO.applicationId, Guid.Parse(userId));
+            return Ok();
         }
+
     }
 
 }

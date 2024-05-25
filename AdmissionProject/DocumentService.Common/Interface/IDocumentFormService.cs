@@ -1,4 +1,4 @@
-﻿using DocumentService.Common.DTO;
+﻿using Common.DTO.Document;
 
 namespace DocumentService.Common.Interface
 {
@@ -10,10 +10,8 @@ namespace DocumentService.Common.Interface
         public Task EditEducationDocumentInfo(EducationDocumentFormDTO educationDocumentDTO, Guid userId);
         public Task AddEducationDocumentInfo(
             EducationDocumentFormDTO educationDocumentDTO, Guid userId);
-        public Task DeleteEducationDocumentInfo(Guid userId);
 
         public Task AddPassportInfo(
             PassportFormDTO passportDTO, Guid userId);
-        public Task DeletePassportInfo(Guid userId);
     }
 }

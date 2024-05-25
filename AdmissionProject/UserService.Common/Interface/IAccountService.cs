@@ -11,5 +11,6 @@ namespace UserService.Common.Interface
         public Task<UserRoleResponseDTO> GetMyRoles(string token);
         public Task GiveRole(UserRoleActionDTO roleRequesData);
         public Task RemoveRole(DeleteUserRoleDTO userInfo);
+        public Task<GetAllUsersDTO> GetAllUsers(UsersFilterDTO filters);
     }
 }

@@ -1,5 +1,7 @@
-﻿using Common.DTO.Profile;
-using DocumentService.Common.DTO;
+﻿using Common.DTO.Document;
+using Common.DTO.Entrance;
+using Common.DTO.Profile;
+
 
 namespace AdminPanel.Models
 {
@@ -7,6 +9,8 @@ namespace AdminPanel.Models
     {
         public ProfileResponseDTO Profile { get; set; }
         public PassportFormDTO PassportForm { get; set; }
-        public GetEducationDocumentFormDTO EducationDocumentForm { get; set; }
+        public EducationDocumentViewModel EducationDocumentForm { get; set; }
+        public GetApplicationPrograms ApplicationPrograms { get; set; }
+        public Guid EntrantId { get; set; }
     }
 }

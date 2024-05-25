@@ -120,18 +120,6 @@ namespace UserService.Controllers
             await _userService.GiveRole(properties);
             return Ok();
         }
-
-      //  [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMINISTRATOR")]
-        [HttpPut("REMOVEEEEEEEE")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<AuthResponseDTO>> RemoveRole([FromBody] DeleteUserRoleDTO properties)
-        {
-            await _userService.RemoveRole(properties);
-            return Ok();
-        }
     }
 
 }

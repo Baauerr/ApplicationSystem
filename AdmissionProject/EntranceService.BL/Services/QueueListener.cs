@@ -1,15 +1,8 @@
 ﻿using Common.Const;
 using Common.DTO.Entrance;
-using Common.DTO.Profile;
-using DocumentService.Common.DTO;
 using EasyNetQ;
 using EntranceService.Common.Interface;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EntranceService.BL.Services
 {
@@ -42,8 +35,18 @@ namespace EntranceService.BL.Services
             bus.PubSub.Subscribe<ManagerDTO>
                 (QueueConst.CreateManagerProfileQueue, data => entranceService.CreateManager(data));
 
+            bus.PubSub.Subscribe<ChangeProgramPriorityDTORPC>
+                (QueueConst.ChangeProgramPriorityQueue, data => entranceService.ChangeProgramPriority(data.programInfo, data.UserId));
+
+            bus.PubSub.Subscribe<DeleteProgramDTORPC>
+                (QueueConst.RemoveProgramFromApplicationQueue, data => entranceService.DeleteProgram(data.deleteData, data.UserId));
+
             bus.Rpc.Respond<Guid, ManagersListDTO>(info =>
                     entranceService.GetAllManagers(), x => x.WithQueueName(QueueConst.GetAllManagersQueue)
+            );
+
+            bus.Rpc.Respond<Guid, GetApplicationPrograms>(userId =>
+                    entranceService.GetApplicationPrograms(userId), x => x.WithQueueName(QueueConst.GetApplicationProgramsQueue)
             );
 
             bus.Rpc.Respond<ApplicationFiltersDTO, ApplicationsResponseDTO>(async filters =>
@@ -53,10 +56,12 @@ namespace EntranceService.BL.Services
                     filters.faculties, 
                     filters.status, 
                     filters.hasManager, 
+                    filters.onlyMyManaging,
                     filters.managerId,
                     filters.sortingTypes,
                     filters.page,
-                    filters.pageSize
+                    filters.pageSize,
+                    filters.myId
                 ), 
                 x => x.WithQueueName(QueueConst.GetApplicationsQueue)
             );

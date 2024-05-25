@@ -54,16 +54,18 @@ namespace AdminPanel.Controllers
 
         public async Task<ApplicationsViewModel> GetApplications(ApplicationFiltersDTO filters)
         {
-
-            var applications = await _queueSender.GetApplications(filters);
-
             var token = HttpContext.Request.Cookies["AccessToken"];
             var userId = _tokenHelper.GetUserIdFromToken(token);
+            filters.myId = userId;
+
+            var applications = await _queueSender.GetApplications(filters);
+            var managers = await _queueSender.GetAllManagers();
 
             var viewModel = new ApplicationsViewModel
             {
                 ApplicationsResponse = applications,
                 Filters = filters,
+                Managers = managers,
                 myId = userId
             };
 

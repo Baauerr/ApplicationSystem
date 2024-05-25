@@ -11,7 +11,6 @@ using NotificationService.DTO;
 using Common.DTO.Dictionary;
 using Common.Const;
 using Common.DTO.Entrance;
-using Microsoft.Extensions.Hosting.Internal;
 
 
 namespace EntranceService.BL.Services
@@ -53,7 +52,7 @@ namespace EntranceService.BL.Services
                 var applicationPrograms = new ApplicationPrograms
                 {
                     ApplicationId = aplicationId,
-                    Priority = program.ProgramPriority,
+                    Priority = program.Priority,
                     ProgramId = program.ProgramId,
                     FacultyId = program.FacultyId,
                     ProgramName = allProgramInfo.Name,
@@ -85,19 +84,24 @@ namespace EntranceService.BL.Services
                 throw new BadRequestException($"Число программ в одном заявлении не может быть больше {maxProgramsCount}");
             }
 
-            var maxPriority = programsDTO.OrderByDescending(program => program.ProgramPriority).FirstOrDefault();
+            var maxPriority = programsDTO.OrderByDescending(program => program.Priority).FirstOrDefault();
 
-            if (maxPriority.ProgramPriority > (newProgramsCount + applicationProgramsCount) || maxPriority.ProgramPriority < 1)
+            if (maxPriority.Priority > (newProgramsCount + applicationProgramsCount) || maxPriority.Priority < 1)
             {
                 throw new BadRequestException("Приоритет программы не может быть больше количества программ в заявке и не может быть меньше 1");
             }
 
-            var hasDublicatePriority = programsDTO.GroupBy(x => x.ProgramPriority)
+            var hasDublicatePriority = programsDTO.GroupBy(x => x.Priority)
                 .Where(program => program.Count() > 1)
                 .Select(program => program.Key)
                 .Any();
 
-            if (hasDublicatePriority)
+            var list1Priorities = programsDTO.Select(item => item.Priority);
+            var list2Priorities = applicationPrograms.Select(item => item.Priority);
+
+            var hasDuplicatesWithExistsPrograms = list1Priorities.Intersect(list2Priorities).Any();
+
+            if (hasDublicatePriority || hasDuplicatesWithExistsPrograms)
             {
                 throw new BadRequestException("Нельзя добавить программы с одинаковыми приоритетами");
             }
@@ -164,7 +168,6 @@ namespace EntranceService.BL.Services
 
         public async Task ChangeProgramPriority(ChangeProgramPriorityDTO changeProgramPriorityDTO, Guid userId)
         {
-
             var application = _db.Applications.FirstOrDefault(ap => ap.OwnerId == userId);
 
             if (application == null)
@@ -177,18 +180,22 @@ namespace EntranceService.BL.Services
                 throw new ForbiddenException("Нет доступа к этой заявке");
             }
 
+            var applicationId = await _db.Applications
+                .Where(ap => ap.OwnerId == userId)
+                .Select(ap => ap.Id)
+                .FirstOrDefaultAsync();
+
             var programs = await _db.ApplicationsPrograms
-                .Where(ap => ap.ApplicationId == changeProgramPriorityDTO.ApplicationId)
+                .Where(ap => ap.ApplicationId == applicationId)
                 .ToListAsync();
 
             var programToEdit = programs.FirstOrDefault(p => p.ProgramId == changeProgramPriorityDTO.ProgramId);
 
+            
             if (programToEdit == null)
             {
                 throw new NotFoundException("В этой заявке нет такой программы");
             }
-
-            _db.ApplicationsPrograms.Update(programToEdit);
 
             var maxProgramsCount = _configuration.GetValue<int>("Programs:MaxProgramsCount");
 
@@ -197,17 +204,14 @@ namespace EntranceService.BL.Services
                 throw new BadRequestException("Приоритет не может быть больше количества программ и меньше 1");
             }
 
+            var programForSwap = programs.FirstOrDefault(p => p.Priority == changeProgramPriorityDTO.Priority);
+
+            programForSwap.Priority = programToEdit.Priority;
+
             programToEdit.Priority = changeProgramPriorityDTO.Priority;
 
-            foreach (var program in programs)
-            {
-                if (program.Priority >= changeProgramPriorityDTO.Priority && program.ProgramId != changeProgramPriorityDTO.ProgramId)
-                {
-                    program.Priority = program.Priority + 1;
-                }
-            }
-
-            _db.ApplicationsPrograms.UpdateRange(programs);
+            _db.ApplicationsPrograms.Update(programToEdit);
+            _db.ApplicationsPrograms.Update(programForSwap);
 
             await _db.SaveChangesAsync();
 
@@ -244,7 +248,14 @@ namespace EntranceService.BL.Services
 
         public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO, Guid userId)
         {
-            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == deleteProgramDTO.ApplicationId);
+
+            var applicationId = await _db.Applications
+                .Where(ap => ap.OwnerId == userId)
+                .Select(ap => ap.Id)
+                .FirstOrDefaultAsync();
+
+
+            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == applicationId);
 
             if (application == null)
             {
@@ -258,7 +269,7 @@ namespace EntranceService.BL.Services
 
             var applicationProgram = await _db.ApplicationsPrograms.FirstOrDefaultAsync(
                 ap => ap.ProgramId == deleteProgramDTO.ProgramId
-                && ap.ApplicationId == deleteProgramDTO.ApplicationId);
+                && ap.ApplicationId == applicationId);
             
             if (applicationProgram == null)
             {
@@ -314,16 +325,44 @@ namespace EntranceService.BL.Services
             }
         }
 
+        public async Task<GetApplicationPrograms> GetApplicationPrograms(Guid userId)
+        {
+            var applicationId = await _db.Applications
+                .Where(ap => ap.OwnerId == userId)
+                .Select(ap => ap.Id)
+                .FirstOrDefaultAsync();
+
+            var applicationPrograms = new GetApplicationPrograms();
+
+            if (Guid.Empty != applicationId)
+            {
+                var programApplications = _db.ApplicationsPrograms
+               .Where(ap => ap.ApplicationId == applicationId)
+               .AsQueryable();
+              
+                foreach (var applicationProgram in programApplications)
+                {
+                    var program = _mapper.Map<GetProgramDTO>(applicationProgram);
+
+                    applicationPrograms.Programs.Add(program);
+                }
+            }
+
+            return applicationPrograms;
+        }
+
         public async Task<ApplicationsResponseDTO> GetApplications(
             string? entrantName, 
             Guid? programsGuid, 
             List<string>? faculties, 
             ApplicationStatus? status, 
             bool? hasManager,
+            bool? onlyMyManaging,
             Guid? managerId, 
             SortingTypes? sortingTypes,
             int page, 
-            int pageSize
+            int pageSize,
+            Guid myId
             )
         {
             var applications = await FilterApplications(
@@ -332,10 +371,12 @@ namespace EntranceService.BL.Services
                 faculties, 
                 status,
                 hasManager,
+                onlyMyManaging,
                 managerId,
                 sortingTypes,
                 page,
-                pageSize
+                pageSize,
+                myId
                 ).ToListAsync();
 
             var applcationDTO = CreateApplicationDTO(applications, pageSize, page);
@@ -350,10 +391,12 @@ namespace EntranceService.BL.Services
             List<string>? faculties,
             ApplicationStatus? status,
             bool? hasManager,
+            bool? onlyMyManaging,
             Guid? managerId,
             SortingTypes? sortingTypes,
             int page,
-            int pageSize
+            int pageSize,
+            Guid myId
             )
         {
             var applications =  FilterByEntrantName(entrantName);
@@ -362,6 +405,7 @@ namespace EntranceService.BL.Services
             applications =  FilterByStatus(applications, status);
             applications =  FilterByHavingManager(applications, hasManager);
             applications =  FilterByManagerId(applications, managerId);
+            applications = FilterByMyManaging(applications, onlyMyManaging, myId);
             applications =  FilterByPagination(applications, page, pageSize);
             applications =  SortApplications(applications, sortingTypes);
 
@@ -472,6 +516,26 @@ namespace EntranceService.BL.Services
             return applications;
         }
 
+        private IQueryable<Application> FilterByMyManaging(
+            IQueryable<Application> applications,
+            bool? onlyMyManaging,
+            Guid myId
+            )
+        {
+            if (onlyMyManaging != null)
+            {
+                if (onlyMyManaging == true)
+                {
+                    applications = applications.Where(ap => ap.ManagerId == myId);
+                }
+                else
+                {
+                    applications = applications.Where(ap => ap.ManagerId != myId);
+                }
+            }
+            return applications;
+        }
+
         private IQueryable<Application> FilterByPagination(
             IQueryable<Application> applications,
             int page, 
@@ -535,7 +599,6 @@ namespace EntranceService.BL.Services
                 }
 
                 var applicationDTO = _mapper.Map<GetApplicationDTO>(application);
-                applicationDTO.Programs = programsDTO;
 
                 applicationsDTO.Add(applicationDTO);
             }

@@ -1,0 +1,40 @@
+﻿@using Common.Enum
+@using Common.DTO.Document
+@model PassportFormDTO
+
+<div class="card mb-3 ">
+    <div class="card-body">
+        <form id="passportForm" asp-action="EntrantPassport" asp-controller="Entrant" method="post" asp-route-OwnerId="@ViewBag.OwnerId">
+            <h2>Паспортные данные</h2>
+            <div class="form-group">
+                <label for="email">Серия</label>
+                <input type="series" id="series" name="series" value="@Model.Series" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="number">Номер</label>
+                <input type="number" id="number" name="number" value="@Model.Number" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="birthplace">Место рождения</label>
+                <input type="birthplace" id="birthplace" name="birthplace" value="@Model.BirthPlace" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="issuedate">Дата выдачи</label>
+                <input type="date" id="issuedate" name="issuedate" value="@Model.IssueDate" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="issueplace">Место выдачи</label>
+                <input type="issueplace" id="issueplace" name="issueplace" value="@Model.IssuePlace" class="form-control" />
+            </div>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert" style="margin-top: 10px">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <button type="button" onclick="updatePassportForm()" class="btn btn-primary" style="margin-top: 10px">Изменить</button>
+        </form>
+    </div>
+</div>

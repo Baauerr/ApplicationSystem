@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocumentService.Common.DTO
+namespace Common.DTO.Document
 {
     public class EducationDocumentFormDTO
     {
@@ -16,4 +16,11 @@ namespace DocumentService.Common.DTO
     {
         public string EducationLevelName { get; set; }
     }
+
+    public class EditEducationDocumentFormRPC
+    {
+        public EducationDocumentFormDTO EducationDocumentInfo { get; set; }
+        public Guid UserId { get; set; }
+    }
+
 }

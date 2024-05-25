@@ -7,6 +7,7 @@ namespace UserService.DAL.Entity
     public class User : IdentityUser<Guid>
     {
         public string FullName { get; set; }
+        public string? Citizenship { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpireTime { get; set; }
         public DateTime? BirthDate { get; set; }

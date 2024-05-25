@@ -21,7 +21,6 @@ namespace Common.DTO.Entrance
         public Guid ManagerId { get; set; }
         public string ManagerName { get; set; }
         public string ManagerEmail { get; set; }
-        public List<GetProgramDTO> Programs { get; set; }
     }
     public class ApplicationsResponseDTO
     {
@@ -40,6 +39,7 @@ namespace Common.DTO.Entrance
         public ApplicationStatus? status { get; set; }
 
         public bool? hasManager { get; set; }
+        public bool? onlyMyManaging {  get; set; }
 
         public Guid? managerId { get; set; }
 
@@ -48,5 +48,6 @@ namespace Common.DTO.Entrance
         public int page { get; set; } = 1;
 
         public int pageSize { get; set; } = 10;
+        public Guid myId { get; set; }
     }
 }

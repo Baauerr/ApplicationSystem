@@ -1,14 +1,10 @@
 ﻿using Common.Const;
-using Common.DTO;
-using DocumentService.Common.DTO;
+using Common.DTO.Document;
+using Common.DTO.Entrance;
 using DocumentService.Common.Interface;
 using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DocumentService.BL.Services
 {
@@ -31,7 +27,13 @@ namespace DocumentService.BL.Services
             bus.Rpc.Respond<Guid, GetEducationDocumentFormDTO>(async userId =>
                 await documentFormService.GetEducationDocumentInfo(userId), x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue)
             );
-            
+
+            bus.PubSub.Subscribe<EditPassportFormDTORPC>
+                (QueueConst.UpdateEntrantPassportQueue, data => documentFormService.EditPassportInfo(data.PassportInfo, data.UserId));
+
+            bus.PubSub.Subscribe<EditEducationDocumentFormRPC>
+                (QueueConst.UpdateEducationDocumentFormQueue, data => documentFormService.EditEducationDocumentInfo(data.EducationDocumentInfo, data.UserId));
+
         }
     }
 }

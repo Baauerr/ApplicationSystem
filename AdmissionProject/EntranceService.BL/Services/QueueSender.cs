@@ -1,7 +1,7 @@
 ﻿using Common.Const;
 using Common.DTO.Dictionary;
 using Common.DTO.Profile;
-using DocumentService.Common.DTO;
+using Common.DTO.Document;
 using EasyNetQ;
 using Exceptions.ExceptionTypes;
 
@@ -22,7 +22,9 @@ namespace EntranceService.BL.Services
 
         public async Task<ProgramResponseDTO> GetAllPrograms(Guid userId)
         {
-            var programs = await _bus.Rpc.RequestAsync<Guid, ProgramResponseDTO>(userId, x => x.WithQueueName(QueueConst.GetProgramsQueue));
+            var programsFilter = new ProgramsFilterDTO();
+
+            var programs = await _bus.Rpc.RequestAsync<ProgramsFilterDTO, ProgramResponseDTO>(programsFilter, x => x.WithQueueName(QueueConst.GetProgramsQueue));
 
             return programs;
         }

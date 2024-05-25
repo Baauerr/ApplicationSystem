@@ -7,6 +7,7 @@ using Common.Enum;
 using EasyNetQ;
 using Exceptions.ExceptionTypes;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.EntityFrameworkCore;
 using UserService.Common.DTO.Profile;
 using UserService.Common.Interface;
@@ -54,6 +55,7 @@ namespace UserService.BL.Services
             user.UserName = newProfileInfo.Email;
             user.BirthDate = newProfileInfo.BirthDate;
             user.Gender = newProfileInfo.Gender;
+            user.Citizenship = newProfileInfo.Citizenship;
 
             await SyncProfileInfo(userId, newProfileInfo.FullName, newProfileInfo.Email);
 
@@ -159,5 +161,48 @@ namespace UserService.BL.Services
                 }
             }   
         }
+
+        public async Task<GetAllUsersDTO> GetAllUsers(UsersFilterDTO filters)
+        {
+            var usersDTO = new GetAllUsersDTO();
+
+            var query = _db.Users.AsQueryable();
+
+            if (filters.FullName != null)
+            {
+                query = query.Where(u => u.FullName.Contains(filters.FullName));
+            }
+
+            int skipAmount = (filters.Page - 1) * filters.NumberOfUsers;
+
+            var filteredUsers = new List<User>();
+
+            if (query.Count() < skipAmount)
+            {
+                filteredUsers = query
+                    .Skip(skipAmount)
+                    .Take(filters.NumberOfUsers)
+                    .ToList();
+            }
+            else
+            {
+                filteredUsers = query.ToList();
+            }
+
+            foreach (var user in filteredUsers)
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var userDTO = _mapper.Map<UserDTO>(user);
+                userDTO.Roles = userRoles;
+                if (userRoles.Contains("ADMINISTRATOR"))
+                {
+                    continue;
+                }
+                usersDTO.Users.Add(userDTO);
+            }
+
+            return usersDTO;
+        }
+        
     }
 }

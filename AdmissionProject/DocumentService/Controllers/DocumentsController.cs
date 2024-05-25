@@ -1,4 +1,4 @@
-using DocumentService.Common.DTO;
+using Common.DTO.Document;
 using DocumentService.Common.Interface;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -46,18 +46,6 @@ namespace DocumentService.Controllers
             await _documentFormService.EditPassportInfo(passportDTO, Guid.Parse(userId));
             return Ok();
         }
-        [HttpDelete("passportForm")]
-        [Authorize(Roles = "User")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> DeletePassportForm()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            await _documentFormService.DeletePassportInfo(Guid.Parse(userId));
-            return Ok();
-        }
 
         [HttpGet("passportForm")]
         [Authorize(Roles = "User")]
@@ -83,18 +71,6 @@ namespace DocumentService.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
             await _documentFormService.AddEducationDocumentInfo(educationDocDTO, Guid.Parse(userId));
-            return Ok();
-        }
-        [HttpDelete("educationDocumentForm")]
-        [Authorize(Roles = "User")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> DeleteEducationForm()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            await _documentFormService.DeleteEducationDocumentInfo(Guid.Parse(userId));
             return Ok();
         }
         [HttpPut("educationDocumentForm")]

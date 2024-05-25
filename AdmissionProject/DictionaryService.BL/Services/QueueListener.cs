@@ -1,18 +1,9 @@
 ﻿using Common.Const;
-using Common.DTO;
 using Common.DTO.Dictionary;
-using Common.DTO.Entrance;
-using Common.Enum;
 using DictionaryService.Common.Interfaces;
-using DocumentService.Common.DTO;
 using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DictionaryService.BL.Services
 {

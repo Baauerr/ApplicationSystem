@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocumentService.Common.DTO
+namespace Common.DTO.Document
 {
     public class PassportFormDTO
     {
@@ -15,6 +15,12 @@ namespace DocumentService.Common.DTO
         public string IssuePlace { get; set; }
     }
 
+    public class EditPassportFormDTORPC
+    {
+        public PassportFormDTO PassportInfo { get; set; }
+        public Guid UserId { get; set; }
+
+    }
 
     public class GetPassportFormDTO: PassportFormDTO
     {

@@ -2,12 +2,7 @@
 using Common.DTO.Dictionary;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
-using DocumentService.Common.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Common.DTO.Document;
 
 namespace AdminPanel.BL.Serivces.Interface
 {
@@ -23,5 +18,7 @@ namespace AdminPanel.BL.Serivces.Interface
         public Task<FacultiesResponseDTO> GetAllFaculties();
         public Task<ProgramResponseDTO> GetAllPrograms();
         public Task<AllImportHistoryDTO> GetImportHistory();
+        public Task<EducationLevelResponseDTO> GetAllEducationLevels();
+        public Task<GetApplicationPrograms> GetApplicationPrograms(Guid userId);
     }
 }

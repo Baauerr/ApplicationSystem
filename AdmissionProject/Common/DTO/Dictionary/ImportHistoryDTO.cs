@@ -12,6 +12,7 @@ namespace Common.DTO.Dictionary
 
     public class AllImportHistoryDTO
     {
+        public ImportTypes Types { get; set; }
         public List<HistoryDTO> History { get; set;} = new List<HistoryDTO>();
     }
 }

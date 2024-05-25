@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Common.Const
+﻿namespace Common.Const
 {
     public static class QueueConst
     {
@@ -18,10 +12,12 @@ namespace Common.Const
         public const string UpdateUserDataQueue = "UpdateUserDataQueue";
         public const string AddManagerRoleQueue = "AddManagerRoleQueue";
         public const string CreateManagerProfileQueue = "CreateManagerProfileQueue";
-        public const string RemoveUserRoleQueue = "RemoveUserRoleQueue";
+
+
 
 
         //MVC
+        public const string RemoveUserRoleQueue = "RemoveUserRoleQueue";
         public const string LoginQueue = "LoginQueue";
         public const string ChangePasswordQueue = "ChangePasswordQueue";
         public const string ChangeProfileQueue = "ChangeProfileQueue";
@@ -34,5 +30,11 @@ namespace Common.Const
         public const string GetImportHistoryQueue = "GetImportHistoryQueue";
         public const string MakeImportQueue = "MakeImportQueue";
         public const string RemoveManagerFromEntranceQueue = "RemoveManagerFromEntranceQueue";
+        public const string UpdateEntrantPassportQueue = "UpdateEntrantPassportQueue";
+        public const string UpdateEducationDocumentFormQueue = "UpdateEducationDocumentFormQueue";
+        public const string GetApplicationProgramsQueue = "GetApplicationProgramsQueue";
+        public const string ChangeProgramPriorityQueue = "ChangeProgramPriorityQueue";
+        public const string RemoveProgramFromApplicationQueue = "RemoveProgramFromApplicationQueue";
+        public const string GetAllUsersQueue = "GetAllUsersQueue";
     }
 }

@@ -52,16 +52,6 @@ namespace EntranceService.BL.Services
 
             var applcationDTO = _mapper.Map<GetApplicationDTO>(application);
 
-            var programsDTO = new List<GetProgramDTO>();
-
-            foreach (var program in applicationPrograms)
-            {
-                var programDTO = _mapper.Map<GetProgramDTO>(program);
-                programsDTO.Add(programDTO);
-            }
-
-            applcationDTO.Programs = programsDTO;
-
             return applcationDTO;
         }
         public async Task SyncUserDataInApplication(UpdateUserDataDTO updateUserDataDTO)

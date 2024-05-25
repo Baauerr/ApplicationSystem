@@ -8,8 +8,13 @@ namespace Common.DTO.Entrance
 {
     public class ChangeProgramPriorityDTO
     {
-        public Guid ApplicationId { get; set; }
         public int Priority { get; set; }
         public Guid ProgramId { get; set; }
+    }
+
+    public class ChangeProgramPriorityDTORPC
+    {
+        public ChangeProgramPriorityDTO programInfo { get; set; }
+        public Guid UserId { get; set; }
     }
 }

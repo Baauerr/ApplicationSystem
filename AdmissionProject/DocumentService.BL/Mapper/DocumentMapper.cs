@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DocumentService.Common.DTO;
+using Common.DTO.Document;
 using DocumentService.DAL.Entity;
 
 namespace DocumentService.BL.Mapper

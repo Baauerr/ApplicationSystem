@@ -7,10 +7,15 @@
 }
 
 <div>
-    <button class="btn-primary" onclick="makeImport('@ImportTypes.EducationLevel')">Import Education Levels</button>
-    <button class="btn-primary" onclick="makeImport('@ImportTypes.Program')">Import Programs</button>
-    <button class="btn-primary" onclick="makeImport('@ImportTypes.Faculty')">Import Faculties</button>
-    <button class="btn-primary" onclick="makeImport('@ImportTypes.DocumentType')">Import DocumentTypes</button>
+    <form id="importForm" asp-action="Import" asp-controller="Import" method="post">
+        <select id="importTypeSelect" asp-for="@Model.Types" name="@Model.Types" id="@Model.Types">
+            <option value="@ImportTypes.EducationLevel" id="@ImportTypes.EducationLevel" name="@ImportTypes.EducationLevel">Уровни образования</option>
+            <option value="Program" id="Program" name="Program">Программы</option>
+            <option value="Faculty" id="Faculty" name="Faculty">Факультеты</option>
+            <option value="DocumentType" id="DocumentType" name="DocumentType">Типы документов</option>
+        </select>
+        <button type="button" onclick="importData()" class="btn btn-primary">Импортировать</button>
+        </form>   
 </div>
 
 <div id="historyInfo">
@@ -19,61 +24,22 @@
 
 @section Scripts {
     <script>
-        function makeImport(importType) {
-            $.ajax({
-                url: '/Import/Import',
-                type: 'POST',
-                contentType: 'application/json',
-                data: importType,
-                success: function (response) {
-                    $('#historyInfo').html(response);
-                },
-                error: function () {
-                    alert('Error loading content.');
-                }
-            });
-        }
+        function importData() {
+
+                    const importType = $("#importTypeSelect").val();
+            const formData = `importType=${importType}`;
+
+                $.ajax({
+                    url: '/Import/Import',
+                    type: 'POST',
+                data: formData,
+                    success: function (response) {
+                        $('#historyInfo').html(response);
+                    },
+                    error: function () {
+                        alert('Error loading content.');
+                    }
+                });
+            }
     </script>
 }
-
-
-
-
-
-@* <div>
-    <button class="btn-primary import-btn" data-importtype="@ImportTypes.EducationLevel">Import Education Levels</button>
-    <button class="btn-primary import-btn" data-importtype="@ImportTypes.Program">Import Programs</button>
-    <button class="btn-primary import-btn" data-importtype="@ImportTypes.Faculty">Import Faculties</button>
-    <button class="btn-primary import-btn" data-importtype="@ImportTypes.DocumentType">Import DocumentTypes</button>
-</div>
-
-<div id="historyInfo">
-    @await Html.PartialAsync("_ImportHistory", Model)
-</div>
-
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $('.import-btn').click(function () {
-                var importType = $(this).data('importtype');
-                makeImport(importType);
-            });
-        });
-
-        function makeImport(importType) {
-            $.ajax({
-                url: '/Import/Import',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ importType: importType }),
-                success: function (response) {
-                    $('#historyInfo').html(response);
-                },
-                error: function () {
-                    alert('Error loading content.');
-                }
-            });
-        }
-    </script>
-} *@

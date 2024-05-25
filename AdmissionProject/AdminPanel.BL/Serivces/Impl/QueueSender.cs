@@ -4,7 +4,7 @@ using Common.DTO.Auth;
 using Common.DTO.Dictionary;
 using Common.DTO.Entrance;
 using Common.DTO.Profile;
-using DocumentService.Common.DTO;
+using Common.DTO.Document;
 using EasyNetQ;
 using EasyNetQ.DI;
 
@@ -43,6 +43,14 @@ namespace AdminPanel.BL.Serivces.Impl
                                 x => x.WithQueueName(QueueConst.GetEducationDocumentsFormsQueue));
 
             return educationDocumentForm;
+        }
+
+        public async Task<EducationLevelResponseDTO> GetAllEducationLevels()
+        {
+            var educationLevels = await _bus.Rpc.RequestAsync<Guid, EducationLevelResponseDTO>
+                (Guid.Empty, x => x.WithQueueName(QueueConst.GetEducationLevelsQueue));
+
+            return educationLevels;
         }
 
         public async Task<AuthResponseDTO> Login(LoginRequestDTO loginCreds)
@@ -99,6 +107,14 @@ namespace AdminPanel.BL.Serivces.Impl
                 (Guid.Empty, x => x.WithQueueName(QueueConst.GetImportHistoryQueue));
 
             return importHistory;
+        }
+
+        public async Task<GetApplicationPrograms> GetApplicationPrograms(Guid userId)
+        {
+            var programs = await _bus.Rpc.RequestAsync<Guid, GetApplicationPrograms>
+                (userId, x => x.WithQueueName(QueueConst.GetApplicationProgramsQueue));
+
+            return programs;
         }
     }
 }

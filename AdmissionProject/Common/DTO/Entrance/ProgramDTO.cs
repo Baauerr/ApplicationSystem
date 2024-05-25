@@ -10,7 +10,7 @@ namespace Common.DTO.Entrance
     {
         public Guid ProgramId { get; set; }
         public string FacultyId { get; set; }
-        public int ProgramPriority { get; set; }
+        public int Priority { get; set; }
     }
     public class GetProgramDTO : ProgramDTO
     {
@@ -34,7 +34,12 @@ namespace Common.DTO.Entrance
         public class DeleteProgramDTO
         {
             public Guid ProgramId { get; set; }
-            public Guid ApplicationId { get; set; }
         }
-    
+
+    public class DeleteProgramDTORPC
+    {
+        public DeleteProgramDTO deleteData { get; set; }
+        public Guid UserId { get; set; }
+    }
+
 }
