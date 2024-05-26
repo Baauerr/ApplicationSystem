@@ -6,26 +6,38 @@ using Common.Helpers;
 using Common.DTO.Document;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
-using Pipelines.Sockets.Unofficial.Buffers;
 using Common.DTO.Entrance;
+using Microsoft.Extensions.Caching.Memory;
+using Common.Enum;
 
 namespace AdminPanel.Controllers
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "User")]
     public class EntrantController : Controller
     {
 
         private readonly IQueueSender _queueSender;
         private readonly ITokenHelper _tokenHelper;
-        public EntrantController(IQueueSender queueSender, ITokenHelper token)
+        private readonly IMemoryCache _memoryCache;
+        public EntrantController(IQueueSender queueSender, ITokenHelper token, IMemoryCache memoryCache)
         {
             _queueSender = queueSender;
             _tokenHelper = token;
+            _memoryCache = memoryCache;
         }
 
         public async Task<IActionResult> Entrant(Guid OwnerId)
         {
+            ViewBag.Roles = _memoryCache.Get("roles") as List<Roles>;
+
+            var managerId = await _queueSender.GetApplicationManagerId(OwnerId);
+
+            ViewBag.ManagerId = managerId.ManagerId;
+
+            var userId = HttpContext.Request.Cookies["UserId"];
+
+            ViewBag.UserId = Guid.Parse(userId);
+
             var profileInfo = await _queueSender.GetProfile(OwnerId);
 
             var passportInfo = await _queueSender.GetPassportForm(OwnerId);
@@ -58,6 +70,8 @@ namespace AdminPanel.Controllers
         [HttpPost]
         public async Task<IActionResult> Entrant(ChangeProfileRequestDTO newProfileInfo)
         {
+            ViewBag.Roles = _memoryCache.Get("roles") as List<Roles>;
+
             Guid OwnerId = Guid.Empty;
             if (Request.Query.ContainsKey("OwnerId"))
             {
@@ -161,10 +175,13 @@ namespace AdminPanel.Controllers
                 ViewBag.OwnerId = OwnerId;
             }
 
+            var managerId = await _queueSender.GetApplicationManagerId(OwnerId);
+
             var editPriorityDTO = new ChangeProgramPriorityDTORPC
             {
                 programInfo = info,
-                UserId = OwnerId
+                UserId = OwnerId,
+                ManagerId = managerId.ManagerId
             };
             try
             {
@@ -189,10 +206,13 @@ namespace AdminPanel.Controllers
                 ViewBag.OwnerId = OwnerId;
             }
 
+            var managerId = await _queueSender.GetApplicationManagerId(OwnerId);
+
             var deleteProgramDTO = new DeleteProgramDTORPC
             {
                 deleteData = info,
-                UserId = OwnerId
+                UserId = OwnerId,
+                ManagerId = managerId.ManagerId
             };
             try
             {

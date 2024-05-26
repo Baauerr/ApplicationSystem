@@ -2,9 +2,12 @@
 using Common.Const;
 using Common.DTO.Auth;
 using Common.DTO.Profile;
+using Common.Enum;
 using Common.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using NuGet.Common;
 
 
 namespace AdminPanel.Controllers
@@ -14,9 +17,12 @@ namespace AdminPanel.Controllers
 
         private readonly IQueueSender _queueSender;
         private readonly ITokenHelper _tokenHelper;
-        public AccountController(IQueueSender queueSender, ITokenHelper token) {
+        private readonly IMemoryCache _memoryCache;
+        public AccountController(IQueueSender queueSender, ITokenHelper token, IMemoryCache memoryCache = null)
+        {
             _queueSender = queueSender;
             _tokenHelper = token;
+            _memoryCache = memoryCache;
         }
 
         [HttpGet]
@@ -33,7 +39,7 @@ namespace AdminPanel.Controllers
         }
 
         [HttpGet]
-       // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
             var token = HttpContext.Request.Cookies["AccessToken"];
@@ -69,6 +75,21 @@ namespace AdminPanel.Controllers
                         Expires = DateTime.UtcNow.AddHours(1)
                     });
 
+                    var userId = _tokenHelper.GetUserIdFromToken(loginResponse.AccessToken);
+
+                    Response.Cookies.Append("UserId", userId.ToString(), new CookieOptions
+                    {
+                        HttpOnly = false,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddHours(1)
+                    });
+
+                    var roles = _tokenHelper.GetUserRolesFromToken(loginResponse.AccessToken)
+                        .Select(r => (Roles)Enum.Parse(typeof(Roles), r.ToUpper())).ToList();
+
+                    _memoryCache.Set("roles", roles, TimeSpan.FromMinutes(100));
+
                     Response.Cookies.Append("RefreshToken", loginResponse.RefreshToken, new CookieOptions
                     {
                         HttpOnly = true,
@@ -88,8 +109,8 @@ namespace AdminPanel.Controllers
             return Json(new { success = false, message = "Неправильный логин или пароль" });
         }
 
-    [HttpPost]
-      //  [Authorize]
+        [HttpPost]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(PasswordChangeRequestDTO newPasswordData)
         {
 
@@ -103,13 +124,9 @@ namespace AdminPanel.Controllers
                     UserId = _tokenHelper.GetUserIdFromToken(token)
                 };
 
-
-
                 try
                 {
-                    await _queueSender.SendMessage(passwordChangeRequest, QueueConst.ChangePasswordQueue);
-                    
-                //    return RedirectToAction("Index", "Home");
+                    await _queueSender.SendMessage(passwordChangeRequest, QueueConst.ChangePasswordQueue);                    
                 }
                 catch (Exception ex)
                 {
@@ -123,6 +140,7 @@ namespace AdminPanel.Controllers
 
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Profile(ChangeProfileRequestDTO newProfileInfo)
         {
             var token = HttpContext.Request.Cookies["AccessToken"];
@@ -154,8 +172,7 @@ namespace AdminPanel.Controllers
 
 
 
-        //  [HttpPost]
-        //   [Authorize]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
 
@@ -168,6 +185,8 @@ namespace AdminPanel.Controllers
             {
                 Expires = DateTime.Now.AddDays(-1)
             });
+
+            _memoryCache.Remove("roles");
 
             return RedirectToAction("Index", "Home");
         }

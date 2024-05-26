@@ -114,7 +114,7 @@ namespace EntranceService.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _entranceService.DeleteProgram(deleteProgramDTO, Guid.Parse(userId));
+            await _entranceService.DeleteProgram(deleteProgramDTO, Guid.Parse(userId), null);
             return Ok();
         }
         
@@ -127,7 +127,7 @@ namespace EntranceService.Controllers
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _entranceService.ChangeProgramPriority(changeProgramPriorityDTO, Guid.Parse(userId));
+            await _entranceService.ChangeProgramPriority(changeProgramPriorityDTO, Guid.Parse(userId), null);
             return Ok();
         }
 

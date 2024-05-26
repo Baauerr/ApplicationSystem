@@ -166,22 +166,22 @@ namespace EntranceService.BL.Services
             await SendNotification(message);
         }
 
-        public async Task ChangeProgramPriority(ChangeProgramPriorityDTO changeProgramPriorityDTO, Guid userId)
+        public async Task ChangeProgramPriority(ChangeProgramPriorityDTO changeProgramPriorityDTO, Guid ownerId, Guid? managerId)
         {
-            var application = _db.Applications.FirstOrDefault(ap => ap.OwnerId == userId);
+            var application = _db.Applications.FirstOrDefault(ap => ap.OwnerId == ownerId);
 
             if (application == null)
             {
                 throw new NotFoundException("Заявления с таким id не существует"); 
             }
 
-            if (application.OwnerId != userId || application.ManagerId != userId)
+            if (application.OwnerId != ownerId || application.ManagerId != managerId)
             {
                 throw new ForbiddenException("Нет доступа к этой заявке");
             }
 
             var applicationId = await _db.Applications
-                .Where(ap => ap.OwnerId == userId)
+                .Where(ap => ap.OwnerId == ownerId)
                 .Select(ap => ap.Id)
                 .FirstOrDefaultAsync();
 
@@ -246,11 +246,11 @@ namespace EntranceService.BL.Services
             await GiveEntrantRole(userId);
         }
 
-        public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO, Guid userId)
+        public async Task DeleteProgram(DeleteProgramDTO deleteProgramDTO, Guid ownerId, Guid? managerId)
         {
 
             var applicationId = await _db.Applications
-                .Where(ap => ap.OwnerId == userId)
+                .Where(ap => ap.OwnerId == ownerId)
                 .Select(ap => ap.Id)
                 .FirstOrDefaultAsync();
 
@@ -262,7 +262,7 @@ namespace EntranceService.BL.Services
                 throw new NotFoundException("Такой заявки не существует");
             }
 
-                if (application.OwnerId != userId || application.ManagerId == userId)
+                if (application.OwnerId != ownerId || application.ManagerId != managerId)
                 {
                     throw new ForbiddenException("Пользователь не имеет права редактировать это заявление");
                 }     
@@ -408,6 +408,8 @@ namespace EntranceService.BL.Services
             applications = FilterByMyManaging(applications, onlyMyManaging, myId);
             applications =  FilterByPagination(applications, page, pageSize);
             applications =  SortApplications(applications, sortingTypes);
+
+            
 
             return applications;
         }
@@ -587,18 +589,17 @@ namespace EntranceService.BL.Services
 
             foreach (var application in applications)
             {
-                var applicationPrograms = _db.ApplicationsPrograms.Where(ap => ap.ApplicationId == application.Id);
-
-                List<GetProgramDTO> programsDTO = new List<GetProgramDTO>();
-
-                foreach (var programs in applicationPrograms)
-                {
-                    var programDTO = _mapper.Map<GetProgramDTO>(programs);
-
-                    programsDTO.Add(programDTO);
-                }
+                var managerInfo = _db.Managers.FirstOrDefault(m => m.Id == application.ManagerId);
 
                 var applicationDTO = _mapper.Map<GetApplicationDTO>(application);
+                
+                if (managerInfo != null)
+                {
+                    applicationDTO.ManagerEmail = managerInfo.Email;
+                    applicationDTO.ManagerName = managerInfo.FullName;
+                    applicationDTO.ManagerId = managerInfo.Id;
+                }
+                
 
                 applicationsDTO.Add(applicationDTO);
             }
@@ -730,15 +731,21 @@ namespace EntranceService.BL.Services
 
         public async Task CreateManager(ManagerDTO managerInfo)
         {
-            var newManager = new Manager {
-                FullName = managerInfo.FullName,
-                Email = managerInfo.Email,
-                Id = managerInfo.Id,
-                Role = managerInfo.Role
-            };
+            var managerExists = _db.Managers.Any(m => m.Id == managerInfo.Id);
 
-            await _db.Managers.AddAsync(newManager);
-            await _db.SaveChangesAsync();
+            if (!managerExists)
+            {
+                var newManager = new Manager
+                {
+                    FullName = managerInfo.FullName,
+                    Email = managerInfo.Email,
+                    Id = managerInfo.Id,
+                    Role = managerInfo.Role
+                };
+
+                await _db.Managers.AddAsync(newManager);
+                await _db.SaveChangesAsync();
+            }      
         }
 
         public ManagersListDTO GetAllManagers()
@@ -753,6 +760,21 @@ namespace EntranceService.BL.Services
 
             return managersListDTO;
 
+        }
+
+        public async Task<GetApplicationManagerId> GetApplicationManagerId(Guid userId)
+        {
+            var managerId = await _db.Applications
+                .Where(ap => ap.OwnerId == userId)
+                .Select(ap => ap.ManagerId)
+                .FirstOrDefaultAsync();
+
+            var applicationManagerId = new GetApplicationManagerId
+            {
+                ManagerId = managerId
+            };
+
+            return applicationManagerId;
         }
     }
     

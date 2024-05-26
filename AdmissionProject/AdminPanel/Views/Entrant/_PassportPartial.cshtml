@@ -20,7 +20,7 @@
             </div>
             <div class="form-group">
                 <label for="issuedate">Дата выдачи</label>
-                <input type="date" id="issuedate" name="issuedate" value="@Model.IssueDate" class="form-control" />
+                <input type="datetime-local" id="issuedate" name="issuedate" value="@Model.IssueDate.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
             </div>
             <div class="form-group">
                 <label for="issueplace">Место выдачи</label>

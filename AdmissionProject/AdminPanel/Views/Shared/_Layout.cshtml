@@ -1,5 +1,14 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using Common.Enum
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Caching.Memory
 
+@inject IMemoryCache memoryCache
+
+@{
+    var roles = memoryCache.Get("roles") as List<Roles>;
+}
+
+    
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,15 +48,21 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Import" asp-action="Import">Import</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="ManagersPage">Managers</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Users">Users</a>
-                            </li>
+                            @if (roles != null && roles.Contains(Roles.MAINMANAGER))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="ManagersPage">Managers</a>
+                                </li>
+                            }
+                            @if (roles != null && roles.Contains(Roles.ADMINISTRATOR))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Import" asp-action="Import">Import</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Users">Users</a>
+                                </li>
+                            }
                         }
                     </ul>
                 </div>

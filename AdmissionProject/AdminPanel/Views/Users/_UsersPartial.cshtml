@@ -1,0 +1,66 @@
+﻿@using Common.DTO.User
+@using Common.Enum
+
+@model GetAllUsersDTO
+
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">Имя пользователя</th>
+            <th scope="col">Email пользователя</th>
+            <th scope="col">Роли пользователя</th>
+            <th scope="col">Дать роль</th>
+            <th scope="col">Убрать роль</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td class="card-text">@user.FullName</td>
+                <td class="card-text">@user.Email</td>
+                <td class="card-text">
+                    @foreach (var role in user.Roles)
+                    {
+                        @role
+                        @if (role != user.Roles.Last())
+                        {
+                            @:,
+                        }
+                    }
+                </td>
+                <td class="card-text">
+                    <form class="add-role-form" asp-action="SetRole" asp-controller="Users" method="post">
+                        <input type="hidden" name="UserId" value="@user.Id" />
+                        <input type="hidden" name="Role" class="role-input" />
+                        @if (!user.Roles.Contains("MainManager") && user.Roles.Contains("Manager"))
+                        {
+                            <button onclick="addRole(this, '@Roles.MAINMANAGER')" class="btn btn-primary" type="button">@Roles.MAINMANAGER</button>
+                        }
+                        else if (!user.Roles.Contains("MainManager") && !user.Roles.Contains("Manager"))
+                        {
+                            <button onclick="addRole(this, '@Roles.MAINMANAGER')" class="btn btn-primary" type="button">@Roles.MAINMANAGER</button>
+                            <button onclick="addRole(this, '@Roles.MANAGER')" class="btn btn-success" type="button">@Roles.MANAGER</button>
+                        }
+                    </form>
+                </td>
+                <td class="card-text">
+                    <form class="remove-role-form" asp-action="RemoveRole" asp-controller="Users" method="post">
+                        <input type="hidden" name="UserId" value="@user.Id" />
+                        <input type="hidden" name="Role" class="role-input" />
+                        @if (user.Roles.Contains("MainManager"))
+                        {
+                            <button onclick="removeRole(this, '@Roles.MAINMANAGER')" class="btn btn-danger" type="button">@Roles.MAINMANAGER</button>
+                            <button onclick="removeRole(this, '@Roles.MANAGER')" class="btn btn-danger" type="button">@Roles.MANAGER</button>
+                        }
+                        else if (user.Roles.Contains("Manager"))
+                        {
+                            <button onclick="removeRole(this, '@Roles.MANAGER')" class="btn btn-danger" type="button">@Roles.MANAGER</button>
+                        }
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

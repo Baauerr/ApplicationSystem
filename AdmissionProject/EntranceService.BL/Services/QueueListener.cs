@@ -36,10 +36,10 @@ namespace EntranceService.BL.Services
                 (QueueConst.CreateManagerProfileQueue, data => entranceService.CreateManager(data));
 
             bus.PubSub.Subscribe<ChangeProgramPriorityDTORPC>
-                (QueueConst.ChangeProgramPriorityQueue, data => entranceService.ChangeProgramPriority(data.programInfo, data.UserId));
+                (QueueConst.ChangeProgramPriorityQueue, data => entranceService.ChangeProgramPriority(data.programInfo, data.UserId, data.ManagerId));
 
             bus.PubSub.Subscribe<DeleteProgramDTORPC>
-                (QueueConst.RemoveProgramFromApplicationQueue, data => entranceService.DeleteProgram(data.deleteData, data.UserId));
+                (QueueConst.RemoveProgramFromApplicationQueue, data => entranceService.DeleteProgram(data.deleteData, data.UserId, data.ManagerId));
 
             bus.Rpc.Respond<Guid, ManagersListDTO>(info =>
                     entranceService.GetAllManagers(), x => x.WithQueueName(QueueConst.GetAllManagersQueue)
@@ -47,6 +47,10 @@ namespace EntranceService.BL.Services
 
             bus.Rpc.Respond<Guid, GetApplicationPrograms>(userId =>
                     entranceService.GetApplicationPrograms(userId), x => x.WithQueueName(QueueConst.GetApplicationProgramsQueue)
+            );
+
+            bus.Rpc.Respond<Guid, GetApplicationManagerId>(userId =>
+                    entranceService.GetApplicationManagerId(userId), x => x.WithQueueName(QueueConst.GetApplicationManagerIdQueue)
             );
 
             bus.Rpc.Respond<ApplicationFiltersDTO, ApplicationsResponseDTO>(async filters =>

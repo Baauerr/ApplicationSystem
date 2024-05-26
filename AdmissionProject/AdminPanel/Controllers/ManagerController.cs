@@ -6,19 +6,24 @@ using Common.DTO.Profile;
 using Common.DTO.User;
 using Common.Enum;
 using Common.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.Runtime.InteropServices;
 
 namespace AdminPanel.Controllers
 {
+    [Authorize(Roles = "MainManager")]
     public class ManagerController : Controller
     {
         private readonly IQueueSender _queueSender;
         private readonly ITokenHelper _tokenHelper;
-
-        public ManagerController(IQueueSender queueSender, ITokenHelper token)
+        private readonly IMemoryCache _memoryCache;
+        public ManagerController(IQueueSender queueSender, ITokenHelper token, IMemoryCache memoryCache)
         {
             _queueSender = queueSender;
             _tokenHelper = token;
+            _memoryCache = memoryCache;
         }
 
         public async Task<IActionResult> ManagersPage()
@@ -26,7 +31,9 @@ namespace AdminPanel.Controllers
 
             var managersList = await _queueSender.GetAllManagers();
 
-            return View(managersList);
+            ViewBag.Roles = _memoryCache.Get("roles") as List<Roles>;
+
+            return View(managersList);    
         }
         [HttpGet]
         public async Task<IActionResult> ManagerProfile(Guid managerId)

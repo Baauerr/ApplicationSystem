@@ -78,6 +78,9 @@ using (var scope = app.Services.CreateScope())
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, Roles.ADMINISTRATOR.ToString());
+                await userManager.AddToRoleAsync(adminUser, Roles.USER.ToString());
+                await userManager.AddToRoleAsync(adminUser, Roles.MANAGER.ToString());
+                await userManager.AddToRoleAsync(adminUser, Roles.MAINMANAGER.ToString());
             }
         }
 

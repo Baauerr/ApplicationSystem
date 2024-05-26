@@ -3,11 +3,13 @@ using Common.Const;
 using Common.DTO.Dictionary;
 using Common.Enum;
 using Common.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace AdminPanel.Controllers
 {
+    [Authorize(Roles = "ADMINISTRATOR")]
     public class ImportController : Controller
     {
 

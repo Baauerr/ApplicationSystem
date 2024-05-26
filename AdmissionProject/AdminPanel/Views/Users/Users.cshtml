@@ -1,45 +1,97 @@
-﻿@using Common.DTO.Entrance
-@model ManagersListDTO
+﻿@using Common.DTO.User
+@using Common.Enum
+@using AdminPanel.Models
+@model UsersViewModel
 
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th scope="col">Имя менеджера</th>
-            <th scope="col">Email менеджера</th>
-            <th scope="col">Роль менеджера</th>
-            <th scope="col">Дать роль</th>
-            <th scope="col">Убрать роль</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var manager in Model.ManagerDTO)
-        {
-            <tr>
-                <td class="card-text">
-                    <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="ManagerProfile" asp-route-managerId="@manager.Id">
-                        @manager.FullName
-                    </a>
-                </td>
-                <td class="card-text">@manager.Email</td>
-                <td class="card-text">@manager.Role</td>
-                <td class="card-text">
-                   
-                </td>
-                <td class="card-text">
-                    <form class="remove-manager-form" method="post">
-                        <input type="hidden" name="role" value="@manager.Role" />
-                        <input type="hidden" name="managerId" value="@manager.Id" />
-                        <button type="submit" class="btn btn-danger mt-3">Удалить</button>
-                    </form>
-                </td>
-                <td class="card-text">
-                    <form class="remove-manager-form" method="post">
-                        <input type="hidden" name="role" value="@manager.Role" />
-                        <input type="hidden" name="managerId" value="@manager.Id" />
-                        <button type="submit" class="btn btn-danger mt-3">Удалить</button>
-                    </form>
-                </td>
-            </tr>
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<div class="card mb-3">
+    <form id="filtersForm" asp-action="Users" asp-controller="Users" method="post">
+        <div class="card-body">
+            <div class="form-group">
+                <label for="entrantName">Поиск по имени</label>
+                <input type="text" asp-for="@Model.Filters.FullName" class="form-control" id="entrantName">
+            </div>
+
+            <div class="form-group">
+                <label for="page">Страница</label>
+                <input type="text" asp-for="@Model.Filters.Page" class="form-control" id="page">
+            </div>
+            <div class="form-group">
+                <label for="numberOfUsers">Количество пользователей</label>
+                <input type="text" asp-for="@Model.Filters.NumberOfUsers" class="form-control" id="numberOfUsers">
+            </div>
+            <div>
+                <button class="btn btn-primary mt-3" id="apply_button">Применить</button>
+            </div>
+        </div>
+        
+    </form>
+</div>
+
+<div id="usersInfo">
+    @await Html.PartialAsync("_UsersPartial", Model.Users)
+</div>
+
+
+@section Scripts {
+    <script>
+        function getUsers() {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Users/Users",
+                        data: $("#filtersForm").serialize(),
+                        success: function (response) {
+                            $("#usersInfo").html(response);
+                        },
+                        error: function () {
+                            alert("Произошла ошибка при загрузке заявок.");
+                        }
+                    });
         }
-    </tbody>
-</table>
+
+        function addRole(element, role) {
+            let form = $(element).closest("form");
+            form.find(".role-input").val(role);
+
+            let url = form.attr('action');
+            let formData = form.serialize();
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    getUsers();
+                },
+                error: function () {
+                    alert('Произошла ошибка при добавлении роли');
+                }
+            });
+        }
+
+        function removeRole(element, role) {
+            let form = $(element).closest("form");
+            form.find(".role-input").val(role);
+
+            let url = form.attr('action');
+            let formData = form.serialize();
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    getUsers();
+                },
+                error: function () {
+                    alert('Произошла ошибка при удалении роли');
+                }
+            });
+        }
+    </script>
+}
+
+

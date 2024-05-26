@@ -30,35 +30,39 @@
                 <form asp-action="UpdateStatus" asp-controller="Applications" method="post">
                     <input type="hidden" name="applicationId" value="@application.Id" />
                     <select class="form-control w-100 border p-1" name="status" id="status" onchange="this.form.submit()">
-                        @if (application.ApplicationStatus == ApplicationStatus.InProcess)
-                        {
-                            <option value="InProcess" id="InProcess" selected>На рассмотрении</option>
-                            <option value="Approved" id="Approved">Подтверждена</option>
-                            <option value="Rejected" id="Rejected">Отклонена</option>
-                            <option value="Closed" id="CreateAsc">Закрыта</option>
-                        }
-                        else if (application.ApplicationStatus == ApplicationStatus.Approved)
-                        {
-                            <option value="InProcess" id="InProcess">На рассмотрении</option>
-                            <option value="Approved" id="Approved" selected>Подтверждена</option>
-                            <option value="Rejected" id="Rejected">Отклонена</option>
-                            <option value="Closed" id="CreateAsc">Закрыта</option>
-                        }
-                        else if (application.ApplicationStatus == ApplicationStatus.Rejected)
-                        {
-                            <option value="InProcess" id="InProcess">На рассмотрении</option>
-                            <option value="Approved" id="Approved">Подтверждена</option>
-                            <option value="Rejected" id="Rejected" selected>Отклонена</option>
-                            <option value="Closed" id="CreateAsc">Закрыта</option>
-                        }
-                        else if (application.ApplicationStatus == ApplicationStatus.Closed)
-                        {
-                            <option value="InProcess" id="InProcess">На рассмотрении</option>
-                            <option value="Approved" id="Approved">Подтверждена</option>
-                            <option value="Rejected" id="Rejected">Отклонена</option>
-                            <option value="Closed" id="CreateAsc" selected>Закрыта</option>
-                        }
-                    </select>
+                       @if ((ViewBag.Roles.Contains(Roles.MAINMANAGER)
+                        && ViewBag.Roles.Contains(Roles.ADMINISTRATOR) || (application.ManagerId == Model.myId)))
+                                    {
+                                        @if (application.ApplicationStatus == ApplicationStatus.InProcess)
+                                        {
+                                            <option value="InProcess" id="InProcess" selected>На рассмотрении</option>
+                                            <option value="Approved" id="Approved">Подтверждена</option>
+                                            <option value="Rejected" id="Rejected">Отклонена</option>
+                                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                                        }
+                                        else if (application.ApplicationStatus == ApplicationStatus.Approved)
+                                        {
+                                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                            <option value="Approved" id="Approved" selected>Подтверждена</option>
+                                            <option value="Rejected" id="Rejected">Отклонена</option>
+                                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                                        }
+                                        else if (application.ApplicationStatus == ApplicationStatus.Rejected)
+                                        {
+                                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                            <option value="Approved" id="Approved">Подтверждена</option>
+                                            <option value="Rejected" id="Rejected" selected>Отклонена</option>
+                                            <option value="Closed" id="CreateAsc">Закрыта</option>
+                                        }
+                                        else if (application.ApplicationStatus == ApplicationStatus.Closed)
+                                        {
+                                            <option value="InProcess" id="InProcess">На рассмотрении</option>
+                                            <option value="Approved" id="Approved">Подтверждена</option>
+                                            <option value="Rejected" id="Rejected">Отклонена</option>
+                                            <option value="Closed" id="CreateAsc" selected>Закрыта</option>
+                                        }
+                                    }
+                                </select>     
                 </form>
             </td>
         }
@@ -66,7 +70,27 @@
         {
             <td class="card-text">@application.ApplicationStatus</td>
         }
-        <td class="card-text">@application.ManagerName</td>
+                    <td class="card-text">
+                    @if(application.ApplicationStatus != ApplicationStatus.Closed && application.ManagerId == Guid.Empty
+                       && ViewBag.Roles.Contains(Roles.MAINMANAGER))
+                    {
+                        <form asp-action="SetManagerOnApplication" asp-controller="Applications" method="post">
+                            <input type="hidden" name ="applicationId" value="@application.Id"></input>
+                        <select class="form-control w-100 border p-1" name="managerId" id="status" onchange="this.form.submit()">
+                                    <option value="@Guid.Empty" id="@Guid.Empty">--</option>
+                            @foreach(var manager in Model.Managers.ManagerDTO)
+                            {
+                                <option value="@manager.Id" id="@manager.Id">@manager.FullName</option>
+                            }
+                        </select>
+                        </form>
+                    }
+                    else
+                    {
+                        @application.ManagerName
+                    }
+                    </td>
+                    
         <td class="card-text">
             @if (application.ManagerId == Model.myId && application.ApplicationStatus != ApplicationStatus.Closed)
             {
@@ -75,7 +99,7 @@
                     <button class="btn-danger">Отказаться</button>
                 </form>
             }
-            else if (application.ManagerEmail == null && application.ApplicationStatus != ApplicationStatus.Closed)
+            else if (application.ManagerId == Guid.Empty && application.ApplicationStatus != ApplicationStatus.Closed)
             {
                 <form asp-action="TakeApplication" asp-controller="Applications" method="post" id ="takeApplication">
                     <input type="hidden" name="applicationId" value="@application.Id" />

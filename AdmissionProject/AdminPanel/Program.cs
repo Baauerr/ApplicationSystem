@@ -5,11 +5,13 @@ using Common.Helpers.Impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IQueueSender, QueueSender>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITokenHelper, TokenHelper>();
 builder.configureAuthWithCookieToken();
+
 
 builder.Services.AddSession(options =>
 {

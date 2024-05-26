@@ -1,4 +1,5 @@
 ﻿@using Common.DTO.Entrance
+@using Common.Enum
 @model ManagersListDTO
 
 <table class="table table-striped table-bordered">
@@ -15,18 +16,28 @@
         {
             <tr>
                 <td class="card-text">
+                    @if (ViewBag.Roles.Contains(Roles.ADMINISTRATOR))
+                    {
                     <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="ManagerProfile" asp-route-managerId="@manager.Id">
                         @manager.FullName
-                    </a>
+                        </a>
+                    }
+                    else
+                    {
+                        @manager.FullName
+                    }
                 </td>
                 <td class="card-text">@manager.Email</td>
                 <td class="card-text">@manager.Role</td>
                 <td class="card-text">
-                    <form class="remove-manager-form" method="post">
-                        <input type="hidden" name="role" value="@manager.Role" />
-                        <input type="hidden" name="managerId" value="@manager.Id" />
-                        <button type="submit" class="btn btn-danger mt-3">Удалить</button>
-                    </form>
+                    @if (ViewBag.Roles.Contains(Roles.ADMINISTRATOR))
+                    {
+                        <form class="remove-manager-form" method="post">
+                            <input type="hidden" name="role" value="@manager.Role" />
+                            <input type="hidden" name="managerId" value="@manager.Id" />
+                            <button type="submit" class="btn btn-danger mt-3">Удалить</button>
+                        </form>
+                    }          
                 </td>
             </tr>
         }

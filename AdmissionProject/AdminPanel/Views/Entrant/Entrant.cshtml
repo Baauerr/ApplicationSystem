@@ -17,9 +17,18 @@
     @await Html.PartialAsync("_ProgramsPartial", Model.ApplicationPrograms)
 </div>
 
+<style>
+    .disable-inputs {
+        pointer-events: none;
+    }
+</style>
+
+
             
     @section Scripts {
         <script>
+
+
         function updateProfileForm() {
 
             var form = $("#profileForm");
@@ -97,8 +106,9 @@
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        $("#programInfo").html(response.data);
+                        window.location.reload();
                     } else {
+                        window.location.reload();
                         $("#error-message").text(response.message);
                     }
                 },
@@ -119,8 +129,9 @@
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        $("#programsInfo").html(response.data);
+                        window.location.reload();
                     } else {
+                        window.location.reload();
                         $("#error-message").text(response.message);
                     }
                 },
@@ -131,5 +142,15 @@
         }
 
 
+        @if ((!ViewBag.Roles.Contains(Roles.MAINMANAGER) && !ViewBag.Roles.Contains(Roles.ADMINISTRATOR)) && (ViewBag.UserId != ViewBag.ManagerId))
+        {
+            <text>
+                $(document).ready(function () {
+                    $('input, button, textarea, select').prop('disabled', true);
+                });
+            </text>
+        }
+
     </script>
     }
+

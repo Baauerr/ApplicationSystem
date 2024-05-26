@@ -14,8 +14,6 @@
         public const string CreateManagerProfileQueue = "CreateManagerProfileQueue";
 
 
-
-
         //MVC
         public const string RemoveUserRoleQueue = "RemoveUserRoleQueue";
         public const string LoginQueue = "LoginQueue";
@@ -36,5 +34,6 @@
         public const string ChangeProgramPriorityQueue = "ChangeProgramPriorityQueue";
         public const string RemoveProgramFromApplicationQueue = "RemoveProgramFromApplicationQueue";
         public const string GetAllUsersQueue = "GetAllUsersQueue";
+        public const string GetApplicationManagerIdQueue = "GetApplicationManagerIdQueue";
     }
 }

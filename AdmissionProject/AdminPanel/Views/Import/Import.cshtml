@@ -34,7 +34,7 @@
                     type: 'POST',
                 data: formData,
                     success: function (response) {
-                        $('#historyInfo').html(response);
+                        window.location.reload();
                     },
                     error: function () {
                         alert('Error loading content.');

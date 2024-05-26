@@ -40,6 +40,7 @@ namespace Common.DTO.Entrance
     {
         public DeleteProgramDTO deleteData { get; set; }
         public Guid UserId { get; set; }
+        public Guid ManagerId { get; set; }
     }
 
 }

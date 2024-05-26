@@ -7,6 +7,7 @@ using Common.DTO.Profile;
 using Common.DTO.Document;
 using EasyNetQ;
 using EasyNetQ.DI;
+using Common.DTO.User;
 
 namespace AdminPanel.BL.Serivces.Impl
 {
@@ -116,5 +117,22 @@ namespace AdminPanel.BL.Serivces.Impl
 
             return programs;
         }
+
+        public async Task<GetAllUsersDTO> GetAllUsers(UsersFilterDTO filter)
+        {
+            var users = await _bus.Rpc.RequestAsync<UsersFilterDTO, GetAllUsersDTO>
+                (filter, x => x.WithQueueName(QueueConst.GetAllUsersQueue));
+
+            return users;
+        }
+
+        public async Task<GetApplicationManagerId> GetApplicationManagerId(Guid userId)
+        {
+            var users = await _bus.Rpc.RequestAsync<Guid, GetApplicationManagerId>
+                (userId, x => x.WithQueueName(QueueConst.GetApplicationManagerIdQueue));
+
+            return users;
+        }
     }
 }
+

@@ -90,9 +90,8 @@ namespace UserService.BL.Services
             var userProfile = _mapper.Map<ProfileResponseDTO>(user);
             return userProfile;
         }
-        public async Task<UserRoleResponseDTO> GetMyRoles(string token)
+        public async Task<UserRoleResponseDTO> GetMyRoles(Guid userId)
         {
-            var userId = _tokenService.GetUserIdFromToken(token);
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
             if (user == null) throw new NotFoundException("Такого пользователя не существует");
@@ -114,7 +113,10 @@ namespace UserService.BL.Services
             if (user == null) throw new NotFoundException("Такого пользователя не существует");
             await _userManager.AddToRoleAsync(user, role.ToString());
 
-
+            if (roleRequesData.Role == Roles.MAINMANAGER)
+            {
+                await _userManager.AddToRoleAsync(user, Roles.MANAGER.ToString());
+            }
 
             if (roleRequesData.Role == Roles.MAINMANAGER || roleRequesData.Role == Roles.MANAGER)
             {
@@ -148,9 +150,15 @@ namespace UserService.BL.Services
 
                 if (result.Succeeded)
                 {
-                    if (userInfo.Role == Roles.MAINMANAGER || userInfo.Role == Roles.MANAGER)
+                    if (userInfo.Role == Roles.MANAGER)
                     {
                         await _queueSender.SendMessage(userInfo.UserId, QueueConst.RemoveManagerFromEntranceQueue);
+                        var isMainManager = await _userManager.IsInRoleAsync(user, Roles.MAINMANAGER.ToString());
+                        if (isMainManager)
+                        {
+                            IEnumerable<string> mainManagerRole = new List<string> { Roles.MAINMANAGER.ToString() };
+                            await _userManager.RemoveFromRolesAsync(user, mainManagerRole);
+                        }
                     }
                     await _db.SaveChangesAsync();
                 }
@@ -194,12 +202,14 @@ namespace UserService.BL.Services
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var userDTO = _mapper.Map<UserDTO>(user);
                 userDTO.Roles = userRoles;
-                if (userRoles.Contains("ADMINISTRATOR"))
+                if (userRoles.Contains("Administrator") || userRoles.Contains("ADMINISTRATOR"))
                 {
                     continue;
                 }
                 usersDTO.Users.Add(userDTO);
             }
+
+            usersDTO.Users.OrderByDescending(u => u.FullName);
 
             return usersDTO;
         }

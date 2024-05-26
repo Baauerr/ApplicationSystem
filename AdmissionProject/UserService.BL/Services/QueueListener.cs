@@ -27,6 +27,10 @@ namespace UserService.BL.Services
                   await authService.Login(request), x => x.WithQueueName(QueueConst.LoginQueue)
             );
 
+            bus.Rpc.Respond<UsersFilterDTO, GetAllUsersDTO>(async request =>
+                  await accountService.GetAllUsers(request), x => x.WithQueueName(QueueConst.GetAllUsersQueue)
+            );
+
             bus.PubSub.Subscribe<ChangeProfileRequestRPCDTO>
                 (QueueConst.ChangeProfileQueue, data => accountService.ChangeProfileInfo(data.ProfileData, data.UserId));
 
