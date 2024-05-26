@@ -41,13 +41,7 @@ namespace AdminPanel.Controllers
         {
             var users = await _queueSender.GetAllUsers(filters);
 
-            var userView = new UsersViewModel
-            {
-                Filters = filters,
-                Users = users
-            };
-
-            return View(userView);
+            return PartialView("_UsersPartial", users);
         }
 
         [HttpPost]

@@ -20,7 +20,7 @@
                             <div class="d-flex flex-column w-100">
                                 <label for="faculties" class="form-label">Поиск по факультетам</label>
                                 <select class="form-select w-100 border p-1" asp-for="Filters.faculties" id="faculties" multiple>
-                                <option value="null">--</option>
+                                <option value="">--</option>
                                 @foreach(var faculty in Model.Faculties.Faculties)
                                 {
                                     <option value=@faculty.Id>@faculty.Name</option>
