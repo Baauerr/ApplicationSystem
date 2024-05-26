@@ -170,9 +170,6 @@ namespace AdminPanel.Controllers
             return Json(profileInfo);
         }
 
-
-
-        [Authorize]
         public async Task<IActionResult> Logout()
         {
 

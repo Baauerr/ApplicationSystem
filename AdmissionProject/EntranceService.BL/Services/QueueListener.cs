@@ -1,4 +1,5 @@
 ﻿using Common.Const;
+using Common.DTO.Copy;
 using Common.DTO.Entrance;
 using EasyNetQ;
 using EntranceService.Common.Interface;
@@ -20,8 +21,11 @@ namespace EntranceService.BL.Services
             bus.PubSub.Subscribe<UpdateUserDataDTO>
                 (QueueConst.UpdateUserDataQueue, data => entrantService.SyncUserDataInApplication(data));
 
-            bus.PubSub.Subscribe<Guid>
-                (QueueConst.RemoveManagerFromEntranceQueue, data => entranceService.RemoveManager(data));
+            bus.PubSub.Subscribe<List<Program>>
+                (QueueConst.SyncApplicationWithProgramsQueue, data => entranceService.SyncApplicationsWithPrograms(data));
+
+            bus.PubSub.Subscribe<RemoveApplicationManagerDTO>
+                (QueueConst.RemoveManagerFromEntranceQueue, async data => await entranceService.RemoveManager(data.UserId));
 
             bus.PubSub.Subscribe<RefuseApplication>
                 (QueueConst.RemoveApplicationManagerQueue, data => entranceService.RefuseApplication(data));
@@ -40,6 +44,9 @@ namespace EntranceService.BL.Services
 
             bus.PubSub.Subscribe<DeleteProgramDTORPC>
                 (QueueConst.RemoveProgramFromApplicationQueue, data => entranceService.DeleteProgram(data.deleteData, data.UserId, data.ManagerId));
+
+            bus.PubSub.Subscribe<EduDocumentSyncApplicationDTO>
+                (QueueConst.SyncApplicationWithEducationDocumentQueue, data => entranceService.SyncProgramsWithEducationDocument(data.UserId));
 
             bus.Rpc.Respond<Guid, ManagersListDTO>(info =>
                     entranceService.GetAllManagers(), x => x.WithQueueName(QueueConst.GetAllManagersQueue)

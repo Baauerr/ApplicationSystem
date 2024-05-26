@@ -19,25 +19,6 @@ namespace EntranceService.BL.Services
             _mapper = mapper;
         }
 
-        public async Task EditApplicationsInfo(EditApplicationDTO newApplicationInfo, Guid userId)
-        {
-            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == newApplicationInfo.applicationId);
-            
-            if (application == null)
-            {
-                throw new NotFoundException("Такой заявки не существует");
-            }
-
-            if (application.OwnerId != userId || application.ManagerId != userId)
-            {
-                throw new ForbiddenException("Редактировать заявку может только владелец или менеджер этой заявки");
-            }
-
-            application.Citizenship = newApplicationInfo.Citizenship;
-            _db.Update(application);
-            await _db.SaveChangesAsync();
-        }
-
         public async Task<GetApplicationDTO> GetApplicationInfo(Guid userId)
         {
             var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.OwnerId == userId);
@@ -52,6 +33,14 @@ namespace EntranceService.BL.Services
 
             var applcationDTO = _mapper.Map<GetApplicationDTO>(application);
 
+            var manager = await _db.Managers.FirstOrDefaultAsync(m => m.Id == applcationDTO.ManagerId);
+
+            if (manager != null)
+            {
+                applcationDTO.ManagerEmail = manager.Email;
+                applcationDTO.ManagerName = manager.FullName;
+            }
+            
             return applcationDTO;
         }
         public async Task SyncUserDataInApplication(UpdateUserDataDTO updateUserDataDTO)

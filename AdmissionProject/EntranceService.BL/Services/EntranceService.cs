@@ -11,6 +11,7 @@ using NotificationService.DTO;
 using Common.DTO.Dictionary;
 using Common.Const;
 using Common.DTO.Entrance;
+using Common.DTO.Copy;
 
 
 namespace EntranceService.BL.Services
@@ -38,9 +39,20 @@ namespace EntranceService.BL.Services
 
         public async Task AddProgramsToApplication(List<ProgramDTO> programsDTO, Guid aplicationId, Guid userId)
         {
+
+            var application = await _db.Applications.FirstOrDefaultAsync(ap => ap.Id == aplicationId);
+
+            if (application != null && application.ApplicationStatus == ApplicationStatus.Closed)
+            {
+                throw new BadRequestException("Нельзя добавлять программы, если заявление закрыто");
+            }
+
             List<ApplicationPrograms> newPrograms = new List<ApplicationPrograms>();
 
-            var availablePrograms = await _queueSender.GetAllPrograms(Guid.NewGuid());
+            var programsFilter = new ProgramsFilterDTO();
+            programsFilter.pageSize = 1000;
+
+            var availablePrograms = await _queueSender.GetAllPrograms(programsFilter, Guid.NewGuid());
 
             await ValidatePrograms(programsDTO, userId, availablePrograms, aplicationId);
 
@@ -121,7 +133,7 @@ namespace EntranceService.BL.Services
 
             if (!isProgramsExist)
             {
-                throw new NotFoundException("В списке есть несуществующая программа");
+                throw new NotFoundException("В списке есть несуществующая программа или программы повторяются");
             }
 
             var hasBublicatePrograms = programsDTO
@@ -135,7 +147,43 @@ namespace EntranceService.BL.Services
                 throw new BadRequestException("Группы не могут повторяться в заявлении");
             }
 
-            await CheckEducationLevel(firstEducationLevelId, userId );
+            var edcuationLevelIsNormal = await CheckEducationLevel(firstEducationLevelId, userId );
+
+            if (!edcuationLevelIsNormal)
+            {
+                throw new BadRequestException("Ваш уровень образования не подходит для данной программы");
+            }
+        }
+
+        public async Task SyncProgramsWithEducationDocument(Guid userId)
+        {
+            var applicationId = await _db.Applications
+                .Where(ap => ap.OwnerId == userId)
+                .Select(ap => ap.Id)
+                .FirstOrDefaultAsync();
+
+            var programs = _db.ApplicationsPrograms.Where(ap => ap.ApplicationId == applicationId);
+
+            var firstProgram = await programs.FirstOrDefaultAsync();
+
+            if (programs.Any())
+            {
+                var programsFilter = new ProgramsFilterDTO();
+                programsFilter.faculty = new List<string> { firstProgram.FacultyId };
+
+                var allPrograms = await _queueSender.GetAllPrograms(programsFilter,userId);
+                var educationLevel = allPrograms.Programs.Select(p => p.EducationLevel).FirstOrDefault();
+                        
+
+                var programsAreNormal = await CheckEducationLevel(educationLevel.Id, userId);
+
+                if (!programsAreNormal)
+                {
+                    _db.ApplicationsPrograms.RemoveRange(programs);
+                    await _db.SaveChangesAsync();
+                }
+            }
+            
         }
 
         public async Task ChangeApplicationStatus(ApplicationStatus status, Guid applicationId)
@@ -229,7 +277,6 @@ namespace EntranceService.BL.Services
 
             var application = new Application
             {
-                Citizenship = applicationDTO.Citizenship,
                 Id = applicationId,
                 OwnerId = userId,
                 OwnerEmail = userInfo.Email,
@@ -270,6 +317,11 @@ namespace EntranceService.BL.Services
             var applicationProgram = await _db.ApplicationsPrograms.FirstOrDefaultAsync(
                 ap => ap.ProgramId == deleteProgramDTO.ProgramId
                 && ap.ApplicationId == applicationId);
+
+            if (application.ApplicationStatus == ApplicationStatus.Closed)
+            {
+                throw new BadRequestException("Пользователь не может удалять программы, если заявление закрыто");
+            }
             
             if (applicationProgram == null)
             {
@@ -301,7 +353,7 @@ namespace EntranceService.BL.Services
                 }
         }
 
-        private async Task CheckEducationLevel(string programEducationLevelId, Guid userId)
+        private async Task<bool> CheckEducationLevel(string programEducationLevelId, Guid userId)
         {
 
             var educationDocument = await _queueSender.GetUserEducationDocument(userId);
@@ -321,8 +373,9 @@ namespace EntranceService.BL.Services
             if (!allowedEducationLevelsByDocumentLevel.TryGetValue(educationDocumentLevelId, out HashSet<string> allowedEducationLevels)
                 || !allowedEducationLevels.Contains(programEducationLevelId))
             {
-                throw new BadRequestException("Ваш уровень образования не подходит для данной программы");
+                return false;
             }
+            return true;
         }
 
         public async Task<GetApplicationPrograms> GetApplicationPrograms(Guid userId)
@@ -658,13 +711,21 @@ namespace EntranceService.BL.Services
                 _db.Applications.Update(application);
                 await _db.SaveChangesAsync();
 
-                var message = new MailStructure
+                var entrantMessage = new MailStructure
                 {
                     Recipient = application.OwnerEmail,
                     Body = $"На ваше заявление был назначен менеджер {managerInfo.FullName}",
                     Subject = "Назначение менеджера"
                 };
-                await SendNotification(message);
+                await SendNotification(entrantMessage);
+
+                var managerMessage = new MailStructure
+                {
+                    Recipient = managerInfo.Email,
+                    Body = $"Вы были назначены менеджером {application.OwnerEmail}",
+                    Subject = "Назначение менеджера"
+                };
+                await SendNotification(managerMessage);
             }
             else
             {
@@ -731,22 +792,44 @@ namespace EntranceService.BL.Services
 
         public async Task CreateManager(ManagerDTO managerInfo)
         {
-            var managerExists = _db.Managers.Any(m => m.Id == managerInfo.Id);
-
-            if (!managerExists)
+            using (var transaction = await _db.Database.BeginTransactionAsync())
             {
-                var newManager = new Manager
+                try
                 {
-                    FullName = managerInfo.FullName,
-                    Email = managerInfo.Email,
-                    Id = managerInfo.Id,
-                    Role = managerInfo.Role
-                };
+                    var managerExists = await _db.Managers.AnyAsync(m => m.Id == managerInfo.Id);
 
-                await _db.Managers.AddAsync(newManager);
-                await _db.SaveChangesAsync();
-            }      
+                    if (!managerExists)
+                    {
+                        var newManager = new Manager
+                        {
+                            FullName = managerInfo.FullName,
+                            Email = managerInfo.Email,
+                            Id = managerInfo.Id,
+                            Role = managerInfo.Role
+                        };
+
+                        await _db.Managers.AddAsync(newManager);
+                        await _db.SaveChangesAsync();
+                    }
+
+                    var managerMessage = new MailStructure
+                    {
+                        Recipient = managerInfo.Email,
+                        Body = $"Вам была выдана роль менеджера",
+                        Subject = "Вы теперь менеджер"
+                    };
+                    await SendNotification(managerMessage);
+
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
         }
+
 
         public ManagersListDTO GetAllManagers()
         {
@@ -776,6 +859,19 @@ namespace EntranceService.BL.Services
 
             return applicationManagerId;
         }
+        
+        public async Task SyncApplicationsWithPrograms(List<Program> deletedPrograms) 
+        {
+            foreach(var program in deletedPrograms)
+            {
+                var applicationPrograms = _db.ApplicationsPrograms.Where(ap => ap.ProgramId == program.Id);
+                _db.RemoveRange(applicationPrograms);
+            }
+
+            await _db.SaveChangesAsync();
+
+        }
+        
     }
     
 }

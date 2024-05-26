@@ -1,4 +1,4 @@
-﻿using Common.DTO.Dictionary;
+﻿using Common.DTO.Copy;
 using Common.DTO.Entrance;
 using Common.Enum;
 
@@ -32,6 +32,8 @@ namespace EntranceService.Common.Interface
         public Task CreateManager(ManagerDTO managerInfo);
         public Task<GetApplicationPrograms> GetApplicationPrograms(Guid userId);
         public Task<GetApplicationManagerId> GetApplicationManagerId(Guid userId);
+        public Task SyncApplicationsWithPrograms(List<Program> deletedPrograms);
+        public Task SyncProgramsWithEducationDocument(Guid userId);
     }
 
 }

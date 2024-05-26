@@ -78,32 +78,19 @@ namespace EntranceService.Controllers
             return Ok();
         }
 
-        [HttpPut("application")]
-        [Authorize(Roles = "Entrant")]
-        [ProducesResponseType(200)]
+        [HttpGet("application/my")]
+        [Authorize(Roles = "User")]
+        [ProducesResponseType(typeof(GetApplicationDTO), 200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> EditApplication([FromBody] EditApplicationDTO applicationEditInfo)
+        public async Task<ActionResult> GetMyApplicsation()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
-            await _entrantService.EditApplicationsInfo(applicationEditInfo, Guid.Parse(userId));
-            return Ok();
+            var application = await _entrantService.GetApplicationInfo(Guid.Parse(userId));
+            return Ok(application);
         }
-
-        [HttpPut("agagagaga")]
-      //  [Authorize(Roles = "Entrant")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> GetManagers([FromBody] EditApplicationDTO applicationEditInfo)
-        {
-          //  var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-          //  var userId = userIdClaim.Value;
-            var managers = _entranceService.GetAllManagers();
-            return Ok(managers);
-        }
-
 
         [HttpDelete("program")]
         [Authorize(Roles = "Entrant")]
@@ -142,6 +129,18 @@ namespace EntranceService.Controllers
             var userId = userIdClaim.Value;
             await _entranceService.AddProgramsToApplication(addProgramDTO.programsDTO, addProgramDTO.applicationId, Guid.Parse(userId));
             return Ok();
+        }
+        [HttpGet("program/my")]
+        [Authorize]
+        [ProducesResponseType(typeof(GetApplicationPrograms),200)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
+        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
+        public async Task<ActionResult> GetMyPrograms()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = userIdClaim.Value;
+            var programs = await _entranceService.GetApplicationPrograms(Guid.Parse(userId));
+            return Ok(programs);
         }
 
     }

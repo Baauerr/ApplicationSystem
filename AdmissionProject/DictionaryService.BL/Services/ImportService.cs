@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Common.Const;
 using Common.DTO.Dictionary;
 using Common.Enum;
 using DictionaryService.Common.Interfaces;
@@ -20,11 +21,13 @@ namespace DictionaryService.BL.Services
         private readonly string _password = "ny6gQnyn4ecbBrP9l1Fz";
         private readonly string _baseUrl = "https://1c-mockup.kreosoft.space/api/dictionary/";
         private readonly DictionaryDbContext _db;
-        public ImportService(DictionaryDbContext db, IMapper mapper)
+        private readonly IQueueSender _queueSender;
+        public ImportService(DictionaryDbContext db, IMapper mapper, IQueueSender queueSender)
         {
             _db = db;
             _mapper = mapper;
             _httpClient = CreateHttpClient(_username, _password);
+            _queueSender = queueSender;
         }
         private HttpClient CreateHttpClient(string username, string password)
         {
@@ -228,6 +231,8 @@ namespace DictionaryService.BL.Services
                 await _db.Faculties.AddRangeAsync(toAdd);
                 _db.Faculties.RemoveRange(toDelete);
 
+                await SyncPrograms(toDelete);
+
                 foreach (var faculty in toUpdate)
                 {
 
@@ -240,7 +245,7 @@ namespace DictionaryService.BL.Services
                     _db.Faculties.Update(faculty);
                 }  
                 
-                _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
 
                 return ImportStatus.Success;
             }
@@ -271,6 +276,8 @@ namespace DictionaryService.BL.Services
                     .ToList();
 
                 _db.Programs.RemoveRange(toDelete);
+
+                await _queueSender.SendMessage(toDelete, QueueConst.SyncApplicationWithProgramsQueue);
 
                 foreach (var program in toUpdate)
                 {
@@ -331,6 +338,23 @@ namespace DictionaryService.BL.Services
             }
 
             return allHistory;
+        }
+
+        private async Task SyncPrograms(List<Faculty> deletedFaculties)
+        {
+
+            var programsList = new List<Program>();
+
+            foreach (var faculty in deletedFaculties)
+            {
+                var programs = _db.Programs.Where(p => p.FacultyId == faculty.Id);
+                programsList.Concat(programs);
+                _db.RemoveRange(programs);
+            }
+
+            await _queueSender.SendMessage(programsList, QueueConst.SyncApplicationWithProgramsQueue);
+            
+            await _db.SaveChangesAsync();
         }
     }
 }

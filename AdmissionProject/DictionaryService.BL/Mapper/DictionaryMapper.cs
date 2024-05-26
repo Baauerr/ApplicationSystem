@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.DTO.Dictionary;
+using Common.DTO.Entrance;
 using DictionaryService.DAL.Entities;
 
 namespace DictionaryService.BL.Mapper

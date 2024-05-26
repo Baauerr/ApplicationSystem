@@ -20,9 +20,8 @@ namespace EntranceService.BL.Services
             await _bus.PubSub.PublishAsync(message, topik);
         }
 
-        public async Task<ProgramResponseDTO> GetAllPrograms(Guid userId)
+        public async Task<ProgramResponseDTO> GetAllPrograms(ProgramsFilterDTO programsFilter, Guid userId)
         {
-            var programsFilter = new ProgramsFilterDTO();
 
             var programs = await _bus.Rpc.RequestAsync<ProgramsFilterDTO, ProgramResponseDTO>(programsFilter, x => x.WithQueueName(QueueConst.GetProgramsQueue));
 

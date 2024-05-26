@@ -6,6 +6,8 @@ using DocumentService.DAL.Entity;
 using Exceptions.ExceptionTypes;
 using Microsoft.EntityFrameworkCore;
 using Common.DTO.Document;
+using Common.Const;
+using Common.DTO.Entrance;
 
 namespace DocumentService.BL.Services
 {
@@ -110,6 +112,14 @@ namespace DocumentService.BL.Services
             educationDocument.EducationLevelName = educationLevelName.Name;
 
             _db.EducationDocumentsData.Update(educationDocument);
+
+            var dataForSync = new EduDocumentSyncApplicationDTO
+            {
+                UserId = userId,
+            };
+
+            await _queueSender.SendMessage(dataForSync, QueueConst.SyncApplicationWithEducationDocumentQueue);
+
             await _db.SaveChangesAsync();
         }
         public async Task EditPassportInfo(PassportFormDTO passportDTO, Guid userId)

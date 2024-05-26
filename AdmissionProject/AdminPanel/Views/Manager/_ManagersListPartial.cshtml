@@ -8,7 +8,6 @@
             <th scope="col">Имя менеджера</th>
             <th scope="col">Email менеджера</th>
             <th scope="col">Роль менеджера</th>
-            <th scope="col">Удалить менеджера</th>
         </tr>
     </thead>
     <tbody>
@@ -29,16 +28,6 @@
                 </td>
                 <td class="card-text">@manager.Email</td>
                 <td class="card-text">@manager.Role</td>
-                <td class="card-text">
-                    @if (ViewBag.Roles.Contains(Roles.ADMINISTRATOR))
-                    {
-                        <form class="remove-manager-form" method="post">
-                            <input type="hidden" name="role" value="@manager.Role" />
-                            <input type="hidden" name="managerId" value="@manager.Id" />
-                            <button type="submit" class="btn btn-danger mt-3">Удалить</button>
-                        </form>
-                    }          
-                </td>
             </tr>
         }
     </tbody>

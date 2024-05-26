@@ -10,7 +10,6 @@ namespace EntranceService.DAL.Entity
         public Guid OwnerId { get; set; }
         public string OwnerName { get; set; }
         public string OwnerEmail { get; set; }
-        public string Citizenship { get; set; }
         public DateTime LastChangeDate { get; set; }
         public ApplicationStatus ApplicationStatus { get; set; }
         public Guid ManagerId { get; set; } = Guid.Empty;

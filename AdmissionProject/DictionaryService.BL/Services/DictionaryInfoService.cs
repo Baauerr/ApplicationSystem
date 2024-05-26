@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.DTO.Dictionary;
+using Common.DTO.Entrance;
 using Common.Enum;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL;

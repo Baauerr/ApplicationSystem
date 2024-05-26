@@ -12,7 +12,8 @@
         public const string UpdateUserDataQueue = "UpdateUserDataQueue";
         public const string AddManagerRoleQueue = "AddManagerRoleQueue";
         public const string CreateManagerProfileQueue = "CreateManagerProfileQueue";
-
+        public const string SyncApplicationWithProgramsQueue = "SyncApplicationWithProgramsQueue";
+        public const string SyncApplicationWithEducationDocumentQueue = "SyncApplicationWithEducationDocumentQueue";
 
         //MVC
         public const string RemoveUserRoleQueue = "RemoveUserRoleQueue";

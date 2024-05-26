@@ -13,6 +13,11 @@ namespace DocumentService.BL.Services
             _bus = RabbitHutch.CreateBus("host=localhost");
         }
 
+        public async Task SendMessage<T>(T message, string topik)
+        {
+            await _bus.PubSub.PublishAsync(message, topik);
+        }
+
         public EducationLevelResponseDTO GetEducationLevels()
         {
             try
@@ -27,7 +32,6 @@ namespace DocumentService.BL.Services
             {                
                 throw new BadRequestException(ex.ToString());
             }
-          
         }
     }
 }

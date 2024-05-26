@@ -152,7 +152,13 @@ namespace UserService.BL.Services
                 {
                     if (userInfo.Role == Roles.MANAGER)
                     {
-                        await _queueSender.SendMessage(userInfo.UserId, QueueConst.RemoveManagerFromEntranceQueue);
+
+                        var removeManagerDTO = new RemoveApplicationManagerDTO
+                        {
+                            UserId = userInfo.UserId
+                        };
+
+                        await _queueSender.SendMessage(removeManagerDTO, QueueConst.RemoveManagerFromEntranceQueue);
                         var isMainManager = await _userManager.IsInRoleAsync(user, Roles.MAINMANAGER.ToString());
                         if (isMainManager)
                         {

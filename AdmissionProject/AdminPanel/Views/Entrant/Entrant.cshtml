@@ -141,7 +141,6 @@
             });
         }
 
-
         @if ((!ViewBag.Roles.Contains(Roles.MAINMANAGER) && !ViewBag.Roles.Contains(Roles.ADMINISTRATOR)) && (ViewBag.UserId != ViewBag.ManagerId))
         {
             <text>

@@ -75,6 +75,7 @@ namespace UserService.Controllers
             await _userService.ChangeProfileInfo(newProfileInfo, Guid.Parse(userId));
             return Ok();
         }
+
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPut("password")]
         [ProducesResponseType(200)]
@@ -106,18 +107,6 @@ namespace UserService.Controllers
         {
             string token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             await _authService.Logout(token);
-            return Ok();
-        }
-
-    //    [Authorize(AuthenticationSchemes = "Bearer", Roles = "ADMINISTRATOR")]
-        [HttpPut("giveRole")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
-        [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult<AuthResponseDTO>> GiveRole([FromBody] UserRoleActionDTO properties)
-        {
-            await _userService.GiveRole(properties);
             return Ok();
         }
     }

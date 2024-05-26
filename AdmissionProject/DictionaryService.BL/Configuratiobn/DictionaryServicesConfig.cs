@@ -13,6 +13,8 @@ public static class DictionaryServiceConfig
         builder.Services.AddScoped
             <IDictionaryInfoService, DictionaryInfoService>();
         builder.Services.AddScoped
+            <IQueueSender, QueueSender>();
+        builder.Services.AddScoped
             <IImportService, ImportService>();
         builder.Services.AddAutoMapper(typeof(DictionaryMapper));
         builder.Services.AddTransient<ExceptionsHandler>();
