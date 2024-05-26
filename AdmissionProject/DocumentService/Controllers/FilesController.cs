@@ -24,35 +24,33 @@ namespace DocumentService.Controllers
         [HttpGet]
         [Route("passport")]
         [Authorize(Roles = "User")]
-        [Produces("application/octet-stream")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<FileStreamResult> DownloadPassportFile()
+        public async Task<ActionResult<byte[]>> DownloadPassportFile()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
 
             var passportFile = await _fileService.GetPassportFile(Guid.Parse(userId));
-            return passportFile;
+            return Ok(passportFile);
         }
 
         [HttpGet]
         [Route("educationDocument")]
         [Authorize(Roles = "User")]
-        [ProducesResponseType(200)]
-        [Produces("application/octet-stream")]
+        [ProducesResponseType(typeof(FileStreamResult), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<FileStreamResult> DownloadEducationDocumentFile()
+        public async Task<ActionResult<byte[]>> DownloadEducationDocumentFile()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
 
             var educationDocumentFile = await _fileService.GetEducationDocumentFile(Guid.Parse(userId));
-            return educationDocumentFile;
+            return Ok(educationDocumentFile);
         }
 
         [HttpPost]
@@ -77,12 +75,12 @@ namespace DocumentService.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<ActionResult> UpLoadEducationDocument(IFormFile file, EducationFileDTO educationFileDTO)
+        public async Task<ActionResult> UpLoadEducationDocument(IFormFile file)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
 
-            await _fileService.UploadEducationDocumentFile(file, Guid.Parse(userId), educationFileDTO);
+            await _fileService.UploadEducationDocumentFile(file, Guid.Parse(userId));
             return Ok();
         }
 

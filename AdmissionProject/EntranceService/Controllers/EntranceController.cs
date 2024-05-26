@@ -1,8 +1,5 @@
 using Common.DTO.Entrance;
 using Common.Enum;
-using Common.DTO.Document;
-using EasyNetQ;
-using EntranceService.BL.Services;
 using EntranceService.Common.Interface;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -18,17 +15,15 @@ namespace EntranceService.Controllers
 
         private readonly IEntranceService _entranceService;
         private readonly IEntrantService _entrantService;
-        private readonly QueueSender _queueSender;
 
-        public EntranceController(IEntranceService entranceService, IEntrantService entrantService, QueueSender queueSender)
+        public EntranceController(IEntranceService entranceService, IEntrantService entrantService)
         {
             _entranceService = entranceService;
             _entrantService = entrantService;
-            _queueSender = queueSender;
         }
 
         [HttpGet("application")]
-    //    [Authorize(Roles = "Entrant")]
+        [Authorize(Roles = "Manager")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
@@ -84,7 +79,7 @@ namespace EntranceService.Controllers
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 404)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> GetMyApplicsation()
+        public async Task<ActionResult> GetMyApplication()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
@@ -119,11 +114,11 @@ namespace EntranceService.Controllers
         }
 
         [HttpPost("program")]
-        [Authorize]
+        [Authorize(Roles = "Entrant")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]
-        public async Task<ActionResult> AddProgramToApplicartion([FromBody] AddProgramsToApplicationDTO addProgramDTO)
+        public async Task<ActionResult> AddProgramToApplication([FromBody] AddProgramsToApplicationDTO addProgramDTO)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = userIdClaim.Value;
@@ -131,7 +126,7 @@ namespace EntranceService.Controllers
             return Ok();
         }
         [HttpGet("program/my")]
-        [Authorize]
+        [Authorize(Roles = "Entrant")]
         [ProducesResponseType(typeof(GetApplicationPrograms),200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 500)]

@@ -118,6 +118,7 @@ namespace UserService.BL.Services
             }
 
             user.RefreshToken = null;
+            await _userManager.UpdateAsync(user);
             await _redisRepository.AddTokenBlackList(accessToken);
         }
 

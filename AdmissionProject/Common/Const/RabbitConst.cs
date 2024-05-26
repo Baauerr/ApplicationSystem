@@ -36,5 +36,6 @@
         public const string RemoveProgramFromApplicationQueue = "RemoveProgramFromApplicationQueue";
         public const string GetAllUsersQueue = "GetAllUsersQueue";
         public const string GetApplicationManagerIdQueue = "GetApplicationManagerIdQueue";
+        public const string LogoutQueue = "LogoutQueue";
     }
 }

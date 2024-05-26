@@ -1,4 +1,4 @@
-﻿@using Common.DTO.User
+﻿.@using Common.DTO.User
 @using Common.Enum
 @using AdminPanel.Models
 @model UsersViewModel
@@ -18,10 +18,6 @@
             <div class="form-group">
                 <label for="page">Страница</label>
                 <input type="text" asp-for="@Model.Filters.Page" class="form-control" id="page">
-            </div>
-            <div class="form-group">
-                <label for="numberOfUsers">Количество пользователей</label>
-                <input type="text" asp-for="@Model.Filters.NumberOfUsers" class="form-control" id="numberOfUsers">
             </div>
             <div>
                 <button class="btn btn-primary mt-3" id="apply_button">Применить</button>

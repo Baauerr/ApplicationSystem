@@ -2,6 +2,7 @@
 using Common.Const;
 using Common.DTO.Auth;
 using Common.DTO.Profile;
+using Common.DTO.User;
 using Common.Enum;
 using Common.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -173,6 +174,8 @@ namespace AdminPanel.Controllers
         public async Task<IActionResult> Logout()
         {
 
+            var token = HttpContext.Request.Cookies["AccessToken"];
+
             Response.Cookies.Delete("AccessToken", new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(-1) 
@@ -184,6 +187,13 @@ namespace AdminPanel.Controllers
             });
 
             _memoryCache.Remove("roles");
+
+            var logoutData = new LogoutDTO
+            {
+                Token = token
+            };
+
+            await _queueSender.SendMessage(logoutData, QueueConst.LogoutQueue);
 
             return RedirectToAction("Index", "Home");
         }

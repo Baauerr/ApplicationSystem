@@ -2,7 +2,6 @@ using Common.DTO.Dictionary;
 using Common.Enum;
 using DictionaryService.Common.Interfaces;
 using DictionaryService.DAL.Entities;
-using Common.DTO;
 using Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -97,7 +96,7 @@ namespace UserService.Controllers
         }
 
         [HttpGet("history")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "ADMINISTRATOR")]
         [ServiceFilter(typeof(TokenBlacklistFilterAttribute))]
         [ProducesResponseType(typeof(List<ImportHistory>), 200)]
         [ProducesResponseType(typeof(ExceptionResponseModel), 400)]

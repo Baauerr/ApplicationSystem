@@ -74,17 +74,17 @@ namespace DocumentService.BL.Services
             File.Delete(passportFile.Path);
         }
 
-        public async Task UploadEducationDocumentFile(IFormFile file, Guid userId, EducationFileDTO educationLevelId)
+        public async Task UploadEducationDocumentFile(IFormFile file, Guid userId)
         {
             var educationDocumentDirectoryPath = Environment.CurrentDirectory + "\\documentFiles\\educationDocuments";
 
-            var educationDocumentForm = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId && ed.EducationLevelId == educationLevelId.EducationLevelId);
+            var educationDocumentForm = await _db.EducationDocumentsData.FirstOrDefaultAsync(ed => ed.OwnerId == userId);
             
             if (educationDocumentForm == null)
             {
                 throw new BadRequestException("Нельзя загрузить файл, если нет формы");
             }
-            var educationDocumentFilePath = educationDocumentDirectoryPath + userId.ToString() + "_" + educationLevelId;
+            var educationDocumentFilePath = educationDocumentDirectoryPath + userId.ToString() + "_" + "education";
 
             var fileId = Guid.NewGuid();
 
@@ -95,7 +95,7 @@ namespace DocumentService.BL.Services
                 Id = fileId,
                 Path = educationDocumentFilePath,
                 OwnerId = userId,
-                EducationLevelId = educationLevelId.EducationLevelId
+                EducationLevelId = educationDocumentForm.EducationLevelId
             };
 
             using (var stream = new FileStream(educationDocumentFilePath, FileMode.Create))
@@ -131,7 +131,7 @@ namespace DocumentService.BL.Services
             File.Delete(educationDocumentFile.Path);
         }
 
-        public async Task<FileStreamResult> GetEducationDocumentFile(Guid userId)
+        public async Task<byte[]> GetEducationDocumentFile(Guid userId)
         {
             var educationDocumentFile = await _db.EducationDocumentsFiles
                 .FirstOrDefaultAsync(edf => edf.OwnerId == userId);
@@ -148,12 +148,12 @@ namespace DocumentService.BL.Services
                 throw new NotFoundException("У пользователя нет документа об образовании"); 
             }
 
-            var fileStream = new FileStream(educationDocumentFilePath, FileMode.Open, FileAccess.Read);
+            var fileBytes = await File.ReadAllBytesAsync(educationDocumentFilePath);
 
-            return new FileStreamResult(fileStream, "application/pdf");
+            return fileBytes;
         }
 
-        public async Task<FileStreamResult> GetPassportFile(Guid userId)
+        public async Task<byte[]> GetPassportFile(Guid userId)
         {
             var passportFile = await _db.PassportsFiles
                 .FirstOrDefaultAsync(p => p.OwnerId == userId);
@@ -170,9 +170,9 @@ namespace DocumentService.BL.Services
                 throw new NotFoundException("У пользователя нет паспорта");
             }
 
-            var fileStream = new FileStream(passportFilePath, FileMode.Open, FileAccess.Read);
+            var fileBytes = await File.ReadAllBytesAsync(passportFilePath);
 
-            return new FileStreamResult(fileStream, "application/pdf");
+            return fileBytes;
         }
     }
 }

@@ -34,6 +34,9 @@ namespace UserService.BL.Services
             bus.PubSub.Subscribe<ChangeProfileRequestRPCDTO>
                 (QueueConst.ChangeProfileQueue, data => accountService.ChangeProfileInfo(data.ProfileData, data.UserId));
 
+            bus.PubSub.Subscribe<LogoutDTO>
+                (QueueConst.LogoutQueue, data => authService.Logout(data.Token));
+
             bus.PubSub.Subscribe<PasswordChangeRequestRPCDTO>
                 (QueueConst.ChangePasswordQueue, data => authService.ChangePassword(data.passwordInfo, data.UserId));
 
