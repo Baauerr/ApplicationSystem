@@ -4,8 +4,7 @@ project.lock.json
 .DS_Store
 *.pyc
 nupkg/
-appsettings.Development.json
-appsettings.Develop.json
+
 
 
 # User-specific files
